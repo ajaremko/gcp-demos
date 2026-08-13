@@ -51,3 +51,7 @@ Thumbs.db
 
 # config and secrets
 .env
+
+# Next.js
+.next
+out

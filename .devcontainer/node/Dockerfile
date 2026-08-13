@@ -32,4 +32,4 @@ RUN mkdir -p /usr/local/gcloud \
 ENV PATH $PATH:/usr/local/gcloud/google-cloud-sdk/bin
 
 # Install Nx CLI
-RUN npm install -g nx@v22.7.1 
+RUN npm install -g nx@v23.1.1
