@@ -1,5 +1,5 @@
 'use client'
-import { useState, useActionState, type FormEvent } from 'react'
+import { useState, useActionState, startTransition, type FormEvent } from 'react'
 import styled from 'styled-components'
 import { loadStripe, type Stripe } from '@stripe/stripe-js'
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
@@ -66,7 +66,14 @@ function PaymentFormInner({ specId }: { specId: string }) {
     }
 
     if (paymentIntent?.status === 'succeeded') {
-      dispatchConfirm({ specId, paymentIntentId: paymentIntent.id })
+      // dispatchConfirm's underlying action is async and this call happens
+      // after an `await` (stripe.confirmPayment), so React has lost the
+      // implicit transition context it gets inside a synchronous event
+      // handler — it must be wrapped in startTransition explicitly, or
+      // isPending/error state won't update correctly.
+      startTransition(() => {
+        dispatchConfirm({ specId, paymentIntentId: paymentIntent.id })
+      })
     } else {
       setSubmitError('Payment was not completed.')
       setIsConfirming(false)
