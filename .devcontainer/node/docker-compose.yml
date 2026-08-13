@@ -9,10 +9,6 @@ services:
       GOOGLE_APPLICATION_CREDENTIALS: /var/secrets/$GOOGLE_APPLICATION_CREDENTIALS
       PROJECT_ID: $PROJECT_ID
       PULUMI_ACCESS_TOKEN: $PULUMI_ACCESS_TOKEN
-      GITHUB_TOKEN: $GITHUB_TOKEN
-      ALGOLIA_API_KEY: $ALGOLIA_API_KEY
-      RECAPTCHA_API_KEY: $RECAPTCHA_API_KEY
-      RECAPTCHA_SITE_KEY: $RECAPTCHA_SITE_KEY
       NX_TUI: false
     volumes:
       - ../../..:/workspaces:cached
@@ -34,12 +30,6 @@ services:
     volumes:
       - otel-lgtm-data:/data
     restart: unless-stopped
-  # github-runner:
-  #   image: myoung34/github-runner:latest
-  #   environment:
-  #     RUNNER_NAME: $GITHUB_RUNNER_NAME
-  #     REPO_URL: $GITHUB_REPO_URL
-  #     ACCESS_TOKEN: $GITHUB_TOKEN
 
 volumes:
   otel-lgtm-data:
