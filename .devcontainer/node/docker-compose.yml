@@ -1,0 +1,45 @@
+services:
+  devcontainer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: sleep infinity
+    environment:
+      SSH_AUTH_SOCK: /ssh-agent.sock
+      GOOGLE_APPLICATION_CREDENTIALS: /var/secrets/$GOOGLE_APPLICATION_CREDENTIALS
+      PROJECT_ID: $PROJECT_ID
+      PULUMI_ACCESS_TOKEN: $PULUMI_ACCESS_TOKEN
+      GITHUB_TOKEN: $GITHUB_TOKEN
+      ALGOLIA_API_KEY: $ALGOLIA_API_KEY
+      RECAPTCHA_API_KEY: $RECAPTCHA_API_KEY
+      RECAPTCHA_SITE_KEY: $RECAPTCHA_SITE_KEY
+      NX_TUI: false
+    volumes:
+      - ../../..:/workspaces:cached
+      - ~/.ssh:/home/node/.ssh:cached
+      - ~/.gcp:/var/secrets:cached
+      - type: bind
+        source: ${SSH_AUTH_SOCK:-/tmp/ssh-agent.sock}
+        target: /ssh-agent.sock
+  grafana:
+    image: grafana/otel-lgtm:0.24.1
+    ports:
+      - '3000:3000'
+      - '4317:4317'
+      - '4318:4318'
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      OTEL_METRIC_EXPORT_INTERVAL: 500
+    volumes:
+      - otel-lgtm-data:/data
+    restart: unless-stopped
+  # github-runner:
+  #   image: myoung34/github-runner:latest
+  #   environment:
+  #     RUNNER_NAME: $GITHUB_RUNNER_NAME
+  #     REPO_URL: $GITHUB_REPO_URL
+  #     ACCESS_TOKEN: $GITHUB_TOKEN
+
+volumes:
+  otel-lgtm-data:
