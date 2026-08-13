@@ -1,8 +1,8 @@
 import { notFound, redirect } from 'next/navigation'
-import { PageShell, Card, Heading, Subheading } from '@/lib/ui'
-import { getDocumentSpec } from '@/server/data/document-specs'
-import { getOrCreatePaymentIntent } from './get-payment-intent'
-import { PaymentForm } from './payment-form'
+import { PageShell, Card, Heading, Subheading } from '@/lib/shared/ui'
+import { getDocumentSpec } from '@/lib/document-specs/document-specs'
+import { getOrCreatePaymentIntent } from '@/lib/payment-confirmations/get-payment-intent'
+import { PaymentForm } from '@/lib/payment-confirmations/payment-form'
 import { TestCards } from './test-cards'
 
 export default async function PaymentPage({
@@ -27,14 +27,18 @@ export default async function PaymentPage({
 
   const paymentIntent = await getOrCreatePaymentIntent(specId)
   if (!paymentIntent.client_secret) {
-    throw new Error('Stripe did not return a client secret for this PaymentIntent')
+    throw new Error(
+      'Stripe did not return a client secret for this PaymentIntent',
+    )
   }
 
   return (
     <PageShell>
       <Card>
         <Heading>Pay for &quot;{spec.title}&quot;</Heading>
-        <Subheading>One-time purchase — sandbox mode, no real charge.</Subheading>
+        <Subheading>
+          One-time purchase — sandbox mode, no real charge.
+        </Subheading>
         <PaymentForm
           specId={specId}
           clientSecret={paymentIntent.client_secret}

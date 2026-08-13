@@ -2,14 +2,26 @@
 import { useActionState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { documentSpecFormSchema, type DocumentSpecFormValues } from '@/server/data/schemas'
-import { Field, Label, Select, Input, TextArea, ErrorText, HelperText, Button } from '@/lib/ui'
+import { documentSpecFormSchema, type DocumentSpecFormValues } from './schemas'
+import {
+  Field,
+  Label,
+  Select,
+  Input,
+  TextArea,
+  ErrorText,
+  HelperText,
+  Button,
+} from '@/lib/shared/ui'
 import { submitDocumentSpecAction, type SpecActionState } from './actions'
 
 const initialState: SpecActionState = { errors: {} }
 
 export function DocumentSpecForm() {
-  const [state, formAction, isPending] = useActionState(submitDocumentSpecAction, initialState)
+  const [state, formAction, isPending] = useActionState(
+    submitDocumentSpecAction,
+    initialState,
+  )
 
   const {
     register,
@@ -33,13 +45,21 @@ export function DocumentSpecForm() {
           <option value="light">Light</option>
           <option value="dark">Dark</option>
         </Select>
-        <HelperText>Used to style the generated document, not this site.</HelperText>
-        {errors.colorScheme && <ErrorText>{errors.colorScheme.message}</ErrorText>}
+        <HelperText>
+          Used to style the generated document, not this site.
+        </HelperText>
+        {errors.colorScheme && (
+          <ErrorText>{errors.colorScheme.message}</ErrorText>
+        )}
       </Field>
 
       <Field>
         <Label htmlFor="title">Title</Label>
-        <Input id="title" placeholder="Freelance Services Agreement" {...register('title')} />
+        <Input
+          id="title"
+          placeholder="Freelance Services Agreement"
+          {...register('title')}
+        />
         {errors.title && <ErrorText>{errors.title.message}</ErrorText>}
       </Field>
 

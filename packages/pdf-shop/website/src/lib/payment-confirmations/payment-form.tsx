@@ -1,9 +1,19 @@
 'use client'
-import { useState, useActionState, startTransition, type FormEvent } from 'react'
+import {
+  useState,
+  useActionState,
+  startTransition,
+  type FormEvent,
+} from 'react'
 import styled from 'styled-components'
 import { loadStripe, type Stripe } from '@stripe/stripe-js'
-import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
-import { Button, ErrorText } from '@/lib/ui'
+import {
+  Elements,
+  PaymentElement,
+  useStripe,
+  useElements,
+} from '@stripe/react-stripe-js'
+import { Button, ErrorText } from '@/lib/shared/ui'
 import { confirmPaymentAction, type ConfirmPaymentState } from './actions'
 
 const Stack = styled.div`

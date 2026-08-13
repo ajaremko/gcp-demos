@@ -1,5 +1,5 @@
-import { StyledComponentsRegistry } from '@/lib/styled-components-registry'
-import { GlobalStyles } from '@/lib/global-styles'
+import { StyledComponentsRegistry } from '@/lib/shared/styled-components-registry'
+import { GlobalStyles } from '@/lib/shared/global-styles'
 
 export const metadata = {
   title: 'PDF Shop',

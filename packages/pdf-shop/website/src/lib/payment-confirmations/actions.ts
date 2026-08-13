@@ -1,7 +1,7 @@
 'use server'
 import { redirect } from 'next/navigation'
-import { stripe } from '@/server/stripe/client'
-import { createPaymentConfirmation } from '@/server/data/payment-confirmations'
+import { stripe } from './client'
+import { createPaymentConfirmation } from './payment-confirmations'
 
 export type ConfirmPaymentState = {
   error?: string
@@ -14,7 +14,10 @@ export async function confirmPaymentAction(
   // Never trust the client-reported status — re-verify against Stripe.
   const intent = await stripe.paymentIntents.retrieve(input.paymentIntentId)
 
-  if (intent.status !== 'succeeded' || intent.metadata.documentSpecId !== input.specId) {
+  if (
+    intent.status !== 'succeeded' ||
+    intent.metadata.documentSpecId !== input.specId
+  ) {
     return { error: 'Payment could not be verified. Please try again.' }
   }
 

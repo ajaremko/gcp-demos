@@ -1,7 +1,7 @@
 import 'server-only'
 import type Stripe from 'stripe'
-import { stripe } from '@/server/stripe/client'
-import { DEMO_PRICE_CENTS, DEMO_PRICE_CURRENCY } from '@/server/stripe/pricing'
+import { stripe } from './client'
+import { DEMO_PRICE_CENTS, DEMO_PRICE_CURRENCY } from './pricing'
 
 // Idempotency-keyed by specId so reloading the payment page never creates a
 // duplicate PaymentIntent — no separate spec-to-intent mapping file needed.

@@ -18,12 +18,18 @@ export async function createDocumentSpec(
   }
 
   await mkdir(DOCUMENT_SPECS_DIR, { recursive: true })
-  await writeFile(documentSpecFilePath(record.id), JSON.stringify(record, null, 2), 'utf-8')
+  await writeFile(
+    documentSpecFilePath(record.id),
+    JSON.stringify(record, null, 2),
+    'utf-8',
+  )
 
   return record
 }
 
-export async function getDocumentSpec(specId: string): Promise<DocumentSpecRecord | null> {
+export async function getDocumentSpec(
+  specId: string,
+): Promise<DocumentSpecRecord | null> {
   try {
     const raw = await readFile(documentSpecFilePath(specId), 'utf-8')
     return documentSpecRecordSchema.parse(JSON.parse(raw))
