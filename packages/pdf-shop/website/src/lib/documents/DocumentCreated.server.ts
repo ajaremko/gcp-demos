@@ -6,24 +6,22 @@ import {
   type CreateDocument,
   type DocumentCreated,
   type GetDocumentSpec,
+  encodeDocumentPath,
   documentCreatedSchema,
 } from '@org/pdf-shop-contracts'
 import { stripeClient } from './StripeClient'
 import { StripeIntegrationFailed, FileIOFailed } from './errors'
 
-const DATA_ROOT = process.env.PDF_SHOP_DATA_DIR
-if (!DATA_ROOT) {
-  throw new Error('PDF_SHOP_DATA_DIR environment variable must be set')
-}
-
-const DOCUMENT_SPECS_DIR = path.join(DATA_ROOT, 'document-specs')
+const DATA_ROOT = (() => {
+  const DATA_ROOT = process.env.PDF_SHOP_DATA_DIR
+  if (!DATA_ROOT) {
+    throw new Error('PDF_SHOP_DATA_DIR environment variable must be set')
+  }
+  return DATA_ROOT
+})()
 
 const DEMO_PRICE_CENTS = 999
 const DEMO_PRICE_CURRENCY = 'usd'
-
-function documentSpecFilePath(documentId: string) {
-  return path.join(DOCUMENT_SPECS_DIR, `${documentId}.json`)
-}
 
 export async function createDocument(
   input: CreateDocument,
@@ -40,28 +38,35 @@ export async function createDocument(
       },
       { idempotencyKey: `pdf-shop-payment-intent-${documentId}` },
     )
-    const record: DocumentCreated = {
-      id: documentId,
-      createdAt: new Date().toISOString(),
-      spec: {
-        colorScheme: input.colorScheme,
-        title: input.title,
-        body: input.body,
-      },
-      payment: {
-        paymentIntentId: intent.id,
-        amount: intent.amount,
-        currency: intent.currency,
-      },
-    }
 
     try {
-      await mkdir(DOCUMENT_SPECS_DIR, { recursive: true })
-      await writeFile(
-        documentSpecFilePath(record.id),
-        JSON.stringify(record, null, 2),
-        'utf-8',
-      )
+      // Prepare output directory
+      const documentPath = encodeDocumentPath({
+        documentId,
+        version: 1,
+      })
+      const outputDir = path.join(DATA_ROOT, documentPath)
+      await mkdir(outputDir, { recursive: true })
+
+      // Write a record of the requested spec and payment intent
+      const record: DocumentCreated = {
+        id: documentId,
+        createdAt: new Date().toISOString(),
+        spec: {
+          colorScheme: input.colorScheme,
+          title: input.title,
+          body: input.body,
+        },
+        payment: {
+          paymentIntentId: intent.id,
+          amount: intent.amount,
+          currency: intent.currency,
+        },
+      }
+
+      const recordPath = path.join(outputDir, 'created.json')
+      const recordData = JSON.stringify(record, null, 2)
+      await writeFile(recordPath, recordData, 'utf-8')
 
       return record
     } catch (err) {
@@ -76,8 +81,16 @@ export async function getDocumentCreated(
   input: GetDocumentSpec,
 ): Promise<DocumentCreated | null> {
   try {
-    const raw = await readFile(documentSpecFilePath(input.documentId), 'utf-8')
-    return documentCreatedSchema.parse(JSON.parse(raw))
+    const documentPath = encodeDocumentPath({
+      documentId: input.documentId,
+      version: 1,
+    })
+
+    const recordPath = path.join(DATA_ROOT, documentPath, 'created.json')
+    const recordData = await readFile(recordPath, 'utf-8')
+
+    const record = JSON.parse(recordData)
+    return documentCreatedSchema.parse(record)
   } catch (err) {
     throw new FileIOFailed('Failed to read document spec file', err)
   }

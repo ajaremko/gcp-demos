@@ -10,24 +10,18 @@ describe('encodeDocumentPath', () => {
   it('joins rootDir, documentId, and filename with slashes', () => {
     const path: DocumentPath = {
       version: 1,
-      rootDir: 'generated-documents',
       documentId: 'abc-123',
-      filename: 'contract.pdf',
     }
 
-    expect(encodeDocumentPath(path)).toBe(
-      'generated-documents/abc-123/contract.pdf',
-    )
+    expect(encodeDocumentPath(path)).toBe('v1/documents/abc-123')
   })
 })
 
 describe('parseDocumentPath', () => {
-  it('parses a valid 3-segment path', () => {
-    expect(parseDocumentPath('generated-documents/abc-123/contract.pdf')).toEqual({
+  it('parses a valid 2-segment path', () => {
+    expect(parseDocumentPath('v1/documents/abc-123')).toEqual({
       version: 1,
-      rootDir: 'generated-documents',
       documentId: 'abc-123',
-      filename: 'contract.pdf',
     })
   })
 
@@ -52,9 +46,7 @@ describe('encodeDocumentPath / parseDocumentPath round trip', () => {
   it('recovers the original path from an encoded string', () => {
     const original: DocumentPath = {
       version: 1,
-      rootDir: 'root',
       documentId: 'doc-1',
-      filename: 'file.pdf',
     }
 
     expect(parseDocumentPath(encodeDocumentPath(original))).toEqual(original)

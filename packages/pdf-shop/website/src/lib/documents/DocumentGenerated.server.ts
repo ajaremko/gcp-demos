@@ -7,54 +7,48 @@ import {
   type GenerateDocument,
   type GetGeneratedDocumentStream,
   type GetGeneratedDocument,
+  encodeDocumentPath,
   documentGeneratedSchema,
 } from '@org/pdf-shop-contracts'
 import { FileIOFailed } from './errors'
 
-const DATA_ROOT = process.env.PDF_SHOP_DATA_DIR
-if (!DATA_ROOT) {
-  throw new Error('PDF_SHOP_DATA_DIR environment variable must be set')
-}
-
-export const GENERATED_DOCUMENTS_DIR = path.join(
-  DATA_ROOT,
-  'generated-documents',
-)
-
-export function generatedDocumentFilePath(documentId: string) {
-  return path.join(GENERATED_DOCUMENTS_DIR, `${documentId}.txt`)
-}
-
-export const DOCUMENTS_DIR = path.join(DATA_ROOT, 'generated-documents')
-
-export function documentFilePath(documentId: string) {
-  return path.join(DOCUMENTS_DIR, `${documentId}.json`)
-}
+const DATA_ROOT = (() => {
+  const DATA_ROOT = process.env.PDF_SHOP_DATA_DIR
+  if (!DATA_ROOT) {
+    throw new Error('PDF_SHOP_DATA_DIR environment variable must be set')
+  }
+  return DATA_ROOT
+})()
 
 export async function generateDocument(
   input: GenerateDocument,
 ): Promise<DocumentGenerated> {
   try {
-    await mkdir(GENERATED_DOCUMENTS_DIR, { recursive: true })
-    const generatedDocumentPath = generatedDocumentFilePath(input.documentId)
-    await writeFile(
-      generatedDocumentPath,
-      `Generated document for spec ${input.documentId}\n\n${JSON.stringify(input.spec, null, 2)}`,
-      'utf-8',
-    )
+    // Prepare output directory
+    const documentPath = encodeDocumentPath({
+      documentId: input.documentId,
+      version: 1,
+    })
+    const outputDir = path.join(DATA_ROOT, documentPath)
+    await mkdir(outputDir, { recursive: true })
 
+    // Generate and write document content
+    const generatedData = `Generated document for spec ${input.documentId}\n\n${JSON.stringify(input.spec, null, 2)}`
+    const generatedPath = path.join(outputDir, `generated.txt`)
+    await writeFile(generatedPath, generatedData, 'utf-8')
+
+    // Write a record of the generated document
     const record: DocumentGenerated = {
       documentId: input.documentId,
-      path: generatedDocumentPath,
+      path: documentPath,
       filename: `${input.documentId}.txt`,
       contentType: 'text/plain',
       timestamp: new Date().toISOString(),
     }
 
-    await mkdir(DOCUMENTS_DIR, { recursive: true })
-
-    const eventPath = documentFilePath(input.documentId)
-    await writeFile(eventPath, JSON.stringify(record, null, 2), 'utf-8')
+    const recordData = JSON.stringify(record, null, 2)
+    const recordPath = path.join(outputDir, 'generated.json')
+    await writeFile(recordPath, recordData, 'utf-8')
 
     return record
   } catch (err) {
@@ -64,9 +58,16 @@ export async function generateDocument(
 
 export async function getGeneratedDocument(input: GetGeneratedDocument) {
   try {
-    const eventPath = documentFilePath(input.documentId)
-    const raw = await readFile(eventPath, 'utf-8')
-    return documentGeneratedSchema.parse(JSON.parse(raw))
+    const documentPath = encodeDocumentPath({
+      documentId: input.documentId,
+      version: 1,
+    })
+
+    const recordPath = path.join(DATA_ROOT, documentPath, 'generated.json')
+    const recordData = await readFile(recordPath, 'utf-8')
+
+    const record = JSON.parse(recordData)
+    return documentGeneratedSchema.parse(record)
   } catch (err) {
     throw new FileIOFailed('Failed to read generated document file', err)
   }

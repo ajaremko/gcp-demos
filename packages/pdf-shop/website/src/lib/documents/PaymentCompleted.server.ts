@@ -5,21 +5,19 @@ import {
   type PaymentCompleted,
   type GetPayment,
   type CompletePayment,
+  encodeDocumentPath,
   paymentCompletedSchema,
 } from '@org/pdf-shop-contracts'
 import { stripeClient } from './StripeClient'
 import { StripeIntegrationFailed, FileIOFailed } from './errors'
 
-const DATA_ROOT = process.env.PDF_SHOP_DATA_DIR
-if (!DATA_ROOT) {
-  throw new Error('PDF_SHOP_DATA_DIR environment variable must be set')
-}
-
-export const PAYMENT_INTENTS_DIR = path.join(DATA_ROOT, 'payment-intents')
-
-export function paymentIntentFilePath(documentId: string) {
-  return path.join(PAYMENT_INTENTS_DIR, `${documentId}.json`)
-}
+const DATA_ROOT = (() => {
+  const DATA_ROOT = process.env.PDF_SHOP_DATA_DIR
+  if (!DATA_ROOT) {
+    throw new Error('PDF_SHOP_DATA_DIR environment variable must be set')
+  }
+  return DATA_ROOT
+})()
 
 export async function completePayment(
   input: CompletePayment,
@@ -38,20 +36,26 @@ export async function completePayment(
       )
     }
 
-    const record: PaymentCompleted = {
-      documentId: input.documentId,
-      stripePaymentIntentId: intent.id,
-      amount: intent.amount,
-      currency: 'usd',
-      confirmedAt: new Date().toISOString(),
-    }
     try {
-      await mkdir(PAYMENT_INTENTS_DIR, { recursive: true })
-      await writeFile(
-        paymentIntentFilePath(record.documentId),
-        JSON.stringify(record, null, 2),
-        'utf-8',
-      )
+      // Prepare output directory
+      const documentPath = encodeDocumentPath({
+        documentId: input.documentId,
+        version: 1,
+      })
+      const outputDir = path.join(DATA_ROOT, documentPath)
+      await mkdir(outputDir, { recursive: true })
+
+      const record: PaymentCompleted = {
+        documentId: input.documentId,
+        stripePaymentIntentId: intent.id,
+        amount: intent.amount,
+        currency: 'usd',
+        confirmedAt: new Date().toISOString(),
+      }
+
+      const recordData = JSON.stringify(record, null, 2)
+      const recordPath = path.join(outputDir, 'paid.json')
+      await writeFile(recordPath, recordData, 'utf-8')
 
       return record
     } catch (err) {
@@ -66,9 +70,17 @@ export async function getPaymentCompleted(
   input: GetPayment,
 ): Promise<PaymentCompleted> {
   try {
-    const raw = await readFile(paymentIntentFilePath(input.documentId), 'utf-8')
-    return paymentCompletedSchema.parse(JSON.parse(raw))
+    const documentPath = encodeDocumentPath({
+      documentId: input.documentId,
+      version: 1,
+    })
+
+    const recordPath = path.join(DATA_ROOT, documentPath, 'paid.json')
+    const recordData = await readFile(recordPath, 'utf-8')
+
+    const record = JSON.parse(recordData)
+    return paymentCompletedSchema.parse(record)
   } catch (err) {
-    throw new FileIOFailed('Failed to read payment intent file', err)
+    throw new FileIOFailed('Failed to read payment confirmation file', err)
   }
 }

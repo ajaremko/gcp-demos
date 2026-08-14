@@ -1,23 +1,19 @@
 export type DocumentPath = {
   version: 1
-  rootDir: string
   documentId: string
-  filename: string
 }
 
 export function encodeDocumentPath(path: DocumentPath): string {
-  return `${path.rootDir}/${path.documentId}/${path.filename}`
+  return `v1/documents/${path.documentId}`
 }
 
 export function parseDocumentPath(path: string): DocumentPath {
   const parts = path.split('/')
-  if (parts.length !== 3) {
+  if (parts.length !== 3 || parts[0] !== 'v1' || parts[1] !== 'documents') {
     throw new Error(`Invalid document path: ${path}`)
   }
   return {
     version: 1,
-    rootDir: parts[0],
-    documentId: parts[1],
-    filename: parts[2],
+    documentId: parts[2],
   }
 }
