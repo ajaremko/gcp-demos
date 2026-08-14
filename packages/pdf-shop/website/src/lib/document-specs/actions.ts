@@ -1,11 +1,14 @@
 'use server'
 import { redirect } from 'next/navigation'
-import { documentSpecFormSchema, type DocumentSpecFormValues } from './schemas'
-import { createDocumentSpec } from './document-specs'
+import {
+  type CreateDocumentSpec,
+  createDocumentSpecSchema,
+} from './DocumentSpecRecord'
+import { createDocumentSpec } from './DocumentSpecRecord.server'
 
 export type SpecActionState = {
   errors: Partial<
-    Record<keyof DocumentSpecFormValues, { type: string; message: string }>
+    Record<keyof CreateDocumentSpec, { type: string; message: string }>
   >
   values?: Record<string, unknown>
 }
@@ -15,14 +18,14 @@ export async function submitDocumentSpecAction(
   formData: FormData,
 ): Promise<SpecActionState> {
   const raw = Object.fromEntries(formData)
-  const parsed = documentSpecFormSchema.safeParse(raw)
+  const parsed = createDocumentSpecSchema.safeParse(raw)
 
   if (!parsed.success) {
     const fieldErrors = parsed.error.flatten().fieldErrors
     const errors: SpecActionState['errors'] = {}
     for (const [field, messages] of Object.entries(fieldErrors)) {
       if (messages?.[0]) {
-        errors[field as keyof DocumentSpecFormValues] = {
+        errors[field as keyof CreateDocumentSpec] = {
           type: 'server',
           message: messages[0],
         }

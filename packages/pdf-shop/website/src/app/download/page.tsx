@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { PageShell, Card, Heading, Subheading } from '@/lib/shared/ui'
-import { getGeneratedDocumentStatus } from '@/lib/generated-documents/generated-documents'
+import { getGeneratedDocumentStatus } from '@/lib/generated-documents/GeneratedDocumentStatus.server'
 import { DownloadStatusPoller } from './download-status-poller'
 
 export default async function DownloadPage({

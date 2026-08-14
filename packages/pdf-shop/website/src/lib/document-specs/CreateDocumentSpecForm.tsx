@@ -2,7 +2,10 @@
 import { useActionState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { documentSpecFormSchema, type DocumentSpecFormValues } from './schemas'
+import {
+  createDocumentSpecSchema,
+  type CreateDocumentSpec,
+} from './DocumentSpecRecord'
 import {
   Field,
   Label,
@@ -17,7 +20,7 @@ import { submitDocumentSpecAction, type SpecActionState } from './actions'
 
 const initialState: SpecActionState = { errors: {} }
 
-export function DocumentSpecForm() {
+export function CreateDocumentSpecForm() {
   const [state, formAction, isPending] = useActionState(
     submitDocumentSpecAction,
     initialState,
@@ -26,8 +29,8 @@ export function DocumentSpecForm() {
   const {
     register,
     formState: { errors },
-  } = useForm<DocumentSpecFormValues>({
-    resolver: zodResolver(documentSpecFormSchema),
+  } = useForm<CreateDocumentSpec>({
+    resolver: zodResolver(createDocumentSpecSchema),
     errors: state.errors,
     mode: 'onBlur',
     defaultValues: {

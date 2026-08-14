@@ -1,8 +1,8 @@
 import { notFound, redirect } from 'next/navigation'
 import { PageShell, Card, Heading, Subheading } from '@/lib/shared/ui'
-import { getDocumentSpec } from '@/lib/document-specs/document-specs'
-import { getOrCreatePaymentIntent } from '@/lib/payment-confirmations/get-payment-intent'
-import { PaymentForm } from '@/lib/payment-confirmations/payment-form'
+import { getDocumentSpec } from '@/lib/document-specs/DocumentSpecRecord.server'
+import { getOrCreatePaymentIntent } from '@/lib/payment-confirmations/PaymentIntent.server'
+import { PaymentForm } from '@/lib/payment-confirmations/PaymentForm'
 import { TestCards } from './test-cards'
 
 export default async function PaymentPage({
@@ -15,7 +15,7 @@ export default async function PaymentPage({
     redirect('/spec')
   }
 
-  const spec = await getDocumentSpec(specId)
+  const spec = await getDocumentSpec({ specId })
   if (!spec) {
     notFound()
   }

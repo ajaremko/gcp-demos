@@ -1,11 +1,25 @@
 import 'server-only'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { randomUUID } from 'node:crypto'
-import { PAYMENT_CONFIRMATIONS_DIR, paymentConfirmationFilePath } from './paths'
+import path from 'node:path'
 import {
   type PaymentConfirmationRecord,
   paymentConfirmationRecordSchema,
-} from './schemas'
+} from './PaymentConfirmationRecord'
+
+const DATA_ROOT = process.env.PDF_SHOP_DATA_DIR
+if (!DATA_ROOT) {
+  throw new Error('PDF_SHOP_DATA_DIR environment variable must be set')
+}
+
+export const PAYMENT_CONFIRMATIONS_DIR = path.join(
+  DATA_ROOT,
+  'payment-confirmations',
+)
+
+export function paymentConfirmationFilePath(specId: string) {
+  return path.join(PAYMENT_CONFIRMATIONS_DIR, `${specId}.json`)
+}
 
 export async function createPaymentConfirmation(input: {
   documentSpecId: string

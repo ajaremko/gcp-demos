@@ -1,4 +1,4 @@
-import { getGeneratedDocumentStatus } from '@/lib/generated-documents/generated-documents'
+import { getGeneratedDocumentStatus } from '@/lib/generated-documents/GeneratedDocumentStatus.server'
 
 export async function GET(
   _request: Request,

@@ -1,15 +1,27 @@
 import 'server-only'
+import path from 'node:path'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { randomUUID } from 'node:crypto'
-import { DOCUMENT_SPECS_DIR, documentSpecFilePath } from './paths'
 import {
-  type DocumentSpecFormValues,
+  type CreateDocumentSpec,
   type DocumentSpecRecord,
+  type GetDocumentSpec,
   documentSpecRecordSchema,
-} from './schemas'
+} from './DocumentSpecRecord'
+
+const DATA_ROOT = process.env.PDF_SHOP_DATA_DIR
+if (!DATA_ROOT) {
+  throw new Error('PDF_SHOP_DATA_DIR environment variable must be set')
+}
+
+const DOCUMENT_SPECS_DIR = path.join(DATA_ROOT, 'document-specs')
+
+function documentSpecFilePath(specId: string) {
+  return path.join(DOCUMENT_SPECS_DIR, `${specId}.json`)
+}
 
 export async function createDocumentSpec(
-  input: DocumentSpecFormValues,
+  input: CreateDocumentSpec,
 ): Promise<DocumentSpecRecord> {
   const record: DocumentSpecRecord = {
     ...input,
@@ -28,10 +40,10 @@ export async function createDocumentSpec(
 }
 
 export async function getDocumentSpec(
-  specId: string,
+  input: GetDocumentSpec,
 ): Promise<DocumentSpecRecord | null> {
   try {
-    const raw = await readFile(documentSpecFilePath(specId), 'utf-8')
+    const raw = await readFile(documentSpecFilePath(input.specId), 'utf-8')
     return documentSpecRecordSchema.parse(JSON.parse(raw))
   } catch {
     return null

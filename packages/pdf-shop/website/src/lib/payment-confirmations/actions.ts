@@ -1,7 +1,7 @@
 'use server'
 import { redirect } from 'next/navigation'
-import { stripe } from './client'
-import { createPaymentConfirmation } from './payment-confirmations'
+import { stripeClient } from './StripeClient'
+import { createPaymentConfirmation } from './PaymentConfirmationRecord.server'
 
 export type ConfirmPaymentState = {
   error?: string
@@ -12,7 +12,9 @@ export async function confirmPaymentAction(
   input: { specId: string; paymentIntentId: string },
 ): Promise<ConfirmPaymentState> {
   // Never trust the client-reported status — re-verify against Stripe.
-  const intent = await stripe.paymentIntents.retrieve(input.paymentIntentId)
+  const intent = await stripeClient.paymentIntents.retrieve(
+    input.paymentIntentId,
+  )
 
   if (
     intent.status !== 'succeeded' ||
