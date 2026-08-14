@@ -17,9 +17,11 @@ export async function submitDocumentSpecAction(
   formData: FormData,
 ): Promise<SpecActionState> {
   const raw = Object.fromEntries(formData)
+
+  let documentId: string
   try {
     const result = await createDocumentHandler(raw)
-    redirect(`/payment?documentId=${result.id}`)
+    documentId = result.id
   } catch (err) {
     // Log the error for visibility
     console.warn({
@@ -46,6 +48,8 @@ export async function submitDocumentSpecAction(
         'Something went wrong while processing your request. Please try again later.',
     }
   }
+
+  redirect(`/payment?documentId=${documentId}`)
 }
 
 export type ConfirmPaymentState = {
@@ -57,9 +61,10 @@ export async function confirmPaymentAction(
   _prevState: ConfirmPaymentState,
   raw: { documentId: string; paymentIntentId: string },
 ): Promise<ConfirmPaymentState> {
+  let documentId: string
   try {
     const result = await completePaymentHandler(raw)
-    redirect(`/download?documentId=${result.documentId}`)
+    documentId = result.documentId
   } catch (err) {
     console.warn({
       error: err,
@@ -85,4 +90,6 @@ export async function confirmPaymentAction(
         'Something went wrong while processing your request. Please try again later.',
     }
   }
+
+  redirect(`/download?documentId=${documentId}`)
 }

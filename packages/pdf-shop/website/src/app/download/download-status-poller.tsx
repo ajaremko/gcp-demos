@@ -23,6 +23,7 @@ export function DownloadStatusPoller({
       })
       if (!response.ok) return
       const data = await response.json()
+      console.log('Polling document status:', data)
       if (!cancelled && data.ready) {
         setReady(true)
       }
@@ -36,7 +37,10 @@ export function DownloadStatusPoller({
 
   if (ready) {
     return (
-      <LinkButton href={`/api/documents/${documentId}/download`}>
+      <LinkButton
+        href={`/api/documents/${documentId}/download`}
+        target="_blank"
+      >
         Download PDF
       </LinkButton>
     )

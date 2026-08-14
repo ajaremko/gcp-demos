@@ -16,13 +16,16 @@ if (!DATA_ROOT) {
   throw new Error('PDF_SHOP_DATA_DIR environment variable must be set')
 }
 
-export const GENERATED_DOCUMENTS_DIR = path.join(DATA_ROOT, 'payment-intents')
+export const GENERATED_DOCUMENTS_DIR = path.join(
+  DATA_ROOT,
+  'generated-documents',
+)
 
 export function generatedDocumentFilePath(documentId: string) {
   return path.join(GENERATED_DOCUMENTS_DIR, `${documentId}.txt`)
 }
 
-export const DOCUMENTS_DIR = path.join(DATA_ROOT, 'payment-intents')
+export const DOCUMENTS_DIR = path.join(DATA_ROOT, 'generated-documents')
 
 export function documentFilePath(documentId: string) {
   return path.join(DOCUMENTS_DIR, `${documentId}.json`)
@@ -49,11 +52,9 @@ export async function generateDocument(
     }
 
     await mkdir(DOCUMENTS_DIR, { recursive: true })
-    await writeFile(
-      documentFilePath(input.documentId),
-      JSON.stringify(record, null, 2),
-      'utf-8',
-    )
+
+    const eventPath = documentFilePath(input.documentId)
+    await writeFile(eventPath, JSON.stringify(record, null, 2), 'utf-8')
 
     return record
   } catch (err) {

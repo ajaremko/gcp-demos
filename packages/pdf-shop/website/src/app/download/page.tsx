@@ -12,8 +12,13 @@ export default async function DownloadPage({
   if (!documentId) {
     redirect('/spec')
   }
-
-  const status = await getGeneratedDocument({ documentId })
+  let status: any
+  try {
+    status = await getGeneratedDocument({ documentId })
+  } catch (err) {
+    console.warn(err)
+    status = null
+  }
   const ready = Boolean(status)
 
   return (

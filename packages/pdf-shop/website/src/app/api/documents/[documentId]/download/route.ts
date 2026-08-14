@@ -15,7 +15,8 @@ export async function GET(
       'Content-Disposition': `attachment; filename="${result.filename ?? `${params.documentId}.pdf`}"`,
     }
     return new Response(webStream, { headers })
-  } catch {
+  } catch (err) {
+    console.log('File not found for documentId:', err)
     return new Response('File not found', { status: 404 })
   }
 }
