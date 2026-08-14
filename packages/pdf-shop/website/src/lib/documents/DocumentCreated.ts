@@ -1,16 +1,19 @@
 import { z } from 'zod'
 
-export const colorSchemeSchema = z.enum(['light', 'dark'])
+import { documentSpecSchema, colorSchemeSchema } from './DocumentSpec'
 
-export const documentSpecRecordSchema = z.object({
+export const documentCreatedSchema = z.object({
   id: z.uuid(),
   createdAt: z.iso.datetime(),
-  colorScheme: colorSchemeSchema,
-  title: z.string().max(120),
-  body: z.string().max(20_000),
+  spec: documentSpecSchema,
+  payment: z.object({
+    paymentIntentId: z.string(),
+    amount: z.number().int().positive(),
+    currency: z.string(),
+  }),
 })
 
-export type DocumentSpecRecord = z.infer<typeof documentSpecRecordSchema>
+export type DocumentCreated = z.infer<typeof documentCreatedSchema>
 
 export const createDocumentSpecSchema = z.object({
   colorScheme: colorSchemeSchema,
@@ -29,7 +32,7 @@ export const createDocumentSpecSchema = z.object({
 export type CreateDocumentSpec = z.infer<typeof createDocumentSpecSchema>
 
 export const getDocumentSpecSchema = z.object({
-  specId: z.uuid('Invalid specId'),
+  documentId: z.uuid('Invalid documentId'),
 })
 
 export type GetDocumentSpec = z.infer<typeof getDocumentSpecSchema>

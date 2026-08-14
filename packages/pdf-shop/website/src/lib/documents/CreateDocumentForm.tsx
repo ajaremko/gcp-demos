@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import {
   createDocumentSpecSchema,
   type CreateDocumentSpec,
-} from './DocumentSpecRecord'
+} from './DocumentCreated'
 import {
   Field,
   Label,

@@ -5,10 +5,10 @@ import { HelperText, LinkButton } from '@/lib/shared/ui'
 const POLL_INTERVAL_MS = 3000
 
 export function DownloadStatusPoller({
-  specId,
+  documentId,
   initialReady,
 }: {
-  specId: string
+  documentId: string
   initialReady: boolean
 }) {
   const [ready, setReady] = useState(initialReady)
@@ -18,7 +18,7 @@ export function DownloadStatusPoller({
 
     let cancelled = false
     const interval = setInterval(async () => {
-      const response = await fetch(`/api/documents/${specId}/status`, {
+      const response = await fetch(`/api/documents/${documentId}/status`, {
         cache: 'no-store',
       })
       if (!response.ok) return
@@ -32,11 +32,11 @@ export function DownloadStatusPoller({
       cancelled = true
       clearInterval(interval)
     }
-  }, [ready, specId])
+  }, [ready, documentId])
 
   if (ready) {
     return (
-      <LinkButton href={`/api/documents/${specId}/download`}>
+      <LinkButton href={`/api/documents/${documentId}/download`}>
         Download PDF
       </LinkButton>
     )

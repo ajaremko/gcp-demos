@@ -1,5 +1,5 @@
 import { PageShell, Card, Heading, Subheading } from '@/lib/shared/ui'
-import { CreateDocumentSpecForm } from '@/lib/document-specs/CreateDocumentSpecForm'
+import { CreateDocumentSpecForm } from '@/lib/documents/CreateDocumentForm'
 
 export default function DocumentSpecPage() {
   return (

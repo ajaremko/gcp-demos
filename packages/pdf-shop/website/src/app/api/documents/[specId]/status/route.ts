@@ -1,11 +1,13 @@
-import { getGeneratedDocumentStatus } from '@/lib/generated-documents/GeneratedDocumentStatus.server'
+import { getGeneratedDocument } from '@/lib/documents/DocumentGenerated.server'
+import { getPaymentCompleted } from '@/lib/documents/PaymentCompleted.server'
 
 export async function GET(
   _request: Request,
-  { params }: { params: Promise<{ specId: string }> },
+  { params }: { params: Promise<{ documentId: string }> },
 ) {
-  const { specId } = await params
-  const status = await getGeneratedDocumentStatus(specId)
-  const ready = Boolean(status?.paid && status.pdf)
+  const { documentId } = await params
+  const document = await getGeneratedDocument({ documentId })
+  const payment = await getPaymentCompleted({ documentId })
+  const ready = Boolean(document && payment)
   return Response.json({ ready })
 }

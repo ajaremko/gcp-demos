@@ -32,22 +32,22 @@ function getStripe(publishableKey: string) {
 const initialConfirmState: ConfirmPaymentState = {}
 
 export function PaymentForm({
-  specId,
+  documentId,
   clientSecret,
   publishableKey,
 }: {
-  specId: string
+  documentId: string
   clientSecret: string
   publishableKey: string
 }) {
   return (
     <Elements stripe={getStripe(publishableKey)} options={{ clientSecret }}>
-      <PaymentFormInner specId={specId} />
+      <PaymentFormInner documentId={documentId} />
     </Elements>
   )
 }
 
-function PaymentFormInner({ specId }: { specId: string }) {
+function PaymentFormInner({ documentId }: { documentId: string }) {
   const stripe = useStripe()
   const elements = useElements()
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -82,7 +82,7 @@ function PaymentFormInner({ specId }: { specId: string }) {
       // handler — it must be wrapped in startTransition explicitly, or
       // isPending/error state won't update correctly.
       startTransition(() => {
-        dispatchConfirm({ specId, paymentIntentId: paymentIntent.id })
+        dispatchConfirm({ documentId, paymentIntentId: paymentIntent.id })
       })
     } else {
       setSubmitError('Payment was not completed.')

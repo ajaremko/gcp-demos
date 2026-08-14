@@ -1,22 +1,24 @@
 import { notFound, redirect } from 'next/navigation'
 import { PageShell, Card, Heading, Subheading } from '@/lib/shared/ui'
-import { getDocumentSpec } from '@/lib/document-specs/DocumentSpecRecord.server'
-import { getOrCreatePaymentIntent } from '@/lib/payment-confirmations/PaymentIntent.server'
-import { PaymentForm } from '@/lib/payment-confirmations/PaymentForm'
+import {
+  getDocumentCreated,
+  getPaymentIntentClientSecret,
+} from '@/lib/documents/DocumentCreated.server'
+import { PaymentForm } from '@/lib/documents/CompletePaymentForm'
 import { TestCards } from './test-cards'
 
 export default async function PaymentPage({
   searchParams,
 }: {
-  searchParams: Promise<{ specId?: string }>
+  searchParams: Promise<{ documentId?: string }>
 }) {
-  const { specId } = await searchParams
-  if (!specId) {
+  const { documentId } = await searchParams
+  if (!documentId) {
     redirect('/spec')
   }
 
-  const spec = await getDocumentSpec({ specId })
-  if (!spec) {
+  const document = await getDocumentCreated({ documentId })
+  if (!document) {
     notFound()
   }
 
@@ -25,23 +27,23 @@ export default async function PaymentPage({
     throw new Error('NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is not set')
   }
 
-  const paymentIntent = await getOrCreatePaymentIntent(specId)
-  if (!paymentIntent.client_secret) {
-    throw new Error(
-      'Stripe did not return a client secret for this PaymentIntent',
-    )
+  const clientSecret = await getPaymentIntentClientSecret(
+    document.payment.paymentIntentId,
+  )
+  if (!clientSecret) {
+    notFound()
   }
 
   return (
     <PageShell>
       <Card>
-        <Heading>Pay for &quot;{spec.title}&quot;</Heading>
+        <Heading>Pay for &quot;{document.spec.title}&quot;</Heading>
         <Subheading>
           One-time purchase — sandbox mode, no real charge.
         </Subheading>
         <PaymentForm
-          specId={specId}
-          clientSecret={paymentIntent.client_secret}
+          documentId={documentId}
+          clientSecret={clientSecret}
           publishableKey={publishableKey}
         />
         <TestCards />

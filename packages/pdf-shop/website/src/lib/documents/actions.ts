@@ -3,8 +3,10 @@ import { redirect } from 'next/navigation'
 import {
   type CreateDocumentSpec,
   createDocumentSpecSchema,
-} from './DocumentSpecRecord'
-import { createDocumentSpec } from './DocumentSpecRecord.server'
+} from './DocumentCreated'
+import { createDocumentSpec } from './DocumentCreated.server'
+import { completePayment } from './PaymentCompleted.server'
+import { completePaymentSchema } from './PaymentCompleted'
 
 export type SpecActionState = {
   errors: Partial<
@@ -35,5 +37,24 @@ export async function submitDocumentSpecAction(
   }
 
   const spec = await createDocumentSpec(parsed.data)
-  redirect(`/payment?specId=${spec.id}`)
+  redirect(`/payment?documentId=${spec.id}`)
+}
+
+export type ConfirmPaymentState = {
+  error?: string
+}
+
+export async function confirmPaymentAction(
+  _prevState: ConfirmPaymentState,
+  raw: { documentId: string; paymentIntentId: string },
+): Promise<ConfirmPaymentState> {
+  const parsed = completePaymentSchema.safeParse(raw)
+
+  if (!parsed.success) {
+    return { error: 'Invalid payment details' }
+  }
+
+  await completePayment(parsed.data)
+
+  redirect(`/download?documentId=${raw.documentId}`)
 }
