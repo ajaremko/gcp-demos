@@ -1,40 +1,20 @@
 import { Readable } from 'node:stream'
-import {
-  getGeneratedDocument,
-  getGeneratedDocumentStream,
-} from '@/lib/documents/DocumentGenerated.server'
-import { getPaymentCompleted } from '@/lib/documents/PaymentCompleted.server'
+import { getGeneratedDocumentHandler } from '@/lib/documents/GetGeneratedDocument.handler'
 
 export async function GET(
   _request: Request,
-  { params }: { params: Promise<{ documentId: string }> },
+  req: { params: Promise<{ documentId: string }> },
 ) {
+  const params = await req.params
   try {
-    const { documentId } = await params
-    const document = await getGeneratedDocument({ documentId })
-    const payment = await getPaymentCompleted({ documentId })
-
-    if (!document || !payment) {
-      return Response.json({ ready: false })
+    const result = await getGeneratedDocumentHandler(params)
+    const webStream = Readable.toWeb(result.stream) as ReadableStream
+    const headers = {
+      'Content-Type': result.contentType ?? 'application/pdf',
+      'Content-Length': String(result.size),
+      'Content-Disposition': `attachment; filename="${result.filename ?? `${params.documentId}.pdf`}"`,
     }
-
-    const resp = await getGeneratedDocumentStream({
-      path: document.path,
-    })
-
-    if (!resp) {
-      return new Response('File not found', { status: 404 })
-    }
-
-    const { stream, size } = resp
-
-    return new Response(Readable.toWeb(stream) as ReadableStream, {
-      headers: {
-        'Content-Type': document.contentType ?? 'application/pdf',
-        'Content-Length': String(size),
-        'Content-Disposition': `attachment; filename="${document.filename ?? `${document.documentId}.pdf`}"`,
-      },
-    })
+    return new Response(webStream, { headers })
   } catch {
     return new Response('File not found', { status: 404 })
   }

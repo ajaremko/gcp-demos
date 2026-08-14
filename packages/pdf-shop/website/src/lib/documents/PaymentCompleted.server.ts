@@ -8,6 +8,7 @@ import {
   paymentCompletedSchema,
 } from './PaymentCompleted'
 import { stripeClient } from './StripeClient'
+import { StripeIntegrationFailed, FileIOFailed } from './errors'
 
 const DATA_ROOT = process.env.PDF_SHOP_DATA_DIR
 if (!DATA_ROOT) {
@@ -23,42 +24,51 @@ export function paymentIntentFilePath(documentId: string) {
 export async function completePayment(
   input: CompletePayment,
 ): Promise<PaymentCompleted> {
-  const intent = await stripeClient.paymentIntents.retrieve(
-    input.paymentIntentId,
-  )
+  try {
+    const intent = await stripeClient.paymentIntents.retrieve(
+      input.paymentIntentId,
+    )
 
-  if (
-    intent.status !== 'succeeded' ||
-    intent.metadata.documentId !== input.documentId
-  ) {
-    throw new Error('Payment could not be verified. Please try again.')
+    if (
+      intent.status !== 'succeeded' ||
+      intent.metadata.documentId !== input.documentId
+    ) {
+      throw new Error(
+        'Payment was not successful or does not match the document ID',
+      )
+    }
+
+    const record: PaymentCompleted = {
+      documentId: input.documentId,
+      stripePaymentIntentId: intent.id,
+      amount: intent.amount,
+      currency: 'usd',
+      confirmedAt: new Date().toISOString(),
+    }
+    try {
+      await mkdir(PAYMENT_INTENTS_DIR, { recursive: true })
+      await writeFile(
+        paymentIntentFilePath(record.documentId),
+        JSON.stringify(record, null, 2),
+        'utf-8',
+      )
+
+      return record
+    } catch (err) {
+      throw new FileIOFailed('Failed to write payment intent file', err)
+    }
+  } catch (err) {
+    throw new StripeIntegrationFailed('Failed to verify payment intent', err)
   }
-
-  const record: PaymentCompleted = {
-    documentId: input.documentId,
-    stripePaymentIntentId: intent.id,
-    amount: intent.amount,
-    currency: 'usd',
-    confirmedAt: new Date().toISOString(),
-  }
-
-  await mkdir(PAYMENT_INTENTS_DIR, { recursive: true })
-  await writeFile(
-    paymentIntentFilePath(record.documentId),
-    JSON.stringify(record, null, 2),
-    'utf-8',
-  )
-
-  return record
 }
 
 export async function getPaymentCompleted(
   input: GetPayment,
-): Promise<PaymentCompleted | null> {
+): Promise<PaymentCompleted> {
   try {
     const raw = await readFile(paymentIntentFilePath(input.documentId), 'utf-8')
     return paymentCompletedSchema.parse(JSON.parse(raw))
-  } catch {
-    return null
+  } catch (err) {
+    throw new FileIOFailed('Failed to read payment intent file', err)
   }
 }

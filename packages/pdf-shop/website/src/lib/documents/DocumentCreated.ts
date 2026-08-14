@@ -29,7 +29,7 @@ export const createDocumentSpecSchema = z.object({
     .max(20_000, 'Body is too long'),
 })
 
-export type CreateDocumentSpec = z.infer<typeof createDocumentSpecSchema>
+export type CreateDocument = z.infer<typeof createDocumentSpecSchema>
 
 export const getDocumentSpecSchema = z.object({
   documentId: z.uuid('Invalid documentId'),

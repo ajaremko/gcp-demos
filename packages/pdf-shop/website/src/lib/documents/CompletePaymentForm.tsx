@@ -29,7 +29,7 @@ function getStripe(publishableKey: string) {
   return stripePromise
 }
 
-const initialConfirmState: ConfirmPaymentState = {}
+const initialConfirmState: ConfirmPaymentState = { errors: {} }
 
 export function PaymentForm({
   documentId,
@@ -102,9 +102,9 @@ function PaymentFormInner({ documentId }: { documentId: string }) {
           <ErrorText>{submitError}</ErrorText>
         </Stack>
       )}
-      {confirmState.error && (
+      {confirmState.message && (
         <Stack>
-          <ErrorText>{confirmState.error}</ErrorText>
+          <ErrorText>{confirmState.message}</ErrorText>
         </Stack>
       )}
       <Button type="submit" disabled={!stripe || pending}>

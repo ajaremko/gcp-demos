@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   createDocumentSpecSchema,
-  type CreateDocumentSpec,
+  type CreateDocument,
 } from './DocumentCreated'
 import {
   Field,
@@ -29,16 +29,18 @@ export function CreateDocumentSpecForm() {
   const {
     register,
     formState: { errors },
-  } = useForm<CreateDocumentSpec>({
+  } = useForm<CreateDocument>({
     resolver: zodResolver(createDocumentSpecSchema),
     errors: state.errors,
     mode: 'onBlur',
     defaultValues: {
       colorScheme: 'light',
-      title: (state.values?.title as string) ?? '',
-      body: (state.values?.body as string) ?? '',
+      title: '',
+      body: '',
     },
   })
+
+  console.log('state', state)
 
   return (
     <form action={formAction}>
@@ -76,7 +78,7 @@ export function CreateDocumentSpecForm() {
         <HelperText>The main text of the document.</HelperText>
         {errors.body && <ErrorText>{errors.body.message}</ErrorText>}
       </Field>
-
+      {state.message && <ErrorText>{state.message}</ErrorText>}
       <Button type="submit" disabled={isPending}>
         {isPending ? 'Saving…' : 'Continue to payment'}
       </Button>

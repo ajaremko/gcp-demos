@@ -9,6 +9,7 @@ import {
   type GetGeneratedDocument,
   documentGeneratedSchema,
 } from './DocumentGenerated'
+import { FileIOFailed } from './errors'
 
 const DATA_ROOT = process.env.PDF_SHOP_DATA_DIR
 if (!DATA_ROOT) {
@@ -30,30 +31,34 @@ export function documentFilePath(documentId: string) {
 export async function generateDocument(
   input: GenerateDocument,
 ): Promise<DocumentGenerated> {
-  await mkdir(GENERATED_DOCUMENTS_DIR, { recursive: true })
-  const generatedDocumentPath = generatedDocumentFilePath(input.documentId)
-  await writeFile(
-    generatedDocumentPath,
-    `Generated document for spec ${input.documentId}\n\n${JSON.stringify(input.spec, null, 2)}`,
-    'utf-8',
-  )
+  try {
+    await mkdir(GENERATED_DOCUMENTS_DIR, { recursive: true })
+    const generatedDocumentPath = generatedDocumentFilePath(input.documentId)
+    await writeFile(
+      generatedDocumentPath,
+      `Generated document for spec ${input.documentId}\n\n${JSON.stringify(input.spec, null, 2)}`,
+      'utf-8',
+    )
 
-  const record: DocumentGenerated = {
-    documentId: input.documentId,
-    path: generatedDocumentPath,
-    filename: `${input.documentId}.txt`,
-    contentType: 'text/plain',
-    timestamp: new Date().toISOString(),
+    const record: DocumentGenerated = {
+      documentId: input.documentId,
+      path: generatedDocumentPath,
+      filename: `${input.documentId}.txt`,
+      contentType: 'text/plain',
+      timestamp: new Date().toISOString(),
+    }
+
+    await mkdir(DOCUMENTS_DIR, { recursive: true })
+    await writeFile(
+      documentFilePath(input.documentId),
+      JSON.stringify(record, null, 2),
+      'utf-8',
+    )
+
+    return record
+  } catch (err) {
+    throw new FileIOFailed('Failed to generate document', err)
   }
-
-  await mkdir(DOCUMENTS_DIR, { recursive: true })
-  await writeFile(
-    documentFilePath(input.documentId),
-    JSON.stringify(record, null, 2),
-    'utf-8',
-  )
-
-  return record
 }
 
 export async function getGeneratedDocument(input: GetGeneratedDocument) {
@@ -61,8 +66,8 @@ export async function getGeneratedDocument(input: GetGeneratedDocument) {
     const eventPath = documentFilePath(input.documentId)
     const raw = await readFile(eventPath, 'utf-8')
     return documentGeneratedSchema.parse(JSON.parse(raw))
-  } catch {
-    return null
+  } catch (err) {
+    throw new FileIOFailed('Failed to read generated document file', err)
   }
 }
 
@@ -75,7 +80,7 @@ export async function getGeneratedDocumentStream(
       throw new Error('File is empty')
     }
     return { stream: createReadStream(input.path), size }
-  } catch {
-    return null
+  } catch (err) {
+    throw new FileIOFailed('Failed to read generated document stream', err)
   }
 }
