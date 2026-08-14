@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { documentSpecSchema, colorSchemeSchema } from './DocumentSpec'
+import { documentSpecSchema, colorSchemeSchema } from './DocumentSpec.js'
 
 export const documentCreatedSchema = z.object({
   id: z.uuid(),

@@ -5,6 +5,9 @@
   "references": [
     {
       "path": "./packages/pdf-shop/website"
+    },
+    {
+      "path": "./packages/pdf-shop/contracts"
     }
   ],
   "compilerOptions": {}

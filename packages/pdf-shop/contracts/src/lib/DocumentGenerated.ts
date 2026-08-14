@@ -1,8 +1,7 @@
 import { z } from 'zod'
-import { documentSpecSchema } from './DocumentSpec'
 
-// Imported by both the client form (zodResolver) and server actions, so this
-// file must stay free of server-only imports.
+import { documentSpecSchema } from './DocumentSpec.js'
+
 export const documentGeneratedSchema = z.object({
   documentId: z.uuid(),
   path: z.string(),

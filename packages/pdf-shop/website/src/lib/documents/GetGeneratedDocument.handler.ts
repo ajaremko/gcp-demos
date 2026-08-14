@@ -2,7 +2,7 @@ import {
   getGeneratedDocument,
   getGeneratedDocumentStream,
 } from './DocumentGenerated.server'
-import { getGeneratedDocumentSchema } from './DocumentGenerated'
+import { getGeneratedDocumentSchema } from '@org/pdf-shop-contracts'
 import { getPaymentCompleted } from '@/lib/documents/PaymentCompleted.server'
 
 export async function getGeneratedDocumentHandler(input: object) {

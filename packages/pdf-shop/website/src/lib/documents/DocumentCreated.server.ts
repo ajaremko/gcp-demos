@@ -7,7 +7,7 @@ import {
   type DocumentCreated,
   type GetDocumentSpec,
   documentCreatedSchema,
-} from './DocumentCreated'
+} from '@org/pdf-shop-contracts'
 import { stripeClient } from './StripeClient'
 import { StripeIntegrationFailed, FileIOFailed } from './errors'
 

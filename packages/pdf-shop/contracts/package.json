@@ -1,0 +1,22 @@
+{
+  "name": "@org/pdf-shop-contracts",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "nx": {
+    "name": "pdf-shop-contracts"
+  },
+  "dependencies": {
+    "zod": "^4.4.3"
+  }
+}

@@ -1,5 +1,5 @@
 import { getGeneratedDocument } from './DocumentGenerated.server'
-import { getGeneratedDocumentSchema } from './DocumentGenerated'
+import { getGeneratedDocumentSchema } from '@org/pdf-shop-contracts'
 import { getPaymentCompleted } from './PaymentCompleted.server'
 
 export async function getGeneratedDocumentReadyHandler(input: object) {

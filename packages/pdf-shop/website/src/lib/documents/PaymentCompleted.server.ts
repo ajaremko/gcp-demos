@@ -6,7 +6,7 @@ import {
   type GetPayment,
   type CompletePayment,
   paymentCompletedSchema,
-} from './PaymentCompleted'
+} from '@org/pdf-shop-contracts'
 import { stripeClient } from './StripeClient'
 import { StripeIntegrationFailed, FileIOFailed } from './errors'
 

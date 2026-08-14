@@ -8,7 +8,7 @@ import {
   type GetGeneratedDocumentStream,
   type GetGeneratedDocument,
   documentGeneratedSchema,
-} from './DocumentGenerated'
+} from '@org/pdf-shop-contracts'
 import { FileIOFailed } from './errors'
 
 const DATA_ROOT = process.env.PDF_SHOP_DATA_DIR
