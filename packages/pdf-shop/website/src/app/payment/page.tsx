@@ -19,7 +19,6 @@ export default async function PaymentPage({
   searchParams: Promise<{ documentId?: string }>
 }) {
   const { documentId } = await searchParams
-  console.log(documentId)
   if (!documentId) {
     redirect('/spec')
   }

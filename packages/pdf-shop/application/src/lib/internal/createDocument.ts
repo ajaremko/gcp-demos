@@ -2,6 +2,7 @@ import path from 'node:path'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { randomUUID } from 'node:crypto'
 import { type Stripe } from 'stripe'
+import { type Logger } from 'pino'
 
 import {
   type CreateDocument,
@@ -14,11 +15,21 @@ import { StripeIntegrationFailed, FileIOFailed } from './errors'
 const DEMO_PRICE_CENTS = 999
 const DEMO_PRICE_CURRENCY = 'usd'
 
-export function createDocument(env: { stripe: Stripe; dataRoot: string }) {
+export function createDocument(env: {
+  stripe: Stripe
+  dataRoot: string
+  logger: Logger
+}) {
   return async function (input: CreateDocument) {
     const documentId = randomUUID()
 
+    const logger = env.logger.child({
+      method: 'createDocument',
+      documentId,
+    })
+
     try {
+      logger.trace({}, 'Creating payment intent with Stripe')
       const intent = await env.stripe.paymentIntents.create(
         {
           amount: DEMO_PRICE_CENTS,
@@ -30,6 +41,7 @@ export function createDocument(env: { stripe: Stripe; dataRoot: string }) {
       )
 
       try {
+        logger.trace({}, 'Preparing output directory for document')
         // Prepare output directory
         const documentPath = encodeDocumentPath({
           documentId,
@@ -39,6 +51,7 @@ export function createDocument(env: { stripe: Stripe; dataRoot: string }) {
         await mkdir(outputDir, { recursive: true })
 
         // Write a record of the requested spec and payment intent
+        logger.trace({}, 'Writing document record to file')
         const record: DocumentCreated = {
           id: documentId,
           createdAt: new Date().toISOString(),

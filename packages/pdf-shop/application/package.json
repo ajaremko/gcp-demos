@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@org/pdf-shop-contracts": "0.0.1",
+    "pino": "^10.3.1",
     "stripe": "^22.5.0",
     "tslib": "^2.3.0"
   }

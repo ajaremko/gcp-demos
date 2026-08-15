@@ -14,13 +14,11 @@ export async function GET(
   req: { params: Promise<{ documentId: string }> },
 ) {
   const params = await req.params
-  console.log('Checking document status for:', params)
   try {
     const ready = await handler(params)
     return Response.json({ ready })
   } catch (err) {
     if (err instanceof FileIOFailed) {
-      console.log('FileIOError:', err)
       return Response.json({ ready: false })
     }
     if (err instanceof ZodError) {
@@ -32,7 +30,6 @@ export async function GET(
         { status: 400 },
       )
     }
-    console.warn({ error: err, handler: '/api/documents/[documentId]/status' })
     return Response.json({ ready: false })
   }
 }

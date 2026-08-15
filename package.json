@@ -41,7 +41,6 @@
     "vitest": "~4.1.0"
   },
   "workspaces": [
-    "packages/*",
     "packages/pdf-shop/*"
   ],
   "dependencies": {

@@ -16,10 +16,7 @@ import {
   HelperText,
   Button,
 } from '@/lib/ui'
-import {
-  submitDocumentSpecAction,
-  type SpecActionState,
-} from '../../lib/documents/actions'
+import { submitDocumentSpecAction, type SpecActionState } from './actions'
 
 const initialState: SpecActionState = { errors: {} }
 
@@ -42,8 +39,6 @@ export function CreateDocumentSpecForm() {
       body: '',
     },
   })
-
-  console.log('state', state)
 
   return (
     <form action={formAction}>

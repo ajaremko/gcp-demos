@@ -10,10 +10,12 @@ import {
 } from '@org/pdf-shop-application'
 
 import { stripeClient } from '@/lib/stripe'
+import { pinoLogger } from '@/lib/pino'
 
 const handler = handleCompletePayment({
   stripe: stripeClient,
   dataRoot: process.env.DATA_ROOT ?? '',
+  logger: pinoLogger,
 })
 
 export type ConfirmPaymentState = {

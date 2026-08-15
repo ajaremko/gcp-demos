@@ -6,17 +6,21 @@
     "name": "pdf-shop-website"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.7.1",
     "@org/pdf-shop-contracts": "0.0.1",
+    "@stripe/react-stripe-js": "^6.8.1",
+    "@stripe/stripe-js": "^9.13.0",
     "next": "~16.1.6",
+    "pino": "^10.3.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "styled-components": "^6.5.2",
     "react-hook-form": "^7.85.0",
-    "@hookform/resolvers": "^5.7.1",
-    "zod": "^4.4.3",
+    "server-only": "^0.0.1",
     "stripe": "^22.5.0",
-    "@stripe/stripe-js": "^9.13.0",
-    "@stripe/react-stripe-js": "^6.8.1",
-    "server-only": "^0.0.1"
+    "styled-components": "^6.5.2",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "pino-pretty": "^13.1.3"
   }
 }

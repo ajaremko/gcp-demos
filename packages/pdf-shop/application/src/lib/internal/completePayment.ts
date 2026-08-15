@@ -1,6 +1,7 @@
 import { mkdir, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { type Stripe } from 'stripe'
+import { type Logger } from 'pino'
 
 import {
   type PaymentCompleted,
@@ -10,13 +11,32 @@ import {
 
 import { StripeIntegrationFailed, FileIOFailed } from './errors'
 
-export function completePayment(env: { stripe: Stripe; dataRoot: string }) {
+export function completePayment(env: {
+  stripe: Stripe
+  dataRoot: string
+  logger: Logger
+}) {
   return async function (input: CompletePayment): Promise<PaymentCompleted> {
+    const logger = env.logger.child({
+      method: 'completePayment',
+      paymentIntentId: input.paymentIntentId,
+      documentId: input.documentId,
+    })
+
     try {
+      logger.trace({}, 'Retrieving payment intent from Stripe')
+
       const intent = await env.stripe.paymentIntents.retrieve(
         input.paymentIntentId,
       )
 
+      logger.trace(
+        {
+          intentStatus: intent.status,
+          intentMetadata: intent.metadata,
+        },
+        'Checking payment intent status and metadata',
+      )
       if (
         intent.status !== 'succeeded' ||
         intent.metadata.documentId !== input.documentId
@@ -28,6 +48,7 @@ export function completePayment(env: { stripe: Stripe; dataRoot: string }) {
 
       try {
         // Prepare output directory
+        logger.trace({}, 'Preparing output directory for payment record')
         const documentPath = encodeDocumentPath({
           documentId: input.documentId,
           version: 1,
@@ -35,6 +56,7 @@ export function completePayment(env: { stripe: Stripe; dataRoot: string }) {
         const outputDir = path.join(env.dataRoot, documentPath)
         await mkdir(outputDir, { recursive: true })
 
+        logger.trace({}, 'Writing payment record to file')
         const record: PaymentCompleted = {
           documentId: input.documentId,
           stripePaymentIntentId: intent.id,

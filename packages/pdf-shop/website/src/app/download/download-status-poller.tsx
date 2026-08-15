@@ -23,7 +23,6 @@ export function DownloadStatusPoller({
       })
       if (!response.ok) return
       const data = await response.json()
-      console.log('Polling document status:', data)
       if (!cancelled && data.ready) {
         setReady(true)
       }
