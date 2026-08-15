@@ -5,8 +5,11 @@ import {
   handleGetGeneratedDocumentReady,
 } from '@org/pdf-shop-application'
 
+import { pinoLogger } from '@/lib/pino'
+
 const handler = handleGetGeneratedDocumentReady({
   dataRoot: process.env.DATA_ROOT ?? '',
+  logger: pinoLogger,
 })
 
 export async function GET(

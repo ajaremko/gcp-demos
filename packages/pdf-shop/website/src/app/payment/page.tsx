@@ -4,6 +4,7 @@ import { handleGetDocumentPayment } from '@org/pdf-shop-application'
 
 import { PageShell, Card, Heading, Subheading } from '@/lib/ui'
 import { stripeClient } from '@/lib/stripe'
+import { pinoLogger } from '@/lib/pino'
 
 import { PaymentForm } from './CompletePaymentForm'
 import { TestCards } from './TestCards'
@@ -11,6 +12,7 @@ import { TestCards } from './TestCards'
 const handler = handleGetDocumentPayment({
   stripe: stripeClient,
   dataRoot: process.env.DATA_ROOT ?? '',
+  logger: pinoLogger,
 })
 
 export default async function PaymentPage({

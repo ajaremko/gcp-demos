@@ -1,6 +1,8 @@
 import { mkdir, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
+import { type Logger } from 'pino'
+
 import {
   type DocumentGenerated,
   type GenerateDocument,
@@ -9,10 +11,16 @@ import {
 
 import { FileIOFailed } from './errors'
 
-export function generateDocument(env: { dataRoot: string }) {
+export function generateDocument(env: { dataRoot: string; logger: Logger }) {
   return async function (input: GenerateDocument) {
+    const logger = env.logger.child({
+      method: 'generateDocument',
+      documentId: input.documentId,
+    })
+
     try {
       // Prepare output directory
+      logger.trace({}, 'Preparing output directory for document')
       const documentPath = encodeDocumentPath({
         documentId: input.documentId,
         version: 1,
@@ -21,11 +29,13 @@ export function generateDocument(env: { dataRoot: string }) {
       await mkdir(outputDir, { recursive: true })
 
       // Generate and write document content
+      logger.trace({}, 'Writing generated document file')
       const generatedData = `Generated document for spec ${input.documentId}\n\n${JSON.stringify(input.spec, null, 2)}`
       const generatedPath = path.join(outputDir, `generated.txt`)
       await writeFile(generatedPath, generatedData, 'utf-8')
 
       // Write a record of the generated document
+      logger.trace({}, 'Writing generated document record')
       const record: DocumentGenerated = {
         documentId: input.documentId,
         path: documentPath,
