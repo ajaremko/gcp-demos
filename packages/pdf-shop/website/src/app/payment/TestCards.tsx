@@ -1,6 +1,6 @@
 'use client'
 import styled from 'styled-components'
-import { HelperText } from '@/lib/shared/ui'
+import { HelperText } from '@/lib/ui'
 
 const List = styled.ul`
   margin: 0;

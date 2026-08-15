@@ -1,5 +1,10 @@
 import { Readable } from 'node:stream'
-import { getGeneratedDocumentHandler } from '@/lib/documents/GetGeneratedDocument.handler'
+
+import { handleGetGeneratedDocument } from '@org/pdf-shop-application'
+
+const handler = handleGetGeneratedDocument({
+  dataRoot: process.env.DATA_ROOT ?? '',
+})
 
 export async function GET(
   _request: Request,
@@ -7,7 +12,7 @@ export async function GET(
 ) {
   const params = await req.params
   try {
-    const result = await getGeneratedDocumentHandler(params)
+    const result = await handler(params)
     const webStream = Readable.toWeb(result.stream) as ReadableStream
     const headers = {
       'Content-Type': result.contentType ?? 'application/pdf',

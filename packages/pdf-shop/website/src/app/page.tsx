@@ -1,10 +1,4 @@
-import {
-  PageShell,
-  Card,
-  Heading,
-  Subheading,
-  NavLinkButton,
-} from '@/lib/shared/ui'
+import { PageShell, Card, Heading, Subheading, NavLinkButton } from '@/lib/ui'
 
 export default function LandingPage() {
   return (

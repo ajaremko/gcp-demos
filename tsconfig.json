@@ -8,6 +8,9 @@
     },
     {
       "path": "./packages/pdf-shop/contracts"
+    },
+    {
+      "path": "./packages/pdf-shop/application"
     }
   ],
   "compilerOptions": {}

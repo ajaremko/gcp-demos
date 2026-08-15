@@ -6,4 +6,6 @@ if (!key) {
   throw new Error('STRIPE_SECRET_KEY is not set')
 }
 
-export const stripeClient = new Stripe(key)
+// mjs/ejs mismatch workaround
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const stripeClient = new Stripe(key) as any

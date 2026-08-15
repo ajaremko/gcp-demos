@@ -13,7 +13,9 @@ import {
   useStripe,
   useElements,
 } from '@stripe/react-stripe-js'
-import { Button, ErrorText } from '@/lib/shared/ui'
+
+import { Button, ErrorText } from '@/lib/ui'
+
 import { confirmPaymentAction, type ConfirmPaymentState } from './actions'
 
 const Stack = styled.div`

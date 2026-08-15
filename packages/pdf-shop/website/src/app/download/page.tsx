@@ -1,7 +1,14 @@
 import { redirect } from 'next/navigation'
-import { PageShell, Card, Heading, Subheading } from '@/lib/shared/ui'
-import { getGeneratedDocument } from '@/lib/documents/DocumentGenerated.server'
+
+import { handleGetGeneratedDocumentReady } from '@org/pdf-shop-application'
+
+import { PageShell, Card, Heading, Subheading } from '@/lib/ui'
+
 import { DownloadStatusPoller } from './download-status-poller'
+
+const handler = handleGetGeneratedDocumentReady({
+  dataRoot: process.env.DATA_ROOT ?? '',
+})
 
 export default async function DownloadPage({
   searchParams,
@@ -12,9 +19,9 @@ export default async function DownloadPage({
   if (!documentId) {
     redirect('/spec')
   }
-  let status: any
+  let status: boolean | null = null
   try {
-    status = await getGeneratedDocument({ documentId })
+    status = await handler({ documentId })
   } catch (err) {
     console.warn(err)
     status = null

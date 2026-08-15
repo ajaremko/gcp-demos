@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { HelperText, LinkButton } from '@/lib/shared/ui'
+import { HelperText, LinkButton } from '@/lib/ui'
 
 const POLL_INTERVAL_MS = 3000
 

@@ -15,8 +15,11 @@ import {
   ErrorText,
   HelperText,
   Button,
-} from '@/lib/shared/ui'
-import { submitDocumentSpecAction, type SpecActionState } from './actions'
+} from '@/lib/ui'
+import {
+  submitDocumentSpecAction,
+  type SpecActionState,
+} from '../../lib/documents/actions'
 
 const initialState: SpecActionState = { errors: {} }
 

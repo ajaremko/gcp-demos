@@ -1,11 +1,17 @@
-import { notFound, redirect } from 'next/navigation'
-import { PageShell, Card, Heading, Subheading } from '@/lib/shared/ui'
-import {
-  getDocumentCreated,
-  getPaymentIntentClientSecret,
-} from '@/lib/documents/DocumentCreated.server'
-import { PaymentForm } from '@/lib/documents/CompletePaymentForm'
-import { TestCards } from './test-cards'
+import { redirect } from 'next/navigation'
+
+import { handleGetDocumentPayment } from '@org/pdf-shop-application'
+
+import { PageShell, Card, Heading, Subheading } from '@/lib/ui'
+import { stripeClient } from '@/lib/stripe'
+
+import { PaymentForm } from './CompletePaymentForm'
+import { TestCards } from './TestCards'
+
+const handler = handleGetDocumentPayment({
+  stripe: stripeClient,
+  dataRoot: process.env.DATA_ROOT ?? '',
+})
 
 export default async function PaymentPage({
   searchParams,
@@ -13,25 +19,22 @@ export default async function PaymentPage({
   searchParams: Promise<{ documentId?: string }>
 }) {
   const { documentId } = await searchParams
+  console.log(documentId)
   if (!documentId) {
     redirect('/spec')
   }
 
-  const document = await getDocumentCreated({ documentId })
-  if (!document) {
-    notFound()
+  let document: Awaited<ReturnType<typeof handler>>
+  try {
+    document = await handler({ documentId })
+  } catch (error) {
+    console.error(error)
+    redirect('/spec')
   }
 
   const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
   if (!publishableKey) {
     throw new Error('NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is not set')
-  }
-
-  const clientSecret = await getPaymentIntentClientSecret(
-    document.payment.paymentIntentId,
-  )
-  if (!clientSecret) {
-    notFound()
   }
 
   return (
@@ -41,11 +44,13 @@ export default async function PaymentPage({
         <Subheading>
           One-time purchase — sandbox mode, no real charge.
         </Subheading>
-        <PaymentForm
-          documentId={documentId}
-          clientSecret={clientSecret}
-          publishableKey={publishableKey}
-        />
+        {document.clientSecret && (
+          <PaymentForm
+            documentId={document.documentId}
+            clientSecret={document.clientSecret}
+            publishableKey={publishableKey}
+          />
+        )}
         <TestCards />
       </Card>
     </PageShell>
