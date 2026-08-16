@@ -23,9 +23,10 @@ export function completePayment(env: {
       documentId: input.documentId,
     })
 
+    let stripePaymentIntentId: string
+    let amount: number
     try {
       logger.trace({}, 'Retrieving payment intent from Stripe')
-
       const intent = await env.stripe.paymentIntents.retrieve(
         input.paymentIntentId,
       )
@@ -46,35 +47,38 @@ export function completePayment(env: {
         )
       }
 
-      try {
-        // Prepare output directory
-        logger.trace({}, 'Preparing output directory for payment record')
-        const documentPath = encodeDocumentPath({
-          documentId: input.documentId,
-          version: 1,
-        })
-        const outputDir = path.join(env.dataRoot, documentPath)
-        await mkdir(outputDir, { recursive: true })
-
-        logger.trace({}, 'Writing payment record to file')
-        const record: PaymentCompleted = {
-          documentId: input.documentId,
-          stripePaymentIntentId: intent.id,
-          amount: intent.amount,
-          currency: 'usd',
-          confirmedAt: new Date().toISOString(),
-        }
-
-        const recordData = JSON.stringify(record, null, 2)
-        const recordPath = path.join(outputDir, 'paid.json')
-        await writeFile(recordPath, recordData, 'utf-8')
-
-        return record
-      } catch (err) {
-        throw new FileIOFailed('Failed to write payment intent file', err)
-      }
+      stripePaymentIntentId = intent.id
+      amount = intent.amount
     } catch (err) {
       throw new StripeIntegrationFailed('Failed to verify payment intent', err)
+    }
+
+    try {
+      // Prepare output directory
+      logger.trace({}, 'Preparing output directory for payment record')
+      const documentPath = encodeDocumentPath({
+        documentId: input.documentId,
+        version: 1,
+      })
+      const outputDir = path.join(env.dataRoot, documentPath)
+      await mkdir(outputDir, { recursive: true })
+
+      logger.trace({}, 'Writing payment record to file')
+      const record: PaymentCompleted = {
+        documentId: input.documentId,
+        stripePaymentIntentId,
+        amount,
+        currency: 'usd',
+        confirmedAt: new Date().toISOString(),
+      }
+
+      const recordData = JSON.stringify(record, null, 2)
+      const recordPath = path.join(outputDir, 'paid.json')
+      await writeFile(recordPath, recordData, 'utf-8')
+
+      return record
+    } catch (err) {
+      throw new FileIOFailed('Failed to write payment intent file', err)
     }
   }
 }

@@ -13,20 +13,11 @@ export function handleGetGeneratedDocument(env: {
   const logger = env.logger.child({ handler: 'handleGetGeneratedDocument' })
   return async function (input: object) {
     const { documentId } = getGeneratedDocumentSchema.parse(input)
+    const localEnv = { ...env, logger }
 
-    logger.debug({ documentId }, 'Invoking getGeneratedDocument')
-    const document = await getGeneratedDocument({ ...env, logger })({
-      documentId,
-    })
-
-    logger.debug({ documentId }, 'Invoking getPaymentCompleted')
-    await getPaymentCompleted({ ...env, logger })({ documentId })
-
-    logger.debug({ documentId, path: document.path }, 'Invoking getGeneratedDocumentStream')
-    const { stream, size } = await getGeneratedDocumentStream({
-      ...env,
-      logger,
-    })({
+    const document = await getGeneratedDocument(localEnv)({ documentId })
+    await getPaymentCompleted(localEnv)({ documentId })
+    const { stream, size } = await getGeneratedDocumentStream(localEnv)({
       path: document.path,
     })
     return {

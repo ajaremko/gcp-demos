@@ -10,17 +10,15 @@ export function handleCompletePayment(env: {
   dataRoot: string
   logger: Logger
 }) {
-  const logger = env.logger.child({ handler: 'handleCompletePayment' })
   return async function (input: object) {
     const { documentId, paymentIntentId } = completePaymentSchema.parse(input)
-    logger.debug(
-      {
-        documentId,
-        paymentIntentId,
-      },
-      'Invoking completePayment',
-    )
-    await completePayment({ ...env, logger })({ documentId, paymentIntentId })
+    const logger = env.logger.child({
+      handler: 'handleCompletePayment',
+      documentId,
+      paymentIntentId,
+    })
+    const localEnv = { ...env, logger }
+    await completePayment(localEnv)({ documentId, paymentIntentId })
     return { documentId }
   }
 }

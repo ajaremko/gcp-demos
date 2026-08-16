@@ -20,7 +20,7 @@ export function createDocument(env: {
   dataRoot: string
   logger: Logger
 }) {
-  return async function (input: CreateDocument) {
+  return async function (input: CreateDocument): Promise<DocumentCreated> {
     const documentId = randomUUID()
 
     const logger = env.logger.child({
@@ -28,6 +28,7 @@ export function createDocument(env: {
       documentId,
     })
 
+    let payment: { paymentIntentId: string; amount: number; currency: string }
     try {
       logger.trace({}, 'Creating payment intent with Stripe')
       const intent = await env.stripe.paymentIntents.create(
@@ -39,44 +40,45 @@ export function createDocument(env: {
         },
         { idempotencyKey: `pdf-shop-payment-intent-${documentId}` },
       )
-
-      try {
-        logger.trace({}, 'Preparing output directory for document')
-        // Prepare output directory
-        const documentPath = encodeDocumentPath({
-          documentId,
-          version: 1,
-        })
-        const outputDir = path.join(env.dataRoot, documentPath)
-        await mkdir(outputDir, { recursive: true })
-
-        // Write a record of the requested spec and payment intent
-        logger.trace({}, 'Writing document record to file')
-        const record: DocumentCreated = {
-          id: documentId,
-          createdAt: new Date().toISOString(),
-          spec: {
-            colorScheme: input.colorScheme,
-            title: input.title,
-            body: input.body,
-          },
-          payment: {
-            paymentIntentId: intent.id,
-            amount: intent.amount,
-            currency: intent.currency,
-          },
-        }
-
-        const recordPath = path.join(outputDir, 'created.json')
-        const recordData = JSON.stringify(record, null, 2)
-        await writeFile(recordPath, recordData, 'utf-8')
-
-        return record
-      } catch (err) {
-        throw new FileIOFailed('Failed to write document spec file', err)
+      payment = {
+        paymentIntentId: intent.id,
+        amount: intent.amount,
+        currency: intent.currency,
       }
     } catch (err) {
       throw new StripeIntegrationFailed('Failed to create payment intent', err)
+    }
+
+    try {
+      logger.trace({}, 'Preparing output directory for document')
+      // Prepare output directory
+      const documentPath = encodeDocumentPath({
+        documentId,
+        version: 1,
+      })
+      const outputDir = path.join(env.dataRoot, documentPath)
+      await mkdir(outputDir, { recursive: true })
+
+      // Write a record of the requested spec and payment intent
+      logger.trace({}, 'Writing document record to file')
+      const record: DocumentCreated = {
+        id: documentId,
+        createdAt: new Date().toISOString(),
+        spec: {
+          colorScheme: input.colorScheme,
+          title: input.title,
+          body: input.body,
+        },
+        payment,
+      }
+
+      const recordPath = path.join(outputDir, 'created.json')
+      const recordData = JSON.stringify(record, null, 2)
+      await writeFile(recordPath, recordData, 'utf-8')
+
+      return record
+    } catch (err) {
+      throw new FileIOFailed('Failed to write document spec file', err)
     }
   }
 }

@@ -7,7 +7,7 @@ export function getPaymentIntentClientSecret(env: {
   stripe: Stripe
   logger: Logger
 }) {
-  return async function (intentId: string) {
+  return async function (intentId: string): Promise<string | null> {
     const logger = env.logger.child({
       method: 'getPaymentIntentClientSecret',
       paymentIntentId: intentId,

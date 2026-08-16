@@ -1,20 +1,23 @@
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
-
 import { type Logger } from 'pino'
 
 import {
   type GetGeneratedDocument,
+  type DocumentGenerated,
   encodeDocumentPath,
   documentGeneratedSchema,
 } from '@org/pdf-shop-contracts'
+
 import { FileIOFailed } from './errors'
 
 export function getGeneratedDocument(env: {
   dataRoot: string
   logger: Logger
 }) {
-  return async function (input: GetGeneratedDocument) {
+  return async function (
+    input: GetGeneratedDocument,
+  ): Promise<DocumentGenerated> {
     const logger = env.logger.child({
       method: 'getGeneratedDocument',
       documentId: input.documentId,

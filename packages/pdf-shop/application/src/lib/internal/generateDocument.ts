@@ -1,6 +1,5 @@
 import { mkdir, writeFile } from 'node:fs/promises'
 import path from 'node:path'
-
 import { type Logger } from 'pino'
 
 import {
@@ -12,7 +11,7 @@ import {
 import { FileIOFailed } from './errors'
 
 export function generateDocument(env: { dataRoot: string; logger: Logger }) {
-  return async function (input: GenerateDocument) {
+  return async function (input: GenerateDocument): Promise<DocumentGenerated> {
     const logger = env.logger.child({
       method: 'generateDocument',
       documentId: input.documentId,

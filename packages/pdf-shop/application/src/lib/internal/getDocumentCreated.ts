@@ -5,6 +5,7 @@ import { type Logger } from 'pino'
 
 import {
   type GetDocumentSpec,
+  type DocumentCreated,
   encodeDocumentPath,
   documentCreatedSchema,
 } from '@org/pdf-shop-contracts'
@@ -12,7 +13,7 @@ import {
 import { FileIOFailed } from './errors'
 
 export function getDocumentCreated(env: { dataRoot: string; logger: Logger }) {
-  return async function (input: GetDocumentSpec) {
+  return async function (input: GetDocumentSpec): Promise<DocumentCreated> {
     const logger = env.logger.child({
       method: 'getDocumentCreated',
       documentId: input.documentId,

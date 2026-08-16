@@ -34,7 +34,6 @@ export async function submitDocumentSpecAction(
     const result = await handler(raw)
     documentId = result.id
   } catch (err) {
-    // Log the error for visibility
     console.warn({
       error: err,
       handler: 'submitDocumentSpecAction',
