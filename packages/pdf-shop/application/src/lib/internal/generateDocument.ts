@@ -43,7 +43,7 @@ export function generateDocument(env: { dataRoot: string; logger: Logger }) {
         timestamp: new Date().toISOString(),
       }
 
-      const recordData = JSON.stringify(record, null, 2)
+      const recordData = JSON.stringify(record)
       const recordPath = path.join(outputDir, 'generated.json')
       await writeFile(recordPath, recordData, 'utf-8')
 

@@ -1,13 +1,12 @@
 import { readFile, writeFile } from 'node:fs/promises'
-import path from 'node:path'
-import { randomUUID } from 'node:crypto'
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { encodeDocumentPath } from '@org/pdf-shop-contracts'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 
 import { generateDocument } from './generateDocument'
 import { FileIOFailed } from './errors'
 import { createTempDataRoot, createTestLogger } from '../../test-support/testEnv'
+
+const documentId = '11111111-1111-1111-1111-111111111111'
 
 describe('generateDocument', () => {
   let dataRoot: string
@@ -16,9 +15,12 @@ describe('generateDocument', () => {
 
   beforeEach(async () => {
     ;({ dataRoot, cleanup } = await createTempDataRoot())
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2024-01-01T00:00:00.000Z'))
   })
 
   afterEach(async () => {
+    vi.useRealTimers()
     await cleanup()
   })
 
@@ -29,43 +31,43 @@ describe('generateDocument', () => {
   }
 
   it('writes the generated document content and record', async () => {
-    const documentId = randomUUID()
-
     const record = await generateDocument({ dataRoot, logger })({
       documentId,
       spec,
     })
 
-    expect(record).toMatchObject({
+    expect(record).toEqual({
       documentId,
+      path: `v1/documents/${documentId}`,
       filename: `${documentId}.txt`,
       contentType: 'text/plain',
+      timestamp: '2024-01-01T00:00:00.000Z',
     })
 
-    const documentPath = encodeDocumentPath({ documentId, version: 1 })
-    const dir = path.join(dataRoot, documentPath)
-
     const generatedText = await readFile(
-      path.join(dir, 'generated.txt'),
+      `${dataRoot}/v1/documents/${documentId}/generated.txt`,
       'utf-8',
     )
-    expect(generatedText).toContain(documentId)
-    expect(generatedText).toContain(spec.title)
+    expect(generatedText).toBe(
+      `Generated document for spec ${documentId}\n\n{\n  "colorScheme": "dark",\n  "title": "Test Contract",\n  "body": "Body text"\n}`,
+    )
 
     const generatedRecord = await readFile(
-      path.join(dir, 'generated.json'),
+      `${dataRoot}/v1/documents/${documentId}/generated.json`,
       'utf-8',
     )
-    expect(JSON.parse(generatedRecord)).toEqual(record)
+    expect(generatedRecord).toBe(
+      `{"documentId":"${documentId}","path":"v1/documents/${documentId}","filename":"${documentId}.txt","contentType":"text/plain","timestamp":"2024-01-01T00:00:00.000Z"}`,
+    )
   })
 
   it('throws FileIOFailed when the output cannot be written', async () => {
-    const notADirectory = path.join(dataRoot, 'not-a-directory')
+    const notADirectory = `${dataRoot}/not-a-directory`
     await writeFile(notADirectory, '', 'utf-8')
 
     await expect(
       generateDocument({ dataRoot: notADirectory, logger })({
-        documentId: randomUUID(),
+        documentId,
         spec,
       }),
     ).rejects.toBeInstanceOf(FileIOFailed)

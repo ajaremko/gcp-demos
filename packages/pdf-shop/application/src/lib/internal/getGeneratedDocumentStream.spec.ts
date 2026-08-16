@@ -1,5 +1,4 @@
 import { writeFile } from 'node:fs/promises'
-import path from 'node:path'
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 
@@ -30,31 +29,29 @@ describe('getGeneratedDocumentStream', () => {
   })
 
   it('streams an existing non-empty file and reports its size', async () => {
-    const filePath = path.join(dataRoot, 'document.txt')
-    await writeFile(filePath, 'hello world', 'utf-8')
+    await writeFile(`${dataRoot}/document.txt`, 'hello world', 'utf-8')
 
     const { stream, size } = await getGeneratedDocumentStream({ logger })({
-      path: filePath,
+      path: `${dataRoot}/document.txt`,
     })
 
-    expect(size).toBe(Buffer.byteLength('hello world'));
+    expect(size).toBe(11)
     await expect(readStreamToString(stream)).resolves.toBe('hello world')
   })
 
   it('throws FileIOFailed when the file does not exist', async () => {
     await expect(
       getGeneratedDocumentStream({ logger })({
-        path: path.join(dataRoot, 'missing.txt'),
+        path: `${dataRoot}/missing.txt`,
       }),
     ).rejects.toBeInstanceOf(FileIOFailed)
   })
 
   it('throws FileIOFailed when the file is empty', async () => {
-    const filePath = path.join(dataRoot, 'empty.txt')
-    await writeFile(filePath, '', 'utf-8')
+    await writeFile(`${dataRoot}/empty.txt`, '', 'utf-8')
 
     await expect(
-      getGeneratedDocumentStream({ logger })({ path: filePath }),
+      getGeneratedDocumentStream({ logger })({ path: `${dataRoot}/empty.txt` }),
     ).rejects.toBeInstanceOf(FileIOFailed)
   })
 })

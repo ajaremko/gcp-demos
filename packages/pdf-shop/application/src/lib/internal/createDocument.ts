@@ -73,7 +73,7 @@ export function createDocument(env: {
       }
 
       const recordPath = path.join(outputDir, 'created.json')
-      const recordData = JSON.stringify(record, null, 2)
+      const recordData = JSON.stringify(record)
       await writeFile(recordPath, recordData, 'utf-8')
 
       return record

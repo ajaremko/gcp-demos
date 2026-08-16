@@ -1,16 +1,12 @@
 import { mkdir, writeFile } from 'node:fs/promises'
-import path from 'node:path'
-import { randomUUID } from 'node:crypto'
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import {
-  encodeDocumentPath,
-  type PaymentCompleted,
-} from '@org/pdf-shop-contracts'
 
 import { getPaymentCompleted } from './getPayment'
 import { FileIOFailed } from './errors'
 import { createTempDataRoot, createTestLogger } from '../../test-support/testEnv'
+
+const documentId = '11111111-1111-1111-1111-111111111111'
 
 describe('getPaymentCompleted', () => {
   let dataRoot: string
@@ -26,21 +22,10 @@ describe('getPaymentCompleted', () => {
   })
 
   it('reads and parses an existing payment confirmation file', async () => {
-    const documentId = randomUUID()
-    const record: PaymentCompleted = {
-      documentId,
-      stripePaymentIntentId: 'pi_1',
-      amount: 999,
-      currency: 'usd',
-      confirmedAt: new Date().toISOString(),
-    }
-
-    const documentPath = encodeDocumentPath({ documentId, version: 1 })
-    const dir = path.join(dataRoot, documentPath)
-    await mkdir(dir, { recursive: true })
+    await mkdir(`${dataRoot}/v1/documents/${documentId}`, { recursive: true })
     await writeFile(
-      path.join(dir, 'paid.json'),
-      JSON.stringify(record),
+      `${dataRoot}/v1/documents/${documentId}/paid.json`,
+      `{"documentId":"${documentId}","stripePaymentIntentId":"pi_1","amount":999,"currency":"usd","confirmedAt":"2024-01-01T00:00:00.000Z"}`,
       'utf-8',
     )
 
@@ -48,23 +33,28 @@ describe('getPaymentCompleted', () => {
       documentId,
     })
 
-    expect(result).toEqual(record)
+    expect(result).toEqual({
+      documentId,
+      stripePaymentIntentId: 'pi_1',
+      amount: 999,
+      currency: 'usd',
+      confirmedAt: '2024-01-01T00:00:00.000Z',
+    })
   })
 
   it('throws FileIOFailed when the file does not exist', async () => {
     await expect(
-      getPaymentCompleted({ dataRoot, logger })({
-        documentId: randomUUID(),
-      }),
+      getPaymentCompleted({ dataRoot, logger })({ documentId }),
     ).rejects.toBeInstanceOf(FileIOFailed)
   })
 
   it('throws FileIOFailed when the file contains invalid JSON', async () => {
-    const documentId = randomUUID()
-    const documentPath = encodeDocumentPath({ documentId, version: 1 })
-    const dir = path.join(dataRoot, documentPath)
-    await mkdir(dir, { recursive: true })
-    await writeFile(path.join(dir, 'paid.json'), 'not json', 'utf-8')
+    await mkdir(`${dataRoot}/v1/documents/${documentId}`, { recursive: true })
+    await writeFile(
+      `${dataRoot}/v1/documents/${documentId}/paid.json`,
+      'not json',
+      'utf-8',
+    )
 
     await expect(
       getPaymentCompleted({ dataRoot, logger })({ documentId }),
@@ -72,13 +62,10 @@ describe('getPaymentCompleted', () => {
   })
 
   it('throws FileIOFailed when the file content fails schema validation', async () => {
-    const documentId = randomUUID()
-    const documentPath = encodeDocumentPath({ documentId, version: 1 })
-    const dir = path.join(dataRoot, documentPath)
-    await mkdir(dir, { recursive: true })
+    await mkdir(`${dataRoot}/v1/documents/${documentId}`, { recursive: true })
     await writeFile(
-      path.join(dir, 'paid.json'),
-      JSON.stringify({ foo: 'bar' }),
+      `${dataRoot}/v1/documents/${documentId}/paid.json`,
+      '{"foo":"bar"}',
       'utf-8',
     )
 

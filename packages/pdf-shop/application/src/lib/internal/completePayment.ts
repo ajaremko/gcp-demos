@@ -72,7 +72,7 @@ export function completePayment(env: {
         confirmedAt: new Date().toISOString(),
       }
 
-      const recordData = JSON.stringify(record, null, 2)
+      const recordData = JSON.stringify(record)
       const recordPath = path.join(outputDir, 'paid.json')
       await writeFile(recordPath, recordData, 'utf-8')
 

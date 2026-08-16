@@ -1,9 +1,7 @@
 import { readFile, writeFile } from 'node:fs/promises'
-import path from 'node:path'
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import type Stripe from 'stripe'
-import { encodeDocumentPath } from '@org/pdf-shop-contracts'
 
 import { createDocument } from './createDocument'
 import { StripeIntegrationFailed, FileIOFailed } from './errors'
@@ -12,6 +10,17 @@ import {
   createTempDataRoot,
   createTestLogger,
 } from '../../test-support/testEnv'
+
+// createDocument generates its own documentId internally via randomUUID(),
+// so node:crypto is mocked to make it deterministic and hardcodable below.
+const { documentId } = vi.hoisted(() => ({
+  documentId: '11111111-1111-1111-1111-111111111111',
+}))
+
+vi.mock('node:crypto', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('node:crypto')>()
+  return { ...actual, randomUUID: () => documentId }
+})
 
 describe('createDocument', () => {
   let dataRoot: string
@@ -22,9 +31,12 @@ describe('createDocument', () => {
   beforeEach(async () => {
     ;({ dataRoot, cleanup } = await createTempDataRoot())
     stripe = createFakeStripe()
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2024-01-01T00:00:00.000Z'))
   })
 
   afterEach(async () => {
+    vi.useRealTimers()
     await cleanup()
   })
 
@@ -39,22 +51,20 @@ describe('createDocument', () => {
 
     const record = await createDocument({ stripe, dataRoot, logger })(input)
 
-    expect(record.spec).toEqual(input)
-    expect(record.payment).toEqual({
-      paymentIntentId: 'pi_1',
-      amount: 999,
-      currency: 'usd',
+    expect(record).toEqual({
+      id: documentId,
+      createdAt: '2024-01-01T00:00:00.000Z',
+      spec: { colorScheme: 'light', title: 'Test', body: 'Body' },
+      payment: { paymentIntentId: 'pi_1', amount: 999, currency: 'usd' },
     })
 
-    const documentPath = encodeDocumentPath({
-      documentId: record.id,
-      version: 1,
-    })
     const written = await readFile(
-      path.join(dataRoot, documentPath, 'created.json'),
+      `${dataRoot}/v1/documents/${documentId}/created.json`,
       'utf-8',
     )
-    expect(JSON.parse(written)).toEqual(record)
+    expect(written).toBe(
+      `{"id":"${documentId}","createdAt":"2024-01-01T00:00:00.000Z","spec":{"colorScheme":"light","title":"Test","body":"Body"},"payment":{"paymentIntentId":"pi_1","amount":999,"currency":"usd"}}`,
+    )
   })
 
   it('throws StripeIntegrationFailed when Stripe fails to create the payment intent', async () => {
@@ -76,7 +86,7 @@ describe('createDocument', () => {
 
     // Point dataRoot at a file instead of a directory so mkdir(recursive)
     // fails with ENOTDIR — deterministic regardless of user/root.
-    const notADirectory = path.join(dataRoot, 'not-a-directory')
+    const notADirectory = `${dataRoot}/not-a-directory`
     await writeFile(notADirectory, '', 'utf-8')
 
     await expect(

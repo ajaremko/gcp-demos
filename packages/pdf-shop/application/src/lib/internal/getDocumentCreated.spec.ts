@@ -1,16 +1,12 @@
 import { mkdir, writeFile } from 'node:fs/promises'
-import path from 'node:path'
-import { randomUUID } from 'node:crypto'
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import {
-  encodeDocumentPath,
-  type DocumentCreated,
-} from '@org/pdf-shop-contracts'
 
 import { getDocumentCreated } from './getDocumentCreated'
 import { FileIOFailed } from './errors'
 import { createTempDataRoot, createTestLogger } from '../../test-support/testEnv'
+
+const documentId = '11111111-1111-1111-1111-111111111111'
 
 describe('getDocumentCreated', () => {
   let dataRoot: string
@@ -26,20 +22,10 @@ describe('getDocumentCreated', () => {
   })
 
   it('reads and parses an existing document spec file', async () => {
-    const documentId = randomUUID()
-    const record: DocumentCreated = {
-      id: documentId,
-      createdAt: new Date().toISOString(),
-      spec: { colorScheme: 'light', title: 'Test Contract', body: 'Body' },
-      payment: { paymentIntentId: 'pi_1', amount: 999, currency: 'usd' },
-    }
-
-    const documentPath = encodeDocumentPath({ documentId, version: 1 })
-    const dir = path.join(dataRoot, documentPath)
-    await mkdir(dir, { recursive: true })
+    await mkdir(`${dataRoot}/v1/documents/${documentId}`, { recursive: true })
     await writeFile(
-      path.join(dir, 'created.json'),
-      JSON.stringify(record),
+      `${dataRoot}/v1/documents/${documentId}/created.json`,
+      `{"id":"${documentId}","createdAt":"2024-01-01T00:00:00.000Z","spec":{"colorScheme":"light","title":"Test Contract","body":"Body"},"payment":{"paymentIntentId":"pi_1","amount":999,"currency":"usd"}}`,
       'utf-8',
     )
 
@@ -47,21 +33,27 @@ describe('getDocumentCreated', () => {
       documentId,
     })
 
-    expect(result).toEqual(record)
+    expect(result).toEqual({
+      id: documentId,
+      createdAt: '2024-01-01T00:00:00.000Z',
+      spec: { colorScheme: 'light', title: 'Test Contract', body: 'Body' },
+      payment: { paymentIntentId: 'pi_1', amount: 999, currency: 'usd' },
+    })
   })
 
   it('throws FileIOFailed when the file does not exist', async () => {
     await expect(
-      getDocumentCreated({ dataRoot, logger })({ documentId: randomUUID() }),
+      getDocumentCreated({ dataRoot, logger })({ documentId }),
     ).rejects.toBeInstanceOf(FileIOFailed)
   })
 
   it('throws FileIOFailed when the file contains invalid JSON', async () => {
-    const documentId = randomUUID()
-    const documentPath = encodeDocumentPath({ documentId, version: 1 })
-    const dir = path.join(dataRoot, documentPath)
-    await mkdir(dir, { recursive: true })
-    await writeFile(path.join(dir, 'created.json'), 'not json', 'utf-8')
+    await mkdir(`${dataRoot}/v1/documents/${documentId}`, { recursive: true })
+    await writeFile(
+      `${dataRoot}/v1/documents/${documentId}/created.json`,
+      'not json',
+      'utf-8',
+    )
 
     await expect(
       getDocumentCreated({ dataRoot, logger })({ documentId }),
@@ -69,13 +61,10 @@ describe('getDocumentCreated', () => {
   })
 
   it('throws FileIOFailed when the file content fails schema validation', async () => {
-    const documentId = randomUUID()
-    const documentPath = encodeDocumentPath({ documentId, version: 1 })
-    const dir = path.join(dataRoot, documentPath)
-    await mkdir(dir, { recursive: true })
+    await mkdir(`${dataRoot}/v1/documents/${documentId}`, { recursive: true })
     await writeFile(
-      path.join(dir, 'created.json'),
-      JSON.stringify({ foo: 'bar' }),
+      `${dataRoot}/v1/documents/${documentId}/created.json`,
+      '{"foo":"bar"}',
       'utf-8',
     )
 
