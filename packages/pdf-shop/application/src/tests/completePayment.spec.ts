@@ -8,12 +8,12 @@ import {
   PaymentIntentNotFound,
   PaymentRecordWriteFailed,
   completePayment,
-} from './completePayment'
+} from '../lib/internal/completePayment'
 import {
   createFakeStripe,
   createTempDataRoot,
   createTestLogger,
-} from '../../test-support/testEnv'
+} from './testEnv'
 
 describe('completePayment', () => {
   let dataRoot: string

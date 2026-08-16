@@ -7,12 +7,12 @@ import {
   createDocument,
   PaymentIntentCreationFailed,
   DocumentRecordWriteFailed,
-} from './createDocument'
+} from '../lib/internal/createDocument'
 import {
   createFakeStripe,
   createTempDataRoot,
   createTestLogger,
-} from '../../test-support/testEnv'
+} from './testEnv'
 
 // createDocument generates its own documentId internally via randomUUID(),
 // so node:crypto is mocked to make it deterministic and hardcodable below.

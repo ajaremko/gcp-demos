@@ -5,11 +5,8 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import {
   generateDocument,
   GeneratedDocumentDirectoryFailed,
-} from './generateDocument'
-import {
-  createTempDataRoot,
-  createTestLogger,
-} from '../../test-support/testEnv'
+} from '../lib/internal/generateDocument'
+import { createTempDataRoot, createTestLogger } from './testEnv'
 
 describe('generateDocument', () => {
   let dataRoot: string
@@ -87,6 +84,8 @@ describe('generateDocument', () => {
         body: 'Body text',
       },
     })
-    await expect(result).rejects.toBeInstanceOf(GeneratedDocumentDirectoryFailed)
+    await expect(result).rejects.toBeInstanceOf(
+      GeneratedDocumentDirectoryFailed,
+    )
   })
 })

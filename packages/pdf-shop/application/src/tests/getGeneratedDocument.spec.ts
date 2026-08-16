@@ -6,11 +6,8 @@ import {
   getGeneratedDocument,
   GeneratedDocumentRecordNotFound,
   GeneratedDocumentRecordInvalid,
-} from './getGeneratedDocument'
-import {
-  createTempDataRoot,
-  createTestLogger,
-} from '../../test-support/testEnv'
+} from '../lib/internal/getGeneratedDocument'
+import { createTempDataRoot, createTestLogger } from './testEnv'
 
 describe('getGeneratedDocument', () => {
   let dataRoot: string

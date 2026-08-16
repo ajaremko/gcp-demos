@@ -6,11 +6,8 @@ import {
   getPaymentCompleted,
   PaymentConfirmationNotFound,
   PaymentConfirmationInvalid,
-} from './getPayment'
-import {
-  createTempDataRoot,
-  createTestLogger,
-} from '../../test-support/testEnv'
+} from '../lib/internal/getPayment'
+import { createTempDataRoot, createTestLogger } from './testEnv'
 
 describe('getPaymentCompleted', () => {
   let dataRoot: string

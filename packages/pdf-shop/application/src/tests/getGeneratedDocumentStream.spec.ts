@@ -6,11 +6,8 @@ import {
   getGeneratedDocumentStream,
   GeneratedDocumentStreamNotFound,
   GeneratedDocumentStreamEmpty,
-} from './getGeneratedDocumentStream'
-import {
-  createTempDataRoot,
-  createTestLogger,
-} from '../../test-support/testEnv'
+} from '../lib/internal/getGeneratedDocumentStream'
+import { createTempDataRoot, createTestLogger } from './testEnv'
 
 describe('getGeneratedDocumentStream', () => {
   let dataRoot: string
