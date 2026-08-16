@@ -3,8 +3,12 @@ import { readFile, writeFile } from 'node:fs/promises'
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import type Stripe from 'stripe'
 
-import { completePayment } from './completePayment'
-import { StripeIntegrationFailed, FileIOFailed } from './errors'
+import {
+  PaymentIntentInvalid,
+  PaymentIntentNotFound,
+  PaymentRecordWriteFailed,
+  completePayment,
+} from './completePayment'
 import {
   createFakeStripe,
   createTempDataRoot,
@@ -34,6 +38,7 @@ describe('completePayment', () => {
       id: 'pi_1',
       status: 'succeeded',
       amount: 999,
+      currency: 'usd',
       metadata: { documentId: '11111111-1111-4111-8111-111111111111' },
     } as unknown as Stripe.Response<Stripe.PaymentIntent>)
 
@@ -58,13 +63,14 @@ describe('completePayment', () => {
       '{' +
         '"documentId":"11111111-1111-4111-8111-111111111111",' +
         '"stripePaymentIntentId":"pi_1",' +
-        '"amount":999,"currency":"usd",' +
+        '"amount":999,' +
+        '"currency":"usd",' +
         '"confirmedAt":"2024-01-01T00:00:00.000Z"' +
         '}',
     )
   })
 
-  it('throws StripeIntegrationFailed when Stripe retrieval fails', async () => {
+  it('throws PaymentIntentNotFound when Stripe retrieval fails', async () => {
     vi.mocked(stripe.paymentIntents.retrieve).mockRejectedValue(
       new Error('network error'),
     )
@@ -73,10 +79,10 @@ describe('completePayment', () => {
       documentId: '11111111-1111-4111-8111-111111111111',
       paymentIntentId: 'pi_1',
     })
-    await expect(result).rejects.toBeInstanceOf(StripeIntegrationFailed)
+    await expect(result).rejects.toBeInstanceOf(PaymentIntentNotFound)
   })
 
-  it('throws StripeIntegrationFailed when the intent status is not succeeded', async () => {
+  it('throws PaymentIntentInvalid when the intent status is not succeeded', async () => {
     vi.mocked(stripe.paymentIntents.retrieve).mockResolvedValue({
       id: 'pi_1',
       status: 'requires_payment_method',
@@ -88,10 +94,10 @@ describe('completePayment', () => {
       documentId: '11111111-1111-4111-8111-111111111111',
       paymentIntentId: 'pi_1',
     })
-    await expect(result).rejects.toBeInstanceOf(StripeIntegrationFailed)
+    await expect(result).rejects.toBeInstanceOf(PaymentIntentInvalid)
   })
 
-  it('throws StripeIntegrationFailed when the intent metadata documentId does not match', async () => {
+  it('throws PaymentIntentInvalid when the intent metadata documentId does not match', async () => {
     vi.mocked(stripe.paymentIntents.retrieve).mockResolvedValue({
       id: 'pi_1',
       status: 'succeeded',
@@ -103,10 +109,10 @@ describe('completePayment', () => {
       documentId: '11111111-1111-4111-8111-111111111111',
       paymentIntentId: 'pi_1',
     })
-    await expect(result).rejects.toBeInstanceOf(StripeIntegrationFailed)
+    await expect(result).rejects.toBeInstanceOf(PaymentIntentInvalid)
   })
 
-  it('throws FileIOFailed when the payment record cannot be written', async () => {
+  it('throws PaymentRecordWriteFailed when the payment record cannot be written', async () => {
     vi.mocked(stripe.paymentIntents.retrieve).mockResolvedValue({
       id: 'pi_1',
       status: 'succeeded',
@@ -126,6 +132,6 @@ describe('completePayment', () => {
       documentId: '11111111-1111-4111-8111-111111111111',
       paymentIntentId: 'pi_1',
     })
-    await expect(result).rejects.toBeInstanceOf(FileIOFailed)
+    await expect(result).rejects.toBeInstanceOf(PaymentRecordWriteFailed)
   })
 })

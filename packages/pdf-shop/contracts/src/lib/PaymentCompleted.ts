@@ -4,7 +4,7 @@ export const paymentCompletedSchema = z.object({
   documentId: z.uuid(),
   stripePaymentIntentId: z.string(),
   amount: z.number().int().positive(),
-  currency: z.literal('usd'),
+  currency: z.string(),
   confirmedAt: z.iso.datetime(),
 })
 

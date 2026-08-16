@@ -1,6 +1,6 @@
 import { mkdir, writeFile } from 'node:fs/promises'
 import path from 'node:path'
-import { type Stripe } from 'stripe'
+import { type Stripe, type PaymentIntent } from 'stripe'
 import { type Logger } from 'pino'
 
 import {
@@ -9,66 +9,72 @@ import {
   encodeDocumentPath,
 } from '@org/pdf-shop-contracts'
 
-import { StripeIntegrationFailed, FileIOFailed } from './errors'
+export class PaymentIntentNotFound {
+  readonly tag = 'PaymentIntentNotFound'
+  readonly message = 'Stripe payment intent could not be retrieved'
+  constructor(readonly cause: unknown) {}
+}
+
+export class PaymentIntentInvalid {
+  readonly tag = 'PaymentIntentInvalid'
+  readonly message = 'Stripe payment intent failed validation checks'
+  constructor(readonly cause: unknown) {}
+}
+
+export class PaymentRecordWriteFailed {
+  readonly tag = 'PaymentRecordWriteFailed'
+  readonly message = 'Failed to persist payment record to file'
+  constructor(readonly cause: unknown) {}
+}
 
 export function completePayment(env: {
   stripe: Stripe
   dataRoot: string
   logger: Logger
 }) {
-  return async function (input: CompletePayment): Promise<PaymentCompleted> {
-    const logger = env.logger.child({
-      method: 'completePayment',
-      paymentIntentId: input.paymentIntentId,
-      documentId: input.documentId,
-    })
-
-    let stripePaymentIntentId: string
-    let amount: number
+  async function retreivePaymentIntent(paymentIntentId: string) {
     try {
-      logger.trace({}, 'Retrieving payment intent from Stripe')
-      const intent = await env.stripe.paymentIntents.retrieve(
-        input.paymentIntentId,
-      )
+      return await env.stripe.paymentIntents.retrieve(paymentIntentId)
+    } catch (err) {
+      throw new PaymentIntentNotFound(err)
+    }
+  }
 
-      logger.trace(
-        {
-          intentStatus: intent.status,
-          intentMetadata: intent.metadata,
-        },
-        'Checking payment intent status and metadata',
-      )
-      if (
-        intent.status !== 'succeeded' ||
-        intent.metadata.documentId !== input.documentId
-      ) {
+  async function validatePaymentIntent(
+    documentId: string,
+    paymentIntent: PaymentIntent,
+  ) {
+    try {
+      if (paymentIntent.status !== 'succeeded') {
+        throw new Error('Payment intent is not successful')
+      }
+      if (paymentIntent.metadata.documentId !== documentId) {
         throw new Error(
-          'Payment was not successful or does not match the document ID',
+          'Payment intent does not have a matching document ID in metadata',
         )
       }
-
-      stripePaymentIntentId = intent.id
-      amount = intent.amount
     } catch (err) {
-      throw new StripeIntegrationFailed('Failed to verify payment intent', err)
+      throw new PaymentIntentInvalid(err)
     }
+  }
 
+  async function writePaymentRecord(
+    documentId: string,
+    paymentIntent: PaymentIntent,
+  ) {
     try {
-      // Prepare output directory
-      logger.trace({}, 'Preparing output directory for payment record')
       const documentPath = encodeDocumentPath({
-        documentId: input.documentId,
+        documentId,
         version: 1,
       })
       const outputDir = path.join(env.dataRoot, documentPath)
       await mkdir(outputDir, { recursive: true })
 
-      logger.trace({}, 'Writing payment record to file')
       const record: PaymentCompleted = {
-        documentId: input.documentId,
-        stripePaymentIntentId,
-        amount,
-        currency: 'usd',
+        documentId,
+        stripePaymentIntentId: paymentIntent.id,
+        amount: paymentIntent.amount,
+        currency: paymentIntent.currency,
         confirmedAt: new Date().toISOString(),
       }
 
@@ -78,7 +84,32 @@ export function completePayment(env: {
 
       return record
     } catch (err) {
-      throw new FileIOFailed('Failed to write payment intent file', err)
+      throw new PaymentRecordWriteFailed(err)
     }
+  }
+
+  return async function (input: CompletePayment): Promise<PaymentCompleted> {
+    const logger = env.logger.child({
+      method: 'completePayment',
+      paymentIntentId: input.paymentIntentId,
+      documentId: input.documentId,
+    })
+
+    logger.trace({}, 'Retrieving payment intent from Stripe')
+    const intent = await retreivePaymentIntent(input.paymentIntentId)
+
+    logger.trace(
+      {
+        intentStatus: intent.status,
+        intentMetadata: intent.metadata,
+      },
+      'Checking payment intent status and metadata',
+    )
+    await validatePaymentIntent(input.documentId, intent)
+
+    logger.trace({}, 'Writing payment record to file')
+    const record = await writePaymentRecord(input.documentId, intent)
+
+    return record
   }
 }
