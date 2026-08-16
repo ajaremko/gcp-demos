@@ -14,7 +14,7 @@ import {
 // createDocument generates its own documentId internally via randomUUID(),
 // so node:crypto is mocked to make it deterministic and hardcodable below.
 const { documentId } = vi.hoisted(() => ({
-  documentId: '11111111-1111-1111-1111-111111111111',
+  documentId: '11111111-1111-4111-8111-111111111111',
 }))
 
 vi.mock('node:crypto', async (importOriginal) => {

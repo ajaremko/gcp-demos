@@ -6,7 +6,7 @@ import { generateDocument } from './generateDocument'
 import { FileIOFailed } from './errors'
 import { createTempDataRoot, createTestLogger } from '../../test-support/testEnv'
 
-const documentId = '11111111-1111-1111-1111-111111111111'
+const documentId = '11111111-1111-4111-8111-111111111111'
 
 describe('generateDocument', () => {
   let dataRoot: string
