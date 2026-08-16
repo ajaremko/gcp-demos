@@ -60,8 +60,14 @@ describe('createDocument', () => {
       `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111/created.json`,
       'utf-8',
     )
+    // rewrite as string concatenated by + to avoid line length limit in linter
     expect(written).toBe(
-      '{"id":"11111111-1111-4111-8111-111111111111","createdAt":"2024-01-01T00:00:00.000Z","spec":{"colorScheme":"light","title":"Test","body":"Body"},"payment":{"paymentIntentId":"pi_1","amount":999,"currency":"usd"}}',
+      '{' +
+        '"id":"11111111-1111-4111-8111-111111111111",' +
+        '"createdAt":"2024-01-01T00:00:00.000Z",' +
+        '"spec":{"colorScheme":"light","title":"Test","body":"Body"},' +
+        '"payment":{"paymentIntentId":"pi_1","amount":999,"currency":"usd"}' +
+        '}',
     )
   })
 

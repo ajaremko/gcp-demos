@@ -55,7 +55,12 @@ describe('completePayment', () => {
       'utf-8',
     )
     expect(written).toBe(
-      '{"documentId":"11111111-1111-4111-8111-111111111111","stripePaymentIntentId":"pi_1","amount":999,"currency":"usd","confirmedAt":"2024-01-01T00:00:00.000Z"}',
+      '{' +
+        '"documentId":"11111111-1111-4111-8111-111111111111",' +
+        '"stripePaymentIntentId":"pi_1",' +
+        '"amount":999,"currency":"usd",' +
+        '"confirmedAt":"2024-01-01T00:00:00.000Z"' +
+        '}',
     )
   })
 
