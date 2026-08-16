@@ -6,8 +6,6 @@ import { generateDocument } from './generateDocument'
 import { FileIOFailed } from './errors'
 import { createTempDataRoot, createTestLogger } from '../../test-support/testEnv'
 
-const documentId = '11111111-1111-4111-8111-111111111111'
-
 describe('generateDocument', () => {
   let dataRoot: string
   let cleanup: () => Promise<void>
@@ -24,51 +22,52 @@ describe('generateDocument', () => {
     await cleanup()
   })
 
-  const spec = {
-    colorScheme: 'dark' as const,
-    title: 'Test Contract',
-    body: 'Body text',
-  }
-
   it('writes the generated document content and record', async () => {
     const record = await generateDocument({ dataRoot, logger })({
-      documentId,
-      spec,
+      documentId: '11111111-1111-4111-8111-111111111111',
+      spec: {
+        colorScheme: 'dark',
+        title: 'Test Contract',
+        body: 'Body text',
+      },
     })
 
     expect(record).toEqual({
-      documentId,
-      path: `v1/documents/${documentId}`,
-      filename: `${documentId}.txt`,
+      documentId: '11111111-1111-4111-8111-111111111111',
+      path: 'v1/documents/11111111-1111-4111-8111-111111111111',
+      filename: '11111111-1111-4111-8111-111111111111.txt',
       contentType: 'text/plain',
       timestamp: '2024-01-01T00:00:00.000Z',
     })
 
     const generatedText = await readFile(
-      `${dataRoot}/v1/documents/${documentId}/generated.txt`,
+      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111/generated.txt`,
       'utf-8',
     )
     expect(generatedText).toBe(
-      `Generated document for spec ${documentId}\n\n{\n  "colorScheme": "dark",\n  "title": "Test Contract",\n  "body": "Body text"\n}`,
+      'Generated document for spec 11111111-1111-4111-8111-111111111111\n\n{\n  "colorScheme": "dark",\n  "title": "Test Contract",\n  "body": "Body text"\n}',
     )
 
     const generatedRecord = await readFile(
-      `${dataRoot}/v1/documents/${documentId}/generated.json`,
+      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111/generated.json`,
       'utf-8',
     )
     expect(generatedRecord).toBe(
-      `{"documentId":"${documentId}","path":"v1/documents/${documentId}","filename":"${documentId}.txt","contentType":"text/plain","timestamp":"2024-01-01T00:00:00.000Z"}`,
+      '{"documentId":"11111111-1111-4111-8111-111111111111","path":"v1/documents/11111111-1111-4111-8111-111111111111","filename":"11111111-1111-4111-8111-111111111111.txt","contentType":"text/plain","timestamp":"2024-01-01T00:00:00.000Z"}',
     )
   })
 
   it('throws FileIOFailed when the output cannot be written', async () => {
-    const notADirectory = `${dataRoot}/not-a-directory`
-    await writeFile(notADirectory, '', 'utf-8')
+    await writeFile(`${dataRoot}/not-a-directory`, '', 'utf-8')
 
     await expect(
-      generateDocument({ dataRoot: notADirectory, logger })({
-        documentId,
-        spec,
+      generateDocument({ dataRoot: `${dataRoot}/not-a-directory`, logger })({
+        documentId: '11111111-1111-4111-8111-111111111111',
+        spec: {
+          colorScheme: 'dark',
+          title: 'Test Contract',
+          body: 'Body text',
+        },
       }),
     ).rejects.toBeInstanceOf(FileIOFailed)
   })

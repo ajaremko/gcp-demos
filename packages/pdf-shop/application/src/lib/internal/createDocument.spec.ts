@@ -13,13 +13,9 @@ import {
 
 // createDocument generates its own documentId internally via randomUUID(),
 // so node:crypto is mocked to make it deterministic and hardcodable below.
-const { documentId } = vi.hoisted(() => ({
-  documentId: '11111111-1111-4111-8111-111111111111',
-}))
-
 vi.mock('node:crypto', async (importOriginal) => {
   const actual = await importOriginal<typeof import('node:crypto')>()
-  return { ...actual, randomUUID: () => documentId }
+  return { ...actual, randomUUID: () => '11111111-1111-4111-8111-111111111111' }
 })
 
 describe('createDocument', () => {
@@ -40,8 +36,6 @@ describe('createDocument', () => {
     await cleanup()
   })
 
-  const input = { colorScheme: 'light' as const, title: 'Test', body: 'Body' }
-
   it('creates a payment intent and writes a document record', async () => {
     vi.mocked(stripe.paymentIntents.create).mockResolvedValue({
       id: 'pi_1',
@@ -49,21 +43,25 @@ describe('createDocument', () => {
       currency: 'usd',
     } as unknown as Stripe.Response<Stripe.PaymentIntent>)
 
-    const record = await createDocument({ stripe, dataRoot, logger })(input)
+    const record = await createDocument({ stripe, dataRoot, logger })({
+      colorScheme: 'light',
+      title: 'Test',
+      body: 'Body',
+    })
 
     expect(record).toEqual({
-      id: documentId,
+      id: '11111111-1111-4111-8111-111111111111',
       createdAt: '2024-01-01T00:00:00.000Z',
       spec: { colorScheme: 'light', title: 'Test', body: 'Body' },
       payment: { paymentIntentId: 'pi_1', amount: 999, currency: 'usd' },
     })
 
     const written = await readFile(
-      `${dataRoot}/v1/documents/${documentId}/created.json`,
+      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111/created.json`,
       'utf-8',
     )
     expect(written).toBe(
-      `{"id":"${documentId}","createdAt":"2024-01-01T00:00:00.000Z","spec":{"colorScheme":"light","title":"Test","body":"Body"},"payment":{"paymentIntentId":"pi_1","amount":999,"currency":"usd"}}`,
+      '{"id":"11111111-1111-4111-8111-111111111111","createdAt":"2024-01-01T00:00:00.000Z","spec":{"colorScheme":"light","title":"Test","body":"Body"},"payment":{"paymentIntentId":"pi_1","amount":999,"currency":"usd"}}',
     )
   })
 
@@ -73,7 +71,11 @@ describe('createDocument', () => {
     )
 
     await expect(
-      createDocument({ stripe, dataRoot, logger })(input),
+      createDocument({ stripe, dataRoot, logger })({
+        colorScheme: 'light',
+        title: 'Test',
+        body: 'Body',
+      }),
     ).rejects.toBeInstanceOf(StripeIntegrationFailed)
   })
 
@@ -86,11 +88,18 @@ describe('createDocument', () => {
 
     // Point dataRoot at a file instead of a directory so mkdir(recursive)
     // fails with ENOTDIR — deterministic regardless of user/root.
-    const notADirectory = `${dataRoot}/not-a-directory`
-    await writeFile(notADirectory, '', 'utf-8')
+    await writeFile(`${dataRoot}/not-a-directory`, '', 'utf-8')
 
     await expect(
-      createDocument({ stripe, dataRoot: notADirectory, logger })(input),
+      createDocument({
+        stripe,
+        dataRoot: `${dataRoot}/not-a-directory`,
+        logger,
+      })({
+        colorScheme: 'light',
+        title: 'Test',
+        body: 'Body',
+      }),
     ).rejects.toBeInstanceOf(FileIOFailed)
   })
 })

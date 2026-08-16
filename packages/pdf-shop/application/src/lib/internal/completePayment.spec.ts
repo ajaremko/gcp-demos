@@ -11,9 +11,6 @@ import {
   createTestLogger,
 } from '../../test-support/testEnv'
 
-const documentId = '11111111-1111-4111-8111-111111111111'
-const otherDocumentId = '22222222-2222-4222-8222-222222222222'
-
 describe('completePayment', () => {
   let dataRoot: string
   let cleanup: () => Promise<void>
@@ -37,16 +34,16 @@ describe('completePayment', () => {
       id: 'pi_1',
       status: 'succeeded',
       amount: 999,
-      metadata: { documentId },
+      metadata: { documentId: '11111111-1111-4111-8111-111111111111' },
     } as unknown as Stripe.Response<Stripe.PaymentIntent>)
 
     const record = await completePayment({ stripe, dataRoot, logger })({
-      documentId,
+      documentId: '11111111-1111-4111-8111-111111111111',
       paymentIntentId: 'pi_1',
     })
 
     expect(record).toEqual({
-      documentId,
+      documentId: '11111111-1111-4111-8111-111111111111',
       stripePaymentIntentId: 'pi_1',
       amount: 999,
       currency: 'usd',
@@ -54,11 +51,11 @@ describe('completePayment', () => {
     })
 
     const written = await readFile(
-      `${dataRoot}/v1/documents/${documentId}/paid.json`,
+      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111/paid.json`,
       'utf-8',
     )
     expect(written).toBe(
-      `{"documentId":"${documentId}","stripePaymentIntentId":"pi_1","amount":999,"currency":"usd","confirmedAt":"2024-01-01T00:00:00.000Z"}`,
+      '{"documentId":"11111111-1111-4111-8111-111111111111","stripePaymentIntentId":"pi_1","amount":999,"currency":"usd","confirmedAt":"2024-01-01T00:00:00.000Z"}',
     )
   })
 
@@ -69,7 +66,7 @@ describe('completePayment', () => {
 
     await expect(
       completePayment({ stripe, dataRoot, logger })({
-        documentId,
+        documentId: '11111111-1111-4111-8111-111111111111',
         paymentIntentId: 'pi_1',
       }),
     ).rejects.toBeInstanceOf(StripeIntegrationFailed)
@@ -80,12 +77,12 @@ describe('completePayment', () => {
       id: 'pi_1',
       status: 'requires_payment_method',
       amount: 999,
-      metadata: { documentId },
+      metadata: { documentId: '11111111-1111-4111-8111-111111111111' },
     } as unknown as Stripe.Response<Stripe.PaymentIntent>)
 
     await expect(
       completePayment({ stripe, dataRoot, logger })({
-        documentId,
+        documentId: '11111111-1111-4111-8111-111111111111',
         paymentIntentId: 'pi_1',
       }),
     ).rejects.toBeInstanceOf(StripeIntegrationFailed)
@@ -96,12 +93,12 @@ describe('completePayment', () => {
       id: 'pi_1',
       status: 'succeeded',
       amount: 999,
-      metadata: { documentId: otherDocumentId },
+      metadata: { documentId: '22222222-2222-4222-8222-222222222222' },
     } as unknown as Stripe.Response<Stripe.PaymentIntent>)
 
     await expect(
       completePayment({ stripe, dataRoot, logger })({
-        documentId,
+        documentId: '11111111-1111-4111-8111-111111111111',
         paymentIntentId: 'pi_1',
       }),
     ).rejects.toBeInstanceOf(StripeIntegrationFailed)
@@ -112,15 +109,20 @@ describe('completePayment', () => {
       id: 'pi_1',
       status: 'succeeded',
       amount: 999,
-      metadata: { documentId },
+      metadata: { documentId: '11111111-1111-4111-8111-111111111111' },
     } as unknown as Stripe.Response<Stripe.PaymentIntent>)
 
-    const notADirectory = `${dataRoot}/not-a-directory`
-    await writeFile(notADirectory, '', 'utf-8')
+    // Point dataRoot at a file instead of a directory so mkdir(recursive)
+    // fails with ENOTDIR — deterministic regardless of user/root.
+    await writeFile(`${dataRoot}/not-a-directory`, '', 'utf-8')
 
     await expect(
-      completePayment({ stripe, dataRoot: notADirectory, logger })({
-        documentId,
+      completePayment({
+        stripe,
+        dataRoot: `${dataRoot}/not-a-directory`,
+        logger,
+      })({
+        documentId: '11111111-1111-4111-8111-111111111111',
         paymentIntentId: 'pi_1',
       }),
     ).rejects.toBeInstanceOf(FileIOFailed)

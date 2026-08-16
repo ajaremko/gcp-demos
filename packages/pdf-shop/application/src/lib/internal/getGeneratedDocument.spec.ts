@@ -6,8 +6,6 @@ import { getGeneratedDocument } from './getGeneratedDocument'
 import { FileIOFailed } from './errors'
 import { createTempDataRoot, createTestLogger } from '../../test-support/testEnv'
 
-const documentId = '11111111-1111-4111-8111-111111111111'
-
 describe('getGeneratedDocument', () => {
   let dataRoot: string
   let cleanup: () => Promise<void>
@@ -22,21 +20,24 @@ describe('getGeneratedDocument', () => {
   })
 
   it('reads and parses an existing generated document file', async () => {
-    await mkdir(`${dataRoot}/v1/documents/${documentId}`, { recursive: true })
+    await mkdir(
+      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111`,
+      { recursive: true },
+    )
     await writeFile(
-      `${dataRoot}/v1/documents/${documentId}/generated.json`,
-      `{"documentId":"${documentId}","path":"v1/documents/${documentId}","filename":"${documentId}.txt","contentType":"text/plain","timestamp":"2024-01-01T00:00:00.000Z"}`,
+      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111/generated.json`,
+      '{"documentId":"11111111-1111-4111-8111-111111111111","path":"v1/documents/11111111-1111-4111-8111-111111111111","filename":"11111111-1111-4111-8111-111111111111.txt","contentType":"text/plain","timestamp":"2024-01-01T00:00:00.000Z"}',
       'utf-8',
     )
 
     const result = await getGeneratedDocument({ dataRoot, logger })({
-      documentId,
+      documentId: '11111111-1111-4111-8111-111111111111',
     })
 
     expect(result).toEqual({
-      documentId,
-      path: `v1/documents/${documentId}`,
-      filename: `${documentId}.txt`,
+      documentId: '11111111-1111-4111-8111-111111111111',
+      path: 'v1/documents/11111111-1111-4111-8111-111111111111',
+      filename: '11111111-1111-4111-8111-111111111111.txt',
       contentType: 'text/plain',
       timestamp: '2024-01-01T00:00:00.000Z',
     })
@@ -44,33 +45,45 @@ describe('getGeneratedDocument', () => {
 
   it('throws FileIOFailed when the file does not exist', async () => {
     await expect(
-      getGeneratedDocument({ dataRoot, logger })({ documentId }),
+      getGeneratedDocument({ dataRoot, logger })({
+        documentId: '11111111-1111-4111-8111-111111111111',
+      }),
     ).rejects.toBeInstanceOf(FileIOFailed)
   })
 
   it('throws FileIOFailed when the file contains invalid JSON', async () => {
-    await mkdir(`${dataRoot}/v1/documents/${documentId}`, { recursive: true })
+    await mkdir(
+      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111`,
+      { recursive: true },
+    )
     await writeFile(
-      `${dataRoot}/v1/documents/${documentId}/generated.json`,
+      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111/generated.json`,
       'not json',
       'utf-8',
     )
 
     await expect(
-      getGeneratedDocument({ dataRoot, logger })({ documentId }),
+      getGeneratedDocument({ dataRoot, logger })({
+        documentId: '11111111-1111-4111-8111-111111111111',
+      }),
     ).rejects.toBeInstanceOf(FileIOFailed)
   })
 
   it('throws FileIOFailed when the file content fails schema validation', async () => {
-    await mkdir(`${dataRoot}/v1/documents/${documentId}`, { recursive: true })
+    await mkdir(
+      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111`,
+      { recursive: true },
+    )
     await writeFile(
-      `${dataRoot}/v1/documents/${documentId}/generated.json`,
+      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111/generated.json`,
       '{"foo":"bar"}',
       'utf-8',
     )
 
     await expect(
-      getGeneratedDocument({ dataRoot, logger })({ documentId }),
+      getGeneratedDocument({ dataRoot, logger })({
+        documentId: '11111111-1111-4111-8111-111111111111',
+      }),
     ).rejects.toBeInstanceOf(FileIOFailed)
   })
 })
