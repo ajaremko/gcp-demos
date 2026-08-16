@@ -1,0 +1,116 @@
+import { writeFile } from 'node:fs/promises'
+
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { ZodError } from 'zod'
+import type Stripe from 'stripe'
+
+import { handleCompletePayment } from '../lib/handleCompletePayment'
+import {
+  PaymentIntentNotFound,
+  PaymentIntentInvalid,
+  PaymentRecordWriteFailed,
+} from '../lib/internal/completePayment'
+import {
+  createFakeStripe,
+  createTempDataRoot,
+  createTestLogger,
+} from './testEnv'
+
+describe('handleCompletePayment', () => {
+  let dataRoot: string
+  let cleanup: () => Promise<void>
+  const logger = createTestLogger()
+  let stripe: Stripe
+
+  beforeEach(async () => {
+    ;({ dataRoot, cleanup } = await createTempDataRoot())
+    stripe = createFakeStripe()
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2024-01-01T00:00:00.000Z'))
+  })
+
+  afterEach(async () => {
+    vi.useRealTimers()
+    await cleanup()
+  })
+
+  it('validates input and confirms the payment', async () => {
+    vi.mocked(stripe.paymentIntents.retrieve).mockResolvedValue({
+      id: 'pi_1',
+      status: 'succeeded',
+      amount: 999,
+      metadata: { documentId: '11111111-1111-4111-8111-111111111111' },
+    } as unknown as Stripe.Response<Stripe.PaymentIntent>)
+
+    const result = await handleCompletePayment({ stripe, dataRoot, logger })({
+      documentId: '11111111-1111-4111-8111-111111111111',
+      paymentIntentId: 'pi_1',
+    })
+
+    expect(result).toEqual({
+      documentId: '11111111-1111-4111-8111-111111111111',
+    })
+  })
+
+  it('throws ZodError when the input is invalid', async () => {
+    const result = handleCompletePayment({ stripe, dataRoot, logger })({
+      documentId: 'not-a-uuid',
+      paymentIntentId: 'pi_1',
+    })
+
+    await expect(result).rejects.toBeInstanceOf(ZodError)
+  })
+
+  it('propagates PaymentIntentNotFound from completePayment', async () => {
+    vi.mocked(stripe.paymentIntents.retrieve).mockRejectedValue(
+      new Error('network error'),
+    )
+
+    const result = handleCompletePayment({ stripe, dataRoot, logger })({
+      documentId: '11111111-1111-4111-8111-111111111111',
+      paymentIntentId: 'pi_1',
+    })
+
+    await expect(result).rejects.toBeInstanceOf(PaymentIntentNotFound)
+  })
+
+  it('propagates PaymentIntentInvalid from completePayment', async () => {
+    vi.mocked(stripe.paymentIntents.retrieve).mockResolvedValue({
+      id: 'pi_1',
+      status: 'requires_payment_method',
+      amount: 999,
+      metadata: { documentId: '11111111-1111-4111-8111-111111111111' },
+    } as unknown as Stripe.Response<Stripe.PaymentIntent>)
+
+    const result = handleCompletePayment({ stripe, dataRoot, logger })({
+      documentId: '11111111-1111-4111-8111-111111111111',
+      paymentIntentId: 'pi_1',
+    })
+
+    await expect(result).rejects.toBeInstanceOf(PaymentIntentInvalid)
+  })
+
+  it('propagates PaymentRecordWriteFailed from completePayment', async () => {
+    vi.mocked(stripe.paymentIntents.retrieve).mockResolvedValue({
+      id: 'pi_1',
+      status: 'succeeded',
+      amount: 999,
+      metadata: { documentId: '11111111-1111-4111-8111-111111111111' },
+    } as unknown as Stripe.Response<Stripe.PaymentIntent>)
+
+    // Point dataRoot at a file instead of a directory so mkdir(recursive)
+    // fails with ENOTDIR — deterministic regardless of user/root.
+    await writeFile(`${dataRoot}/not-a-directory`, '', 'utf-8')
+
+    const result = handleCompletePayment({
+      stripe,
+      dataRoot: `${dataRoot}/not-a-directory`,
+      logger,
+    })({
+      documentId: '11111111-1111-4111-8111-111111111111',
+      paymentIntentId: 'pi_1',
+    })
+
+    await expect(result).rejects.toBeInstanceOf(PaymentRecordWriteFailed)
+  })
+})

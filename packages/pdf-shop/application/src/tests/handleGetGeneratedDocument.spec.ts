@@ -1,0 +1,146 @@
+import { mkdir, writeFile } from 'node:fs/promises'
+
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+
+import { handleGetGeneratedDocument } from '../lib/handleGetGeneratedDocument'
+import { GeneratedDocumentRecordNotFound } from '../lib/internal/getGeneratedDocument'
+import { PaymentConfirmationNotFound } from '../lib/internal/getPayment'
+import { GeneratedDocumentStreamNotFound } from '../lib/internal/getGeneratedDocumentStream'
+import { createTempDataRoot, createTestLogger } from './testEnv'
+
+function readStreamToString(stream: NodeJS.ReadableStream): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const chunks: Buffer[] = []
+    stream.on('data', (chunk) => chunks.push(Buffer.from(chunk)))
+    stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf-8')))
+    stream.on('error', reject)
+  })
+}
+
+describe('handleGetGeneratedDocument', () => {
+  let dataRoot: string
+  let cleanup: () => Promise<void>
+  const logger = createTestLogger()
+
+  beforeEach(async () => {
+    ;({ dataRoot, cleanup } = await createTempDataRoot())
+  })
+
+  afterEach(async () => {
+    await cleanup()
+  })
+
+  it('reads the generated document, confirms payment, and streams the file', async () => {
+    await mkdir(
+      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111`,
+      { recursive: true },
+    )
+    // generated.json's "path" is a real, directly-statable absolute path —
+    // getGeneratedDocumentStream stats/reads it as-is, with no dataRoot
+    // joining, so the fixture must point straight at a real file.
+    await writeFile(`${dataRoot}/generated-output.txt`, 'hello world', 'utf-8')
+    await writeFile(
+      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111/generated.json`,
+      `{` +
+        `"documentId":"11111111-1111-4111-8111-111111111111",` +
+        `"path":"${dataRoot}/generated-output.txt",` +
+        `"filename":"contract.txt",` +
+        `"contentType":"text/plain",` +
+        `"timestamp":"2024-01-01T00:00:00.000Z"` +
+        `}`,
+      'utf-8',
+    )
+    await writeFile(
+      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111/paid.json`,
+      '{' +
+        '"documentId":"11111111-1111-4111-8111-111111111111",' +
+        '"stripePaymentIntentId":"pi_1",' +
+        '"amount":999,' +
+        '"currency":"usd",' +
+        '"confirmedAt":"2024-01-01T00:00:00.000Z"' +
+        '}',
+      'utf-8',
+    )
+
+    const result = await handleGetGeneratedDocument({ dataRoot, logger })({
+      documentId: '11111111-1111-4111-8111-111111111111',
+    })
+
+    expect(result.filename).toBe('contract.txt')
+    expect(result.contentType).toBe('text/plain')
+    expect(result.size).toBe(11)
+    await expect(readStreamToString(result.stream)).resolves.toBe(
+      'hello world',
+    )
+  })
+
+  it('propagates GeneratedDocumentRecordNotFound from getGeneratedDocument', async () => {
+    const result = handleGetGeneratedDocument({ dataRoot, logger })({
+      documentId: '11111111-1111-4111-8111-111111111111',
+    })
+
+    await expect(result).rejects.toBeInstanceOf(GeneratedDocumentRecordNotFound)
+  })
+
+  it('propagates PaymentConfirmationNotFound from getPayment', async () => {
+    await mkdir(
+      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111`,
+      { recursive: true },
+    )
+    await writeFile(`${dataRoot}/generated-output.txt`, 'hello world', 'utf-8')
+    await writeFile(
+      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111/generated.json`,
+      `{` +
+        `"documentId":"11111111-1111-4111-8111-111111111111",` +
+        `"path":"${dataRoot}/generated-output.txt",` +
+        `"filename":"contract.txt",` +
+        `"contentType":"text/plain",` +
+        `"timestamp":"2024-01-01T00:00:00.000Z"` +
+        `}`,
+      'utf-8',
+    )
+
+    const result = handleGetGeneratedDocument({ dataRoot, logger })({
+      documentId: '11111111-1111-4111-8111-111111111111',
+    })
+
+    await expect(result).rejects.toBeInstanceOf(PaymentConfirmationNotFound)
+  })
+
+  it('propagates GeneratedDocumentStreamNotFound from getGeneratedDocumentStream', async () => {
+    await mkdir(
+      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111`,
+      { recursive: true },
+    )
+    // No file written at generated-output.txt — the record points at a
+    // path that doesn't exist.
+    await writeFile(
+      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111/generated.json`,
+      `{` +
+        `"documentId":"11111111-1111-4111-8111-111111111111",` +
+        `"path":"${dataRoot}/generated-output.txt",` +
+        `"filename":"contract.txt",` +
+        `"contentType":"text/plain",` +
+        `"timestamp":"2024-01-01T00:00:00.000Z"` +
+        `}`,
+      'utf-8',
+    )
+    await writeFile(
+      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111/paid.json`,
+      '{' +
+        '"documentId":"11111111-1111-4111-8111-111111111111",' +
+        '"stripePaymentIntentId":"pi_1",' +
+        '"amount":999,' +
+        '"currency":"usd",' +
+        '"confirmedAt":"2024-01-01T00:00:00.000Z"' +
+        '}',
+      'utf-8',
+    )
+
+    const result = handleGetGeneratedDocument({ dataRoot, logger })({
+      documentId: '11111111-1111-4111-8111-111111111111',
+    })
+
+    await expect(result).rejects.toBeInstanceOf(GeneratedDocumentStreamNotFound)
+  })
+})
