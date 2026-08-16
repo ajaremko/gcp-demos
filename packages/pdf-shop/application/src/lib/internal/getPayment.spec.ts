@@ -4,7 +4,10 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 
 import { getPaymentCompleted } from './getPayment'
 import { FileIOFailed } from './errors'
-import { createTempDataRoot, createTestLogger } from '../../test-support/testEnv'
+import {
+  createTempDataRoot,
+  createTestLogger,
+} from '../../test-support/testEnv'
 
 describe('getPaymentCompleted', () => {
   let dataRoot: string
@@ -26,7 +29,13 @@ describe('getPaymentCompleted', () => {
     )
     await writeFile(
       `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111/paid.json`,
-      '{"documentId":"11111111-1111-4111-8111-111111111111","stripePaymentIntentId":"pi_1","amount":999,"currency":"usd","confirmedAt":"2024-01-01T00:00:00.000Z"}',
+      '{' +
+        '"documentId":"11111111-1111-4111-8111-111111111111",' +
+        '"stripePaymentIntentId":"pi_1",' +
+        '"amount":999,' +
+        '"currency":"usd",' +
+        '"confirmedAt":"2024-01-01T00:00:00.000Z"' +
+        '}',
       'utf-8',
     )
 

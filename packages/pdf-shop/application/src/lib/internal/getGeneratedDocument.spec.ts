@@ -4,7 +4,10 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 
 import { getGeneratedDocument } from './getGeneratedDocument'
 import { FileIOFailed } from './errors'
-import { createTempDataRoot, createTestLogger } from '../../test-support/testEnv'
+import {
+  createTempDataRoot,
+  createTestLogger,
+} from '../../test-support/testEnv'
 
 describe('getGeneratedDocument', () => {
   let dataRoot: string
@@ -26,7 +29,13 @@ describe('getGeneratedDocument', () => {
     )
     await writeFile(
       `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111/generated.json`,
-      '{"documentId":"11111111-1111-4111-8111-111111111111","path":"v1/documents/11111111-1111-4111-8111-111111111111","filename":"11111111-1111-4111-8111-111111111111.txt","contentType":"text/plain","timestamp":"2024-01-01T00:00:00.000Z"}',
+      '{' +
+        '"documentId":"11111111-1111-4111-8111-111111111111",' +
+        '"path":"v1/documents/11111111-1111-4111-8111-111111111111",' +
+        '"filename":"11111111-1111-4111-8111-111111111111.txt",' +
+        '"contentType":"text/plain",' +
+        '"timestamp":"2024-01-01T00:00:00.000Z"' +
+        '}',
       'utf-8',
     )
 

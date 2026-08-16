@@ -4,16 +4,10 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 
 import { getGeneratedDocumentStream } from './getGeneratedDocumentStream'
 import { FileIOFailed } from './errors'
-import { createTempDataRoot, createTestLogger } from '../../test-support/testEnv'
-
-function readStreamToString(stream: NodeJS.ReadableStream): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const chunks: Buffer[] = []
-    stream.on('data', (chunk) => chunks.push(Buffer.from(chunk)))
-    stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf-8')))
-    stream.on('error', reject)
-  })
-}
+import {
+  createTempDataRoot,
+  createTestLogger,
+} from '../../test-support/testEnv'
 
 describe('getGeneratedDocumentStream', () => {
   let dataRoot: string
@@ -36,7 +30,14 @@ describe('getGeneratedDocumentStream', () => {
     })
 
     expect(size).toBe(11)
-    await expect(readStreamToString(stream)).resolves.toBe('hello world')
+    // Collect the streamed data into a single string for assertion
+    const result = new Promise((resolve, reject) => {
+      const chunks: Buffer[] = []
+      stream.on('data', (chunk) => chunks.push(Buffer.from(chunk)))
+      stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf-8')))
+      stream.on('error', reject)
+    })
+    await expect(result).resolves.toBe('hello world')
   })
 
   it('throws FileIOFailed when the file does not exist', async () => {

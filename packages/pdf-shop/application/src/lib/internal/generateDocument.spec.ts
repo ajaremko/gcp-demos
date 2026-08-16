@@ -4,7 +4,10 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 
 import { generateDocument } from './generateDocument'
 import { FileIOFailed } from './errors'
-import { createTempDataRoot, createTestLogger } from '../../test-support/testEnv'
+import {
+  createTempDataRoot,
+  createTestLogger,
+} from '../../test-support/testEnv'
 
 describe('generateDocument', () => {
   let dataRoot: string
@@ -53,7 +56,13 @@ describe('generateDocument', () => {
       'utf-8',
     )
     expect(generatedRecord).toBe(
-      '{"documentId":"11111111-1111-4111-8111-111111111111","path":"v1/documents/11111111-1111-4111-8111-111111111111","filename":"11111111-1111-4111-8111-111111111111.txt","contentType":"text/plain","timestamp":"2024-01-01T00:00:00.000Z"}',
+      '{' +
+        '"documentId":"11111111-1111-4111-8111-111111111111",' +
+        '"path":"v1/documents/11111111-1111-4111-8111-111111111111",' +
+        '"filename":"11111111-1111-4111-8111-111111111111.txt",' +
+        '"contentType":"text/plain",' +
+        '"timestamp":"2024-01-01T00:00:00.000Z"' +
+        '}',
     )
   })
 
