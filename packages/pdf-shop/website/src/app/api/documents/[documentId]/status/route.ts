@@ -1,7 +1,7 @@
 import { ZodError } from 'zod'
 
 import {
-  FileIOFailed,
+  isApplicationError,
   handleGetGeneratedDocumentReady,
 } from '@org/pdf-shop-application'
 
@@ -21,7 +21,7 @@ export async function GET(
     const ready = await handler(params)
     return Response.json({ ready })
   } catch (err) {
-    if (err instanceof FileIOFailed) {
+    if (isApplicationError(err)) {
       return Response.json({ ready: false })
     }
     if (err instanceof ZodError) {

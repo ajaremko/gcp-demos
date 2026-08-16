@@ -2,8 +2,11 @@ import { mkdir, writeFile } from 'node:fs/promises'
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 
-import { getDocumentCreated } from './getDocumentCreated'
-import { FileIOFailed } from './errors'
+import {
+  getDocumentCreated,
+  DocumentRecordNotFound,
+  DocumentRecordInvalid,
+} from './getDocumentCreated'
 import {
   createTempDataRoot,
   createTestLogger,
@@ -50,14 +53,14 @@ describe('getDocumentCreated', () => {
     })
   })
 
-  it('throws FileIOFailed when the file does not exist', async () => {
+  it('throws DocumentRecordNotFound when the file does not exist', async () => {
     const result = getDocumentCreated({ dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
-    await expect(result).rejects.toBeInstanceOf(FileIOFailed)
+    await expect(result).rejects.toBeInstanceOf(DocumentRecordNotFound)
   })
 
-  it('throws FileIOFailed when the file contains invalid JSON', async () => {
+  it('throws DocumentRecordInvalid when the file contains invalid JSON', async () => {
     await mkdir(
       `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111`,
       { recursive: true },
@@ -71,10 +74,10 @@ describe('getDocumentCreated', () => {
     const result = getDocumentCreated({ dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
-    await expect(result).rejects.toBeInstanceOf(FileIOFailed)
+    await expect(result).rejects.toBeInstanceOf(DocumentRecordInvalid)
   })
 
-  it('throws FileIOFailed when the file content fails schema validation', async () => {
+  it('throws DocumentRecordInvalid when the file content fails schema validation', async () => {
     await mkdir(
       `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111`,
       { recursive: true },
@@ -88,6 +91,6 @@ describe('getDocumentCreated', () => {
     const result = getDocumentCreated({ dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
-    await expect(result).rejects.toBeInstanceOf(FileIOFailed)
+    await expect(result).rejects.toBeInstanceOf(DocumentRecordInvalid)
   })
 })

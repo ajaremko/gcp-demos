@@ -9,12 +9,48 @@ import {
   documentGeneratedSchema,
 } from '@org/pdf-shop-contracts'
 
-import { FileIOFailed } from './errors'
+import { ApplicationError } from '../ApplicationError'
+
+export class GeneratedDocumentRecordNotFound extends ApplicationError {
+  readonly tag = 'GeneratedDocumentRecordNotFound'
+  constructor(cause: unknown) {
+    super('Generated document record file could not be found', cause)
+  }
+}
+
+export class GeneratedDocumentRecordInvalid extends ApplicationError {
+  readonly tag = 'GeneratedDocumentRecordInvalid'
+  constructor(cause: unknown) {
+    super('Generated document record file is invalid', cause)
+  }
+}
 
 export function getGeneratedDocument(env: {
   dataRoot: string
   logger: Logger
 }) {
+  async function readGeneratedDocumentFile(documentId: string) {
+    try {
+      const documentPath = encodeDocumentPath({
+        documentId,
+        version: 1,
+      })
+      const recordPath = path.join(env.dataRoot, documentPath, 'generated.json')
+      return await readFile(recordPath, 'utf-8')
+    } catch (err) {
+      throw new GeneratedDocumentRecordNotFound(err)
+    }
+  }
+
+  function parseGeneratedDocumentRecord(raw: string): DocumentGenerated {
+    try {
+      const record = JSON.parse(raw)
+      return documentGeneratedSchema.parse(record)
+    } catch (err) {
+      throw new GeneratedDocumentRecordInvalid(err)
+    }
+  }
+
   return async function (
     input: GetGeneratedDocument,
   ): Promise<DocumentGenerated> {
@@ -23,20 +59,9 @@ export function getGeneratedDocument(env: {
       documentId: input.documentId,
     })
 
-    try {
-      const documentPath = encodeDocumentPath({
-        documentId: input.documentId,
-        version: 1,
-      })
+    logger.trace({}, 'Reading generated document file')
+    const raw = await readGeneratedDocumentFile(input.documentId)
 
-      logger.trace({}, 'Reading generated document file')
-      const recordPath = path.join(env.dataRoot, documentPath, 'generated.json')
-      const recordData = await readFile(recordPath, 'utf-8')
-
-      const record = JSON.parse(recordData)
-      return documentGeneratedSchema.parse(record)
-    } catch (err) {
-      throw new FileIOFailed('Failed to read generated document file', err)
-    }
+    return parseGeneratedDocumentRecord(raw)
   }
 }

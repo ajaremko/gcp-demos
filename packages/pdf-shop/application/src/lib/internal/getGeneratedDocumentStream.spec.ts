@@ -2,8 +2,11 @@ import { writeFile } from 'node:fs/promises'
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 
-import { getGeneratedDocumentStream } from './getGeneratedDocumentStream'
-import { FileIOFailed } from './errors'
+import {
+  getGeneratedDocumentStream,
+  GeneratedDocumentStreamNotFound,
+  GeneratedDocumentStreamEmpty,
+} from './getGeneratedDocumentStream'
 import {
   createTempDataRoot,
   createTestLogger,
@@ -40,19 +43,19 @@ describe('getGeneratedDocumentStream', () => {
     await expect(result).resolves.toBe('hello world')
   })
 
-  it('throws FileIOFailed when the file does not exist', async () => {
+  it('throws GeneratedDocumentStreamNotFound when the file does not exist', async () => {
     const result = getGeneratedDocumentStream({ logger })({
       path: `${dataRoot}/missing.txt`,
     })
-    await expect(result).rejects.toBeInstanceOf(FileIOFailed)
+    await expect(result).rejects.toBeInstanceOf(GeneratedDocumentStreamNotFound)
   })
 
-  it('throws FileIOFailed when the file is empty', async () => {
+  it('throws GeneratedDocumentStreamEmpty when the file is empty', async () => {
     await writeFile(`${dataRoot}/empty.txt`, '', 'utf-8')
 
     const result = getGeneratedDocumentStream({ logger })({
       path: `${dataRoot}/empty.txt`,
     })
-    await expect(result).rejects.toBeInstanceOf(FileIOFailed)
+    await expect(result).rejects.toBeInstanceOf(GeneratedDocumentStreamEmpty)
   })
 })

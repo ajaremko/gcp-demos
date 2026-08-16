@@ -1,7 +1,14 @@
 import { type Stripe } from 'stripe'
 import { type Logger } from 'pino'
 
-import { StripeIntegrationFailed } from './errors'
+import { ApplicationError } from '../ApplicationError'
+
+export class PaymentIntentRetrievalFailed extends ApplicationError {
+  readonly tag = 'PaymentIntentRetrievalFailed'
+  constructor(cause: unknown) {
+    super('Failed to retrieve payment intent from Stripe', cause)
+  }
+}
 
 export function getPaymentIntentClientSecret(env: {
   stripe: Stripe
@@ -18,10 +25,7 @@ export function getPaymentIntentClientSecret(env: {
       const intent = await env.stripe.paymentIntents.retrieve(intentId)
       return intent.client_secret ?? null
     } catch (err) {
-      throw new StripeIntegrationFailed(
-        'Failed to retrieve payment intent from Stripe',
-        err,
-      )
+      throw new PaymentIntentRetrievalFailed(err)
     }
   }
 }

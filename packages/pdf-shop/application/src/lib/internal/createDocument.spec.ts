@@ -3,8 +3,11 @@ import { readFile, writeFile } from 'node:fs/promises'
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import type Stripe from 'stripe'
 
-import { createDocument } from './createDocument'
-import { StripeIntegrationFailed, FileIOFailed } from './errors'
+import {
+  createDocument,
+  PaymentIntentCreationFailed,
+  DocumentRecordWriteFailed,
+} from './createDocument'
 import {
   createFakeStripe,
   createTempDataRoot,
@@ -71,7 +74,7 @@ describe('createDocument', () => {
     )
   })
 
-  it('throws StripeIntegrationFailed when Stripe fails to create the payment intent', async () => {
+  it('throws PaymentIntentCreationFailed when Stripe fails to create the payment intent', async () => {
     vi.mocked(stripe.paymentIntents.create).mockRejectedValue(
       new Error('network error'),
     )
@@ -81,10 +84,10 @@ describe('createDocument', () => {
       title: 'Test',
       body: 'Body',
     })
-    await expect(result).rejects.toBeInstanceOf(StripeIntegrationFailed)
+    await expect(result).rejects.toBeInstanceOf(PaymentIntentCreationFailed)
   })
 
-  it('throws FileIOFailed when the document record cannot be written', async () => {
+  it('throws DocumentRecordWriteFailed when the document record cannot be written', async () => {
     vi.mocked(stripe.paymentIntents.create).mockResolvedValue({
       id: 'pi_1',
       amount: 999,
@@ -104,6 +107,6 @@ describe('createDocument', () => {
       title: 'Test',
       body: 'Body',
     })
-    await expect(result).rejects.toBeInstanceOf(FileIOFailed)
+    await expect(result).rejects.toBeInstanceOf(DocumentRecordWriteFailed)
   })
 })

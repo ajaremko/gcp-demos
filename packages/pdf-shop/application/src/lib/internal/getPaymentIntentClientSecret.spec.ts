@@ -1,8 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import type Stripe from 'stripe'
 
-import { getPaymentIntentClientSecret } from './getPaymentIntentClientSecret'
-import { StripeIntegrationFailed } from './errors'
+import {
+  getPaymentIntentClientSecret,
+  PaymentIntentRetrievalFailed,
+} from './getPaymentIntentClientSecret'
 import { createFakeStripe, createTestLogger } from '../../test-support/testEnv'
 
 describe('getPaymentIntentClientSecret', () => {
@@ -38,12 +40,12 @@ describe('getPaymentIntentClientSecret', () => {
     expect(result).toBeNull()
   })
 
-  it('throws StripeIntegrationFailed when Stripe retrieval fails', async () => {
+  it('throws PaymentIntentRetrievalFailed when Stripe retrieval fails', async () => {
     vi.mocked(stripe.paymentIntents.retrieve).mockRejectedValue(
       new Error('network error'),
     )
 
     const result = getPaymentIntentClientSecret({ stripe, logger })('pi_1')
-    await expect(result).rejects.toBeInstanceOf(StripeIntegrationFailed)
+    await expect(result).rejects.toBeInstanceOf(PaymentIntentRetrievalFailed)
   })
 })

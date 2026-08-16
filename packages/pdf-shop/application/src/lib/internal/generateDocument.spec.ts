@@ -2,8 +2,10 @@ import { readFile, writeFile } from 'node:fs/promises'
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 
-import { generateDocument } from './generateDocument'
-import { FileIOFailed } from './errors'
+import {
+  generateDocument,
+  GeneratedDocumentDirectoryFailed,
+} from './generateDocument'
 import {
   createTempDataRoot,
   createTestLogger,
@@ -66,7 +68,12 @@ describe('generateDocument', () => {
     )
   })
 
-  it('throws FileIOFailed when the output cannot be written', async () => {
+  it('throws GeneratedDocumentDirectoryFailed when the output directory cannot be prepared', async () => {
+    // Point dataRoot at a file instead of a directory so mkdir(recursive)
+    // fails with ENOTDIR — deterministic regardless of user/root. This only
+    // exercises the first subfunction (prepareOutputDirectory); the other
+    // two (writeGeneratedDocumentFile, writeGeneratedDocumentRecord) aren't
+    // reachable via this fixture technique and have no test coverage here.
     await writeFile(`${dataRoot}/not-a-directory`, '', 'utf-8')
 
     const result = generateDocument({
@@ -80,6 +87,6 @@ describe('generateDocument', () => {
         body: 'Body text',
       },
     })
-    await expect(result).rejects.toBeInstanceOf(FileIOFailed)
+    await expect(result).rejects.toBeInstanceOf(GeneratedDocumentDirectoryFailed)
   })
 })

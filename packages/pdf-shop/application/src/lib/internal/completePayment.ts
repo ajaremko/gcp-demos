@@ -1,6 +1,6 @@
 import { mkdir, writeFile } from 'node:fs/promises'
 import path from 'node:path'
-import { type Stripe, type PaymentIntent } from 'stripe'
+import type Stripe from 'stripe'
 import { type Logger } from 'pino'
 
 import {
@@ -9,22 +9,27 @@ import {
   encodeDocumentPath,
 } from '@org/pdf-shop-contracts'
 
-export class PaymentIntentNotFound {
+import { ApplicationError } from '../ApplicationError'
+
+export class PaymentIntentNotFound extends ApplicationError {
   readonly tag = 'PaymentIntentNotFound'
-  readonly message = 'Stripe payment intent could not be retrieved'
-  constructor(readonly cause: unknown) {}
+  constructor(cause: unknown) {
+    super('Stripe payment intent could not be retrieved', cause)
+  }
 }
 
-export class PaymentIntentInvalid {
+export class PaymentIntentInvalid extends ApplicationError {
   readonly tag = 'PaymentIntentInvalid'
-  readonly message = 'Stripe payment intent failed validation checks'
-  constructor(readonly cause: unknown) {}
+  constructor(cause: unknown) {
+    super('Stripe payment intent failed validation checks', cause)
+  }
 }
 
-export class PaymentRecordWriteFailed {
+export class PaymentRecordWriteFailed extends ApplicationError {
   readonly tag = 'PaymentRecordWriteFailed'
-  readonly message = 'Failed to persist payment record to file'
-  constructor(readonly cause: unknown) {}
+  constructor(cause: unknown) {
+    super('Failed to persist payment record to file', cause)
+  }
 }
 
 export function completePayment(env: {
@@ -42,7 +47,7 @@ export function completePayment(env: {
 
   async function validatePaymentIntent(
     documentId: string,
-    paymentIntent: PaymentIntent,
+    paymentIntent: Stripe.PaymentIntent,
   ) {
     try {
       if (paymentIntent.status !== 'succeeded') {
@@ -60,7 +65,7 @@ export function completePayment(env: {
 
   async function writePaymentRecord(
     documentId: string,
-    paymentIntent: PaymentIntent,
+    paymentIntent: Stripe.PaymentIntent,
   ) {
     try {
       const documentPath = encodeDocumentPath({

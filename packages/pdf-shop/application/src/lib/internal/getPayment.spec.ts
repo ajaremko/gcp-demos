@@ -2,8 +2,11 @@ import { mkdir, writeFile } from 'node:fs/promises'
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 
-import { getPaymentCompleted } from './getPayment'
-import { FileIOFailed } from './errors'
+import {
+  getPaymentCompleted,
+  PaymentConfirmationNotFound,
+  PaymentConfirmationInvalid,
+} from './getPayment'
 import {
   createTempDataRoot,
   createTestLogger,
@@ -52,14 +55,14 @@ describe('getPaymentCompleted', () => {
     })
   })
 
-  it('throws FileIOFailed when the file does not exist', async () => {
+  it('throws PaymentConfirmationNotFound when the file does not exist', async () => {
     const result = getPaymentCompleted({ dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
-    await expect(result).rejects.toBeInstanceOf(FileIOFailed)
+    await expect(result).rejects.toBeInstanceOf(PaymentConfirmationNotFound)
   })
 
-  it('throws FileIOFailed when the file contains invalid JSON', async () => {
+  it('throws PaymentConfirmationInvalid when the file contains invalid JSON', async () => {
     await mkdir(
       `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111`,
       { recursive: true },
@@ -73,10 +76,10 @@ describe('getPaymentCompleted', () => {
     const result = getPaymentCompleted({ dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
-    await expect(result).rejects.toBeInstanceOf(FileIOFailed)
+    await expect(result).rejects.toBeInstanceOf(PaymentConfirmationInvalid)
   })
 
-  it('throws FileIOFailed when the file content fails schema validation', async () => {
+  it('throws PaymentConfirmationInvalid when the file content fails schema validation', async () => {
     await mkdir(
       `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111`,
       { recursive: true },
@@ -90,6 +93,6 @@ describe('getPaymentCompleted', () => {
     const result = getPaymentCompleted({ dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
-    await expect(result).rejects.toBeInstanceOf(FileIOFailed)
+    await expect(result).rejects.toBeInstanceOf(PaymentConfirmationInvalid)
   })
 })

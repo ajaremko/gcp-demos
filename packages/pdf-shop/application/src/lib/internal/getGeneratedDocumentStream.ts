@@ -4,9 +4,31 @@ import { type Logger } from 'pino'
 
 import { type GetGeneratedDocumentStream } from '@org/pdf-shop-contracts'
 
-import { FileIOFailed } from './errors'
+import { ApplicationError } from '../ApplicationError'
+
+export class GeneratedDocumentStreamNotFound extends ApplicationError {
+  readonly tag = 'GeneratedDocumentStreamNotFound'
+  constructor(cause: unknown) {
+    super('Generated document file could not be found', cause)
+  }
+}
+
+export class GeneratedDocumentStreamEmpty extends ApplicationError {
+  readonly tag = 'GeneratedDocumentStreamEmpty'
+  constructor(cause: unknown) {
+    super('Generated document file is empty', cause)
+  }
+}
 
 export function getGeneratedDocumentStream(env: { logger: Logger }) {
+  async function statGeneratedDocumentFile(path: string) {
+    try {
+      return await stat(path)
+    } catch (err) {
+      throw new GeneratedDocumentStreamNotFound(err)
+    }
+  }
+
   return async function (
     input: GetGeneratedDocumentStream,
   ): Promise<{ stream: ReadStream; size: number }> {
@@ -15,17 +37,13 @@ export function getGeneratedDocumentStream(env: { logger: Logger }) {
       path: input.path,
     })
 
-    try {
-      logger.trace({}, 'Reading generated document file stats')
-      const { size } = await stat(input.path)
+    logger.trace({}, 'Reading generated document file stats')
+    const { size } = await statGeneratedDocumentFile(input.path)
 
-      if (!size) {
-        throw new Error('File is empty')
-      }
-
-      return { stream: createReadStream(input.path), size }
-    } catch (err) {
-      throw new FileIOFailed('Failed to read generated document stream', err)
+    if (!size) {
+      throw new GeneratedDocumentStreamEmpty(new Error('File is empty'))
     }
+
+    return { stream: createReadStream(input.path), size }
   }
 }

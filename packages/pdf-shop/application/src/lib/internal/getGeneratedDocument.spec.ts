@@ -2,8 +2,11 @@ import { mkdir, writeFile } from 'node:fs/promises'
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 
-import { getGeneratedDocument } from './getGeneratedDocument'
-import { FileIOFailed } from './errors'
+import {
+  getGeneratedDocument,
+  GeneratedDocumentRecordNotFound,
+  GeneratedDocumentRecordInvalid,
+} from './getGeneratedDocument'
 import {
   createTempDataRoot,
   createTestLogger,
@@ -52,14 +55,14 @@ describe('getGeneratedDocument', () => {
     })
   })
 
-  it('throws FileIOFailed when the file does not exist', async () => {
+  it('throws GeneratedDocumentRecordNotFound when the file does not exist', async () => {
     const result = getGeneratedDocument({ dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
-    await expect(result).rejects.toBeInstanceOf(FileIOFailed)
+    await expect(result).rejects.toBeInstanceOf(GeneratedDocumentRecordNotFound)
   })
 
-  it('throws FileIOFailed when the file contains invalid JSON', async () => {
+  it('throws GeneratedDocumentRecordInvalid when the file contains invalid JSON', async () => {
     await mkdir(
       `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111`,
       { recursive: true },
@@ -73,10 +76,10 @@ describe('getGeneratedDocument', () => {
     const result = getGeneratedDocument({ dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
-    await expect(result).rejects.toBeInstanceOf(FileIOFailed)
+    await expect(result).rejects.toBeInstanceOf(GeneratedDocumentRecordInvalid)
   })
 
-  it('throws FileIOFailed when the file content fails schema validation', async () => {
+  it('throws GeneratedDocumentRecordInvalid when the file content fails schema validation', async () => {
     await mkdir(
       `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111`,
       { recursive: true },
@@ -90,6 +93,6 @@ describe('getGeneratedDocument', () => {
     const result = getGeneratedDocument({ dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
-    await expect(result).rejects.toBeInstanceOf(FileIOFailed)
+    await expect(result).rejects.toBeInstanceOf(GeneratedDocumentRecordInvalid)
   })
 })

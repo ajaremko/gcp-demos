@@ -4,8 +4,7 @@ import { redirect } from 'next/navigation'
 import { type FieldErrors } from 'react-hook-form'
 
 import {
-  FileIOFailed,
-  StripeIntegrationFailed,
+  isApplicationError,
   handleCompletePayment,
 } from '@org/pdf-shop-application'
 
@@ -42,11 +41,31 @@ export async function confirmPaymentAction(
       return { errors: fieldErrors }
     }
     // Handle filesystem and stripe integration errors
-    if (err instanceof FileIOFailed || err instanceof StripeIntegrationFailed) {
-      return {
-        errors: {},
-        message:
-          "We couldn't complete your payment at this time. Please try again later.",
+    if (isApplicationError(err)) {
+      switch (err.tag) {
+        case 'PaymentIntentNotFound':
+          return {
+            errors: {},
+            message:
+              "We couldn't verify your payment with Stripe. Please try again later.",
+          }
+        case 'PaymentIntentInvalid':
+          return {
+            errors: {},
+            message: 'Your payment could not be confirmed. Please try again.',
+          }
+        case 'PaymentRecordWriteFailed':
+          return {
+            errors: {},
+            message:
+              "We couldn't save your payment confirmation. Please try again later.",
+          }
+        default:
+          return {
+            errors: {},
+            message:
+              "We couldn't complete your payment at this time. Please try again later.",
+          }
       }
     }
     // Handle any other unexpected errors

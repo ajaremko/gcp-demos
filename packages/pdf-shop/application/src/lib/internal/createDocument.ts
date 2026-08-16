@@ -10,27 +10,32 @@ import {
   encodeDocumentPath,
 } from '@org/pdf-shop-contracts'
 
-import { StripeIntegrationFailed, FileIOFailed } from './errors'
+import { ApplicationError } from '../ApplicationError'
 
 const DEMO_PRICE_CENTS = 999
 const DEMO_PRICE_CURRENCY = 'usd'
+
+export class PaymentIntentCreationFailed extends ApplicationError {
+  readonly tag = 'PaymentIntentCreationFailed'
+  constructor(cause: unknown) {
+    super('Failed to create payment intent with Stripe', cause)
+  }
+}
+
+export class DocumentRecordWriteFailed extends ApplicationError {
+  readonly tag = 'DocumentRecordWriteFailed'
+  constructor(cause: unknown) {
+    super('Failed to write document record to file', cause)
+  }
+}
 
 export function createDocument(env: {
   stripe: Stripe
   dataRoot: string
   logger: Logger
 }) {
-  return async function (input: CreateDocument): Promise<DocumentCreated> {
-    const documentId = randomUUID()
-
-    const logger = env.logger.child({
-      method: 'createDocument',
-      documentId,
-    })
-
-    let payment: { paymentIntentId: string; amount: number; currency: string }
+  async function createPaymentIntent(documentId: string) {
     try {
-      logger.trace({}, 'Creating payment intent with Stripe')
       const intent = await env.stripe.paymentIntents.create(
         {
           amount: DEMO_PRICE_CENTS,
@@ -40,18 +45,22 @@ export function createDocument(env: {
         },
         { idempotencyKey: `pdf-shop-payment-intent-${documentId}` },
       )
-      payment = {
+      return {
         paymentIntentId: intent.id,
         amount: intent.amount,
         currency: intent.currency,
       }
     } catch (err) {
-      throw new StripeIntegrationFailed('Failed to create payment intent', err)
+      throw new PaymentIntentCreationFailed(err)
     }
+  }
 
+  async function writeDocumentRecord(
+    documentId: string,
+    input: CreateDocument,
+    payment: { paymentIntentId: string; amount: number; currency: string },
+  ) {
     try {
-      logger.trace({}, 'Preparing output directory for document')
-      // Prepare output directory
       const documentPath = encodeDocumentPath({
         documentId,
         version: 1,
@@ -59,8 +68,6 @@ export function createDocument(env: {
       const outputDir = path.join(env.dataRoot, documentPath)
       await mkdir(outputDir, { recursive: true })
 
-      // Write a record of the requested spec and payment intent
-      logger.trace({}, 'Writing document record to file')
       const record: DocumentCreated = {
         id: documentId,
         createdAt: new Date().toISOString(),
@@ -78,7 +85,24 @@ export function createDocument(env: {
 
       return record
     } catch (err) {
-      throw new FileIOFailed('Failed to write document spec file', err)
+      throw new DocumentRecordWriteFailed(err)
     }
+  }
+
+  return async function (input: CreateDocument): Promise<DocumentCreated> {
+    const documentId = randomUUID()
+
+    const logger = env.logger.child({
+      method: 'createDocument',
+      documentId,
+    })
+
+    logger.trace({}, 'Creating payment intent with Stripe')
+    const payment = await createPaymentIntent(documentId)
+
+    logger.trace({}, 'Writing document record to file')
+    const record = await writeDocumentRecord(documentId, input, payment)
+
+    return record
   }
 }

@@ -4,8 +4,7 @@ import { redirect } from 'next/navigation'
 import { type FieldErrors } from 'react-hook-form'
 
 import {
-  FileIOFailed,
-  StripeIntegrationFailed,
+  isApplicationError,
   handleCreateDocument,
 } from '@org/pdf-shop-application'
 
@@ -44,7 +43,7 @@ export async function submitDocumentSpecAction(
       return { errors: fieldErrors }
     }
     // Handle filesystem and stripe integration errors
-    if (err instanceof FileIOFailed || err instanceof StripeIntegrationFailed) {
+    if (isApplicationError(err)) {
       return {
         errors: {},
         message:
