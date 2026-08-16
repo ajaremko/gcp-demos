@@ -43,8 +43,7 @@ describe('getPaymentIntentClientSecret', () => {
       new Error('network error'),
     )
 
-    await expect(
-      getPaymentIntentClientSecret({ stripe, logger })('pi_1'),
-    ).rejects.toBeInstanceOf(StripeIntegrationFailed)
+    const result = getPaymentIntentClientSecret({ stripe, logger })('pi_1')
+    await expect(result).rejects.toBeInstanceOf(StripeIntegrationFailed)
   })
 })

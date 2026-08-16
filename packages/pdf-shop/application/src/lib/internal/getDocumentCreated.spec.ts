@@ -43,11 +43,10 @@ describe('getDocumentCreated', () => {
   })
 
   it('throws FileIOFailed when the file does not exist', async () => {
-    await expect(
-      getDocumentCreated({ dataRoot, logger })({
-        documentId: '11111111-1111-4111-8111-111111111111',
-      }),
-    ).rejects.toBeInstanceOf(FileIOFailed)
+    const result = getDocumentCreated({ dataRoot, logger })({
+      documentId: '11111111-1111-4111-8111-111111111111',
+    })
+    await expect(result).rejects.toBeInstanceOf(FileIOFailed)
   })
 
   it('throws FileIOFailed when the file contains invalid JSON', async () => {
@@ -61,11 +60,10 @@ describe('getDocumentCreated', () => {
       'utf-8',
     )
 
-    await expect(
-      getDocumentCreated({ dataRoot, logger })({
-        documentId: '11111111-1111-4111-8111-111111111111',
-      }),
-    ).rejects.toBeInstanceOf(FileIOFailed)
+    const result = getDocumentCreated({ dataRoot, logger })({
+      documentId: '11111111-1111-4111-8111-111111111111',
+    })
+    await expect(result).rejects.toBeInstanceOf(FileIOFailed)
   })
 
   it('throws FileIOFailed when the file content fails schema validation', async () => {
@@ -79,10 +77,9 @@ describe('getDocumentCreated', () => {
       'utf-8',
     )
 
-    await expect(
-      getDocumentCreated({ dataRoot, logger })({
-        documentId: '11111111-1111-4111-8111-111111111111',
-      }),
-    ).rejects.toBeInstanceOf(FileIOFailed)
+    const result = getDocumentCreated({ dataRoot, logger })({
+      documentId: '11111111-1111-4111-8111-111111111111',
+    })
+    await expect(result).rejects.toBeInstanceOf(FileIOFailed)
   })
 })

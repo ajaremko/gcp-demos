@@ -76,13 +76,12 @@ describe('createDocument', () => {
       new Error('network error'),
     )
 
-    await expect(
-      createDocument({ stripe, dataRoot, logger })({
-        colorScheme: 'light',
-        title: 'Test',
-        body: 'Body',
-      }),
-    ).rejects.toBeInstanceOf(StripeIntegrationFailed)
+    const result = createDocument({ stripe, dataRoot, logger })({
+      colorScheme: 'light',
+      title: 'Test',
+      body: 'Body',
+    })
+    await expect(result).rejects.toBeInstanceOf(StripeIntegrationFailed)
   })
 
   it('throws FileIOFailed when the document record cannot be written', async () => {
@@ -96,16 +95,15 @@ describe('createDocument', () => {
     // fails with ENOTDIR — deterministic regardless of user/root.
     await writeFile(`${dataRoot}/not-a-directory`, '', 'utf-8')
 
-    await expect(
-      createDocument({
-        stripe,
-        dataRoot: `${dataRoot}/not-a-directory`,
-        logger,
-      })({
-        colorScheme: 'light',
-        title: 'Test',
-        body: 'Body',
-      }),
-    ).rejects.toBeInstanceOf(FileIOFailed)
+    const result = createDocument({
+      stripe,
+      dataRoot: `${dataRoot}/not-a-directory`,
+      logger,
+    })({
+      colorScheme: 'light',
+      title: 'Test',
+      body: 'Body',
+    })
+    await expect(result).rejects.toBeInstanceOf(FileIOFailed)
   })
 })

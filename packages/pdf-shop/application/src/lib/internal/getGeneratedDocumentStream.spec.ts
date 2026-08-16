@@ -40,18 +40,18 @@ describe('getGeneratedDocumentStream', () => {
   })
 
   it('throws FileIOFailed when the file does not exist', async () => {
-    await expect(
-      getGeneratedDocumentStream({ logger })({
-        path: `${dataRoot}/missing.txt`,
-      }),
-    ).rejects.toBeInstanceOf(FileIOFailed)
+    const result = getGeneratedDocumentStream({ logger })({
+      path: `${dataRoot}/missing.txt`,
+    })
+    await expect(result).rejects.toBeInstanceOf(FileIOFailed)
   })
 
   it('throws FileIOFailed when the file is empty', async () => {
     await writeFile(`${dataRoot}/empty.txt`, '', 'utf-8')
 
-    await expect(
-      getGeneratedDocumentStream({ logger })({ path: `${dataRoot}/empty.txt` }),
-    ).rejects.toBeInstanceOf(FileIOFailed)
+    const result = getGeneratedDocumentStream({ logger })({
+      path: `${dataRoot}/empty.txt`,
+    })
+    await expect(result).rejects.toBeInstanceOf(FileIOFailed)
   })
 })

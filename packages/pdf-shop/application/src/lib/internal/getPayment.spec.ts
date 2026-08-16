@@ -44,11 +44,10 @@ describe('getPaymentCompleted', () => {
   })
 
   it('throws FileIOFailed when the file does not exist', async () => {
-    await expect(
-      getPaymentCompleted({ dataRoot, logger })({
-        documentId: '11111111-1111-4111-8111-111111111111',
-      }),
-    ).rejects.toBeInstanceOf(FileIOFailed)
+    const result = getPaymentCompleted({ dataRoot, logger })({
+      documentId: '11111111-1111-4111-8111-111111111111',
+    })
+    await expect(result).rejects.toBeInstanceOf(FileIOFailed)
   })
 
   it('throws FileIOFailed when the file contains invalid JSON', async () => {
@@ -62,11 +61,10 @@ describe('getPaymentCompleted', () => {
       'utf-8',
     )
 
-    await expect(
-      getPaymentCompleted({ dataRoot, logger })({
-        documentId: '11111111-1111-4111-8111-111111111111',
-      }),
-    ).rejects.toBeInstanceOf(FileIOFailed)
+    const result = getPaymentCompleted({ dataRoot, logger })({
+      documentId: '11111111-1111-4111-8111-111111111111',
+    })
+    await expect(result).rejects.toBeInstanceOf(FileIOFailed)
   })
 
   it('throws FileIOFailed when the file content fails schema validation', async () => {
@@ -80,10 +78,9 @@ describe('getPaymentCompleted', () => {
       'utf-8',
     )
 
-    await expect(
-      getPaymentCompleted({ dataRoot, logger })({
-        documentId: '11111111-1111-4111-8111-111111111111',
-      }),
-    ).rejects.toBeInstanceOf(FileIOFailed)
+    const result = getPaymentCompleted({ dataRoot, logger })({
+      documentId: '11111111-1111-4111-8111-111111111111',
+    })
+    await expect(result).rejects.toBeInstanceOf(FileIOFailed)
   })
 })

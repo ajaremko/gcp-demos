@@ -60,15 +60,17 @@ describe('generateDocument', () => {
   it('throws FileIOFailed when the output cannot be written', async () => {
     await writeFile(`${dataRoot}/not-a-directory`, '', 'utf-8')
 
-    await expect(
-      generateDocument({ dataRoot: `${dataRoot}/not-a-directory`, logger })({
-        documentId: '11111111-1111-4111-8111-111111111111',
-        spec: {
-          colorScheme: 'dark',
-          title: 'Test Contract',
-          body: 'Body text',
-        },
-      }),
-    ).rejects.toBeInstanceOf(FileIOFailed)
+    const result = generateDocument({
+      dataRoot: `${dataRoot}/not-a-directory`,
+      logger,
+    })({
+      documentId: '11111111-1111-4111-8111-111111111111',
+      spec: {
+        colorScheme: 'dark',
+        title: 'Test Contract',
+        body: 'Body text',
+      },
+    })
+    await expect(result).rejects.toBeInstanceOf(FileIOFailed)
   })
 })
