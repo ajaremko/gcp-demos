@@ -8,19 +8,11 @@
       "pdf-shop-worker"
     ],
     "targets": {
-      "e2e": {
-        "executor": "@nx/jest:jest",
-        "outputs": [
-          "{projectRoot}/test-output/jest/coverage"
-        ],
+      "test": {
         "dependsOn": [
           "pdf-shop-worker:build",
           "pdf-shop-worker:serve"
-        ],
-        "options": {
-          "jestConfig": "packages/pdf-shop/worker-e2e/jest.config.cts",
-          "passWithNoTests": true
-        }
+        ]
       }
     }
   }
