@@ -24,11 +24,11 @@ describe('getDocumentCreated', () => {
 
   it('reads and parses an existing document spec file', async () => {
     await mkdir(
-      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111`,
+      `${dataRoot}/11111111-1111-4111-8111-111111111111`,
       { recursive: true },
     )
     await writeFile(
-      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111/created.json`,
+      `${dataRoot}/11111111-1111-4111-8111-111111111111/created.json`,
       '{' +
         '"id":"11111111-1111-4111-8111-111111111111",' +
         '"createdAt":"2024-01-01T00:00:00.000Z",' +
@@ -59,11 +59,11 @@ describe('getDocumentCreated', () => {
 
   it('throws DocumentRecordInvalid when the file contains invalid JSON', async () => {
     await mkdir(
-      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111`,
+      `${dataRoot}/11111111-1111-4111-8111-111111111111`,
       { recursive: true },
     )
     await writeFile(
-      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111/created.json`,
+      `${dataRoot}/11111111-1111-4111-8111-111111111111/created.json`,
       'not json',
       'utf-8',
     )
@@ -76,11 +76,11 @@ describe('getDocumentCreated', () => {
 
   it('throws DocumentRecordInvalid when the file content fails schema validation', async () => {
     await mkdir(
-      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111`,
+      `${dataRoot}/11111111-1111-4111-8111-111111111111`,
       { recursive: true },
     )
     await writeFile(
-      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111/created.json`,
+      `${dataRoot}/11111111-1111-4111-8111-111111111111/created.json`,
       '{"foo":"bar"}',
       'utf-8',
     )

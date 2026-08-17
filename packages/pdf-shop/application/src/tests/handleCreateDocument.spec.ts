@@ -61,7 +61,7 @@ describe('handleCreateDocument', () => {
     })
 
     const written = await readFile(
-      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111/created.json`,
+      `${dataRoot}/11111111-1111-4111-8111-111111111111/created.json`,
       'utf-8',
     )
     expect(written).toBe(

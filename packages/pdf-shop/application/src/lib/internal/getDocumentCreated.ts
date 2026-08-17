@@ -3,7 +3,6 @@ import { readFile } from 'node:fs/promises'
 import { type Logger } from 'pino'
 
 import { type DocumentCreated, documentCreatedSchema } from './records'
-import { encodeDocumentPath } from './documentPath'
 import { ApplicationError } from '../ApplicationError'
 
 type GetDocumentSpec = {
@@ -27,11 +26,7 @@ export class DocumentRecordInvalid extends ApplicationError {
 export function getDocumentCreated(env: { dataRoot: string; logger: Logger }) {
   async function readDocumentRecordFile(documentId: string) {
     try {
-      const documentPath = encodeDocumentPath({
-        documentId,
-        version: 1,
-      })
-      const recordPath = path.join(env.dataRoot, documentPath, 'created.json')
+      const recordPath = path.join(env.dataRoot, documentId, 'created.json')
       return await readFile(recordPath, 'utf-8')
     } catch (err) {
       throw new DocumentRecordNotFound(err)

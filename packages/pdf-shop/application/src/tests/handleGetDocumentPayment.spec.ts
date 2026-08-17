@@ -29,11 +29,11 @@ describe('handleGetDocumentPayment', () => {
 
   it('validates input, reads the document, and retrieves the payment intent client secret', async () => {
     await mkdir(
-      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111`,
+      `${dataRoot}/11111111-1111-4111-8111-111111111111`,
       { recursive: true },
     )
     await writeFile(
-      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111/created.json`,
+      `${dataRoot}/11111111-1111-4111-8111-111111111111/created.json`,
       '{' +
         '"id":"11111111-1111-4111-8111-111111111111",' +
         '"createdAt":"2024-01-01T00:00:00.000Z",' +
@@ -71,11 +71,11 @@ describe('handleGetDocumentPayment', () => {
 
   it('propagates PaymentIntentRetrievalFailed from getPaymentIntentClientSecret', async () => {
     await mkdir(
-      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111`,
+      `${dataRoot}/11111111-1111-4111-8111-111111111111`,
       { recursive: true },
     )
     await writeFile(
-      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111/created.json`,
+      `${dataRoot}/11111111-1111-4111-8111-111111111111/created.json`,
       '{' +
         '"id":"11111111-1111-4111-8111-111111111111",' +
         '"createdAt":"2024-01-01T00:00:00.000Z",' +

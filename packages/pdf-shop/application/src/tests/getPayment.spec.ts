@@ -24,11 +24,11 @@ describe('getPaymentCompleted', () => {
 
   it('reads and parses an existing payment confirmation file', async () => {
     await mkdir(
-      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111`,
+      `${dataRoot}/11111111-1111-4111-8111-111111111111`,
       { recursive: true },
     )
     await writeFile(
-      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111/paid.json`,
+      `${dataRoot}/11111111-1111-4111-8111-111111111111/paid.json`,
       '{' +
         '"documentId":"11111111-1111-4111-8111-111111111111",' +
         '"stripePaymentIntentId":"pi_1",' +
@@ -61,11 +61,11 @@ describe('getPaymentCompleted', () => {
 
   it('throws PaymentConfirmationInvalid when the file contains invalid JSON', async () => {
     await mkdir(
-      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111`,
+      `${dataRoot}/11111111-1111-4111-8111-111111111111`,
       { recursive: true },
     )
     await writeFile(
-      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111/paid.json`,
+      `${dataRoot}/11111111-1111-4111-8111-111111111111/paid.json`,
       'not json',
       'utf-8',
     )
@@ -78,11 +78,11 @@ describe('getPaymentCompleted', () => {
 
   it('throws PaymentConfirmationInvalid when the file content fails schema validation', async () => {
     await mkdir(
-      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111`,
+      `${dataRoot}/11111111-1111-4111-8111-111111111111`,
       { recursive: true },
     )
     await writeFile(
-      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111/paid.json`,
+      `${dataRoot}/11111111-1111-4111-8111-111111111111/paid.json`,
       '{"foo":"bar"}',
       'utf-8',
     )

@@ -36,14 +36,14 @@ describe('generateDocument', () => {
 
     expect(record).toEqual({
       documentId: '11111111-1111-4111-8111-111111111111',
-      path: 'v1/documents/11111111-1111-4111-8111-111111111111',
+      path: '11111111-1111-4111-8111-111111111111',
       filename: '11111111-1111-4111-8111-111111111111.txt',
       contentType: 'text/plain',
       timestamp: '2024-01-01T00:00:00.000Z',
     })
 
     const generatedText = await readFile(
-      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111/generated.txt`,
+      `${dataRoot}/11111111-1111-4111-8111-111111111111/generated.txt`,
       'utf-8',
     )
     expect(generatedText).toBe(
@@ -51,13 +51,13 @@ describe('generateDocument', () => {
     )
 
     const generatedRecord = await readFile(
-      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111/generated.json`,
+      `${dataRoot}/11111111-1111-4111-8111-111111111111/generated.json`,
       'utf-8',
     )
     expect(generatedRecord).toBe(
       '{' +
         '"documentId":"11111111-1111-4111-8111-111111111111",' +
-        '"path":"v1/documents/11111111-1111-4111-8111-111111111111",' +
+        '"path":"11111111-1111-4111-8111-111111111111",' +
         '"filename":"11111111-1111-4111-8111-111111111111.txt",' +
         '"contentType":"text/plain",' +
         '"timestamp":"2024-01-01T00:00:00.000Z"' +

@@ -4,7 +4,6 @@ import type Stripe from 'stripe'
 import { type Logger } from 'pino'
 
 import { type PaymentCompleted } from './records'
-import { encodeDocumentPath } from './documentPath'
 import { ApplicationError } from '../ApplicationError'
 
 type CompletePayment = {
@@ -69,11 +68,7 @@ export function completePayment(env: {
     paymentIntent: Stripe.PaymentIntent,
   ) {
     try {
-      const documentPath = encodeDocumentPath({
-        documentId,
-        version: 1,
-      })
-      const outputDir = path.join(env.dataRoot, documentPath)
+      const outputDir = path.join(env.dataRoot, documentId)
       await mkdir(outputDir, { recursive: true })
 
       const record: PaymentCompleted = {

@@ -4,7 +4,6 @@ import path from 'node:path'
 import { type Logger } from 'pino'
 
 import { type PaymentCompleted, paymentCompletedSchema } from './records'
-import { encodeDocumentPath } from './documentPath'
 import { ApplicationError } from '../ApplicationError'
 
 type GetPayment = {
@@ -28,11 +27,7 @@ export class PaymentConfirmationInvalid extends ApplicationError {
 export function getPaymentCompleted(env: { dataRoot: string; logger: Logger }) {
   async function readPaymentConfirmationFile(documentId: string) {
     try {
-      const documentPath = encodeDocumentPath({
-        documentId,
-        version: 1,
-      })
-      const recordPath = path.join(env.dataRoot, documentPath, 'paid.json')
+      const recordPath = path.join(env.dataRoot, documentId, 'paid.json')
       return await readFile(recordPath, 'utf-8')
     } catch (err) {
       throw new PaymentConfirmationNotFound(err)

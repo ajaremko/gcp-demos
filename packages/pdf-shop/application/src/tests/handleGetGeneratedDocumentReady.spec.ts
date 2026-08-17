@@ -22,14 +22,14 @@ describe('handleGetGeneratedDocumentReady', () => {
 
   it('validates input and returns true when the document is generated and paid for', async () => {
     await mkdir(
-      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111`,
+      `${dataRoot}/11111111-1111-4111-8111-111111111111`,
       { recursive: true },
     )
     await writeFile(
-      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111/generated.json`,
+      `${dataRoot}/11111111-1111-4111-8111-111111111111/generated.json`,
       '{' +
         '"documentId":"11111111-1111-4111-8111-111111111111",' +
-        '"path":"v1/documents/11111111-1111-4111-8111-111111111111",' +
+        '"path":"11111111-1111-4111-8111-111111111111",' +
         '"filename":"contract.txt",' +
         '"contentType":"text/plain",' +
         '"timestamp":"2024-01-01T00:00:00.000Z"' +
@@ -37,7 +37,7 @@ describe('handleGetGeneratedDocumentReady', () => {
       'utf-8',
     )
     await writeFile(
-      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111/paid.json`,
+      `${dataRoot}/11111111-1111-4111-8111-111111111111/paid.json`,
       '{' +
         '"documentId":"11111111-1111-4111-8111-111111111111",' +
         '"stripePaymentIntentId":"pi_1",' +
@@ -68,14 +68,14 @@ describe('handleGetGeneratedDocumentReady', () => {
 
   it('propagates PaymentConfirmationNotFound from getPayment', async () => {
     await mkdir(
-      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111`,
+      `${dataRoot}/11111111-1111-4111-8111-111111111111`,
       { recursive: true },
     )
     await writeFile(
-      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111/generated.json`,
+      `${dataRoot}/11111111-1111-4111-8111-111111111111/generated.json`,
       '{' +
         '"documentId":"11111111-1111-4111-8111-111111111111",' +
-        '"path":"v1/documents/11111111-1111-4111-8111-111111111111",' +
+        '"path":"11111111-1111-4111-8111-111111111111",' +
         '"filename":"contract.txt",' +
         '"contentType":"text/plain",' +
         '"timestamp":"2024-01-01T00:00:00.000Z"' +

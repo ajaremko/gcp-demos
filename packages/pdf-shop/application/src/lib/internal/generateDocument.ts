@@ -3,7 +3,6 @@ import path from 'node:path'
 import { type Logger } from 'pino'
 
 import { type DocumentGenerated, type DocumentSpec } from './records'
-import { encodeDocumentPath } from './documentPath'
 import { ApplicationError } from '../ApplicationError'
 
 type GenerateDocument = {
@@ -35,13 +34,9 @@ export class GeneratedDocumentRecordWriteFailed extends ApplicationError {
 export function generateDocument(env: { dataRoot: string; logger: Logger }) {
   async function prepareOutputDirectory(documentId: string) {
     try {
-      const documentPath = encodeDocumentPath({
-        documentId,
-        version: 1,
-      })
       const outputDir = path.join(env.dataRoot, documentId)
       await mkdir(outputDir, { recursive: true })
-      return { documentPath, outputDir }
+      return outputDir
     } catch (err) {
       throw new GeneratedDocumentDirectoryFailed(err)
     }
@@ -62,13 +57,12 @@ export function generateDocument(env: { dataRoot: string; logger: Logger }) {
 
   async function writeGeneratedDocumentRecord(
     outputDir: string,
-    documentPath: string,
     input: GenerateDocument,
   ) {
     try {
       const record: DocumentGenerated = {
         documentId: input.documentId,
-        path: documentPath,
+        path: input.documentId,
         filename: `${input.documentId}.txt`,
         contentType: 'text/plain',
         timestamp: new Date().toISOString(),
@@ -91,14 +85,12 @@ export function generateDocument(env: { dataRoot: string; logger: Logger }) {
     })
 
     logger.trace({}, 'Preparing output directory for document')
-    const { documentPath, outputDir } = await prepareOutputDirectory(
-      input.documentId,
-    )
+    const outputDir = await prepareOutputDirectory(input.documentId)
 
     logger.trace({}, 'Writing generated document file')
     await writeGeneratedDocumentFile(outputDir, input)
 
     logger.trace({}, 'Writing generated document record')
-    return writeGeneratedDocumentRecord(outputDir, documentPath, input)
+    return writeGeneratedDocumentRecord(outputDir, input)
   }
 }

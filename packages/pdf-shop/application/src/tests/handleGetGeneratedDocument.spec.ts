@@ -32,7 +32,7 @@ describe('handleGetGeneratedDocument', () => {
 
   it('reads the generated document, confirms payment, and streams the file', async () => {
     await mkdir(
-      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111`,
+      `${dataRoot}/11111111-1111-4111-8111-111111111111`,
       { recursive: true },
     )
     // generated.json's "path" is a real, directly-statable absolute path —
@@ -40,7 +40,7 @@ describe('handleGetGeneratedDocument', () => {
     // joining, so the fixture must point straight at a real file.
     await writeFile(`${dataRoot}/generated-output.txt`, 'hello world', 'utf-8')
     await writeFile(
-      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111/generated.json`,
+      `${dataRoot}/11111111-1111-4111-8111-111111111111/generated.json`,
       `{` +
         `"documentId":"11111111-1111-4111-8111-111111111111",` +
         `"path":"${dataRoot}/generated-output.txt",` +
@@ -51,7 +51,7 @@ describe('handleGetGeneratedDocument', () => {
       'utf-8',
     )
     await writeFile(
-      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111/paid.json`,
+      `${dataRoot}/11111111-1111-4111-8111-111111111111/paid.json`,
       '{' +
         '"documentId":"11111111-1111-4111-8111-111111111111",' +
         '"stripePaymentIntentId":"pi_1",' +
@@ -84,12 +84,12 @@ describe('handleGetGeneratedDocument', () => {
 
   it('propagates PaymentConfirmationNotFound from getPayment', async () => {
     await mkdir(
-      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111`,
+      `${dataRoot}/11111111-1111-4111-8111-111111111111`,
       { recursive: true },
     )
     await writeFile(`${dataRoot}/generated-output.txt`, 'hello world', 'utf-8')
     await writeFile(
-      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111/generated.json`,
+      `${dataRoot}/11111111-1111-4111-8111-111111111111/generated.json`,
       `{` +
         `"documentId":"11111111-1111-4111-8111-111111111111",` +
         `"path":"${dataRoot}/generated-output.txt",` +
@@ -109,13 +109,13 @@ describe('handleGetGeneratedDocument', () => {
 
   it('propagates GeneratedDocumentStreamNotFound from getGeneratedDocumentStream', async () => {
     await mkdir(
-      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111`,
+      `${dataRoot}/11111111-1111-4111-8111-111111111111`,
       { recursive: true },
     )
     // No file written at generated-output.txt — the record points at a
     // path that doesn't exist.
     await writeFile(
-      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111/generated.json`,
+      `${dataRoot}/11111111-1111-4111-8111-111111111111/generated.json`,
       `{` +
         `"documentId":"11111111-1111-4111-8111-111111111111",` +
         `"path":"${dataRoot}/generated-output.txt",` +
@@ -126,7 +126,7 @@ describe('handleGetGeneratedDocument', () => {
       'utf-8',
     )
     await writeFile(
-      `${dataRoot}/v1/documents/11111111-1111-4111-8111-111111111111/paid.json`,
+      `${dataRoot}/11111111-1111-4111-8111-111111111111/paid.json`,
       '{' +
         '"documentId":"11111111-1111-4111-8111-111111111111",' +
         '"stripePaymentIntentId":"pi_1",' +

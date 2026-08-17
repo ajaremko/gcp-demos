@@ -3,7 +3,6 @@ import path from 'node:path'
 import { type Logger } from 'pino'
 
 import { type DocumentGenerated, documentGeneratedSchema } from './records'
-import { encodeDocumentPath } from './documentPath'
 import { ApplicationError } from '../ApplicationError'
 
 type GetGeneratedDocument = {
@@ -30,11 +29,7 @@ export function getGeneratedDocument(env: {
 }) {
   async function readGeneratedDocumentFile(documentId: string) {
     try {
-      const documentPath = encodeDocumentPath({
-        documentId,
-        version: 1,
-      })
-      const recordPath = path.join(env.dataRoot, documentPath, 'generated.json')
+      const recordPath = path.join(env.dataRoot, documentId, 'generated.json')
       return await readFile(recordPath, 'utf-8')
     } catch (err) {
       throw new GeneratedDocumentRecordNotFound(err)
