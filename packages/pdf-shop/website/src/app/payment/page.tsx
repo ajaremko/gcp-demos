@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 
-import { handleGetDocumentPayment } from '@org/pdf-shop-application'
+import { handleGetPaymentContext } from '@org/pdf-shop-application'
 
 import { PageShell, Card, Heading, Subheading } from '@/lib/ui'
 import { stripeClient } from '@/lib/stripe'
@@ -10,7 +10,7 @@ import { documentIdSchema } from '@/lib/schemas'
 import { PaymentForm } from './CompletePaymentForm'
 import { TestCards } from './TestCards'
 
-const handler = handleGetDocumentPayment({
+const handler = handleGetPaymentContext({
   stripe: stripeClient,
   dataRoot: process.env.DATA_ROOT ?? '',
   logger: pinoLogger,

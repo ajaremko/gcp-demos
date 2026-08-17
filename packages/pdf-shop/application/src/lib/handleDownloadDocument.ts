@@ -8,11 +8,11 @@ type GetGeneratedDocument = {
   documentId: string
 }
 
-export function handleGetGeneratedDocument(env: {
+export function handleDownloadDocument(env: {
   dataRoot: string
   logger: Logger
 }) {
-  const logger = env.logger.child({ handler: 'handleGetGeneratedDocument' })
+  const logger = env.logger.child({ handler: 'handleDownloadDocument' })
   return async function (input: GetGeneratedDocument) {
     const { documentId } = input
     const localEnv = { ...env, logger }

@@ -3,7 +3,7 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import type Stripe from 'stripe'
 
-import { handleGetDocumentPayment } from '../lib/handleGetDocumentPayment'
+import { handleGetPaymentContext } from '../lib/handleGetPaymentContext'
 import { DocumentOrderNotFound } from '../lib/internal/getDocumentOrder'
 import { PaymentIntentRetrievalFailed } from '../lib/internal/getPaymentIntentClientSecret'
 import {
@@ -12,7 +12,7 @@ import {
   createTestLogger,
 } from './testEnv'
 
-describe('handleGetDocumentPayment', () => {
+describe('handleGetPaymentContext', () => {
   let dataRoot: string
   let cleanup: () => Promise<void>
   const logger = createTestLogger()
@@ -46,7 +46,7 @@ describe('handleGetDocumentPayment', () => {
       client_secret: 'secret_123',
     } as unknown as Stripe.Response<Stripe.PaymentIntent>)
 
-    const result = await handleGetDocumentPayment({
+    const result = await handleGetPaymentContext({
       stripe,
       dataRoot,
       logger,
@@ -55,14 +55,14 @@ describe('handleGetDocumentPayment', () => {
     })
 
     expect(result).toEqual({
-      documentId: '11111111-1111-4111-8111-111111111111',
+      id: '11111111-1111-4111-8111-111111111111',
       clientSecret: 'secret_123',
       spec: { colorScheme: 'light', title: 'Test Contract', body: 'Body' },
     })
   })
 
   it('propagates DocumentOrderNotFound from getDocumentOrder', async () => {
-    const result = handleGetDocumentPayment({ stripe, dataRoot, logger })({
+    const result = handleGetPaymentContext({ stripe, dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
 
@@ -88,7 +88,7 @@ describe('handleGetDocumentPayment', () => {
       new Error('network error'),
     )
 
-    const result = handleGetDocumentPayment({ stripe, dataRoot, logger })({
+    const result = handleGetPaymentContext({ stripe, dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
 

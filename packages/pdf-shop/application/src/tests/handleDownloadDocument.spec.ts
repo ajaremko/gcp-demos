@@ -2,7 +2,7 @@ import { mkdir, writeFile } from 'node:fs/promises'
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 
-import { handleGetGeneratedDocument } from '../lib/handleGetGeneratedDocument'
+import { handleDownloadDocument } from '../lib/handleDownloadDocument'
 import { GeneratedDocumentRecordNotFound } from '../lib/internal/getGeneratedDocument'
 import { PaymentConfirmationNotFound } from '../lib/internal/getPayment'
 import { GeneratedDocumentStreamNotFound } from '../lib/internal/getGeneratedDocumentStream'
@@ -17,7 +17,7 @@ function readStreamToString(stream: NodeJS.ReadableStream): Promise<string> {
   })
 }
 
-describe('handleGetGeneratedDocument', () => {
+describe('handleDownloadDocument', () => {
   let dataRoot: string
   let cleanup: () => Promise<void>
   const logger = createTestLogger()
@@ -62,7 +62,7 @@ describe('handleGetGeneratedDocument', () => {
       'utf-8',
     )
 
-    const result = await handleGetGeneratedDocument({ dataRoot, logger })({
+    const result = await handleDownloadDocument({ dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
 
@@ -75,7 +75,7 @@ describe('handleGetGeneratedDocument', () => {
   })
 
   it('propagates GeneratedDocumentRecordNotFound from getGeneratedDocument', async () => {
-    const result = handleGetGeneratedDocument({ dataRoot, logger })({
+    const result = handleDownloadDocument({ dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
 
@@ -100,7 +100,7 @@ describe('handleGetGeneratedDocument', () => {
       'utf-8',
     )
 
-    const result = handleGetGeneratedDocument({ dataRoot, logger })({
+    const result = handleDownloadDocument({ dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
 
@@ -137,7 +137,7 @@ describe('handleGetGeneratedDocument', () => {
       'utf-8',
     )
 
-    const result = handleGetGeneratedDocument({ dataRoot, logger })({
+    const result = handleDownloadDocument({ dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
 

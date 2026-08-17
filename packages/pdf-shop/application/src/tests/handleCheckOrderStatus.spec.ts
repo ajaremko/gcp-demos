@@ -2,12 +2,12 @@ import { mkdir, writeFile } from 'node:fs/promises'
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 
-import { handleGetGeneratedDocumentReady } from '../lib/handleGetGeneratedDocumentReady'
+import { handleCheckOrderStatus } from '../lib/handleCheckOrderStatus'
 import { GeneratedDocumentRecordNotFound } from '../lib/internal/getGeneratedDocument'
 import { PaymentConfirmationNotFound } from '../lib/internal/getPayment'
 import { createTempDataRoot, createTestLogger } from './testEnv'
 
-describe('handleGetGeneratedDocumentReady', () => {
+describe('handleCheckOrderStatus', () => {
   let dataRoot: string
   let cleanup: () => Promise<void>
   const logger = createTestLogger()
@@ -48,7 +48,7 @@ describe('handleGetGeneratedDocumentReady', () => {
       'utf-8',
     )
 
-    const result = await handleGetGeneratedDocumentReady({
+    const result = await handleCheckOrderStatus({
       dataRoot,
       logger,
     })({
@@ -59,7 +59,7 @@ describe('handleGetGeneratedDocumentReady', () => {
   })
 
   it('propagates GeneratedDocumentRecordNotFound from getGeneratedDocument', async () => {
-    const result = handleGetGeneratedDocumentReady({ dataRoot, logger })({
+    const result = handleCheckOrderStatus({ dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
 
@@ -83,7 +83,7 @@ describe('handleGetGeneratedDocumentReady', () => {
       'utf-8',
     )
 
-    const result = handleGetGeneratedDocumentReady({ dataRoot, logger })({
+    const result = handleCheckOrderStatus({ dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
 

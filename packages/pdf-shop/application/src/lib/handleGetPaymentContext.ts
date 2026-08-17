@@ -15,7 +15,7 @@ type DocumentPaymentView = {
   spec: DocumentSpec
 }
 
-export function handleGetDocumentPayment(env: {
+export function handleGetPaymentContext(env: {
   dataRoot: string
   stripe: Stripe
   logger: Logger
@@ -25,7 +25,7 @@ export function handleGetDocumentPayment(env: {
   ): Promise<DocumentPaymentView> {
     const { documentId } = input
     const logger = env.logger.child({
-      handler: 'handleGetDocumentPayment',
+      handler: 'handleGetPaymentContext',
       documentId,
     })
     const localEnv = { ...env, logger }

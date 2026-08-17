@@ -2,13 +2,13 @@ import { ZodError } from 'zod'
 
 import {
   isApplicationError,
-  handleGetGeneratedDocumentReady,
+  handleCheckOrderStatus,
 } from '@org/pdf-shop-application'
 
 import { pinoLogger } from '@/lib/pino'
 import { documentIdSchema } from '@/lib/schemas'
 
-const handler = handleGetGeneratedDocumentReady({
+const handler = handleCheckOrderStatus({
   dataRoot: process.env.DATA_ROOT ?? '',
   logger: pinoLogger,
 })

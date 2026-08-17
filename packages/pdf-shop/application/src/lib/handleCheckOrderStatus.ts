@@ -7,14 +7,14 @@ type GetGeneratedDocument = {
   documentId: string
 }
 
-export function handleGetGeneratedDocumentReady(env: {
+export function handleCheckOrderStatus(env: {
   dataRoot: string
   logger: Logger
 }) {
   return async function (input: GetGeneratedDocument) {
     const { documentId } = input
     const logger = env.logger.child({
-      handler: 'handleGetGeneratedDocumentReady',
+      handler: 'handleCheckOrderStatus',
       documentId,
     })
     const localEnv = { ...env, logger }

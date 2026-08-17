@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 
-import { handleGetGeneratedDocumentReady } from '@org/pdf-shop-application'
+import { handleCheckOrderStatus } from '@org/pdf-shop-application'
 
 import { PageShell, Card, Heading, Subheading } from '@/lib/ui'
 import { pinoLogger } from '@/lib/pino'
@@ -8,7 +8,7 @@ import { documentIdSchema } from '@/lib/schemas'
 
 import { DownloadStatusPoller } from './download-status-poller'
 
-const handler = handleGetGeneratedDocumentReady({
+const handler = handleCheckOrderStatus({
   dataRoot: process.env.DATA_ROOT ?? '',
   logger: pinoLogger,
 })
