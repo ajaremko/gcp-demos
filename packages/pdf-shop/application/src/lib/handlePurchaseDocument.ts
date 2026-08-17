@@ -1,14 +1,14 @@
 import { type Stripe } from 'stripe'
 import { type Logger } from 'pino'
 
-import { completePayment } from './internal/completePayment'
+import { purchaseDocument } from './internal/purchaseDocument'
 
 type CompletePayment = {
   documentId: string
   paymentIntentId: string
 }
 
-export function handleCompletePayment(env: {
+export function handlePurchaseDocument(env: {
   stripe: Stripe
   dataRoot: string
   logger: Logger
@@ -16,12 +16,12 @@ export function handleCompletePayment(env: {
   return async function (input: CompletePayment) {
     const { documentId, paymentIntentId } = input
     const logger = env.logger.child({
-      handler: 'handleCompletePayment',
+      handler: 'handlePurchaseDocument',
       documentId,
       paymentIntentId,
     })
     const localEnv = { ...env, logger }
-    await completePayment(localEnv)({ documentId, paymentIntentId })
+    await purchaseDocument(localEnv)({ documentId, paymentIntentId })
     return { documentId }
   }
 }

@@ -7,15 +7,15 @@ import {
   PaymentIntentInvalid,
   PaymentIntentNotFound,
   PaymentRecordWriteFailed,
-  completePayment,
-} from '../lib/internal/completePayment'
+  purchaseDocument,
+} from '../lib/internal/purchaseDocument'
 import {
   createFakeStripe,
   createTempDataRoot,
   createTestLogger,
 } from './testEnv'
 
-describe('completePayment', () => {
+describe('purchaseDocument', () => {
   let dataRoot: string
   let cleanup: () => Promise<void>
   const logger = createTestLogger()
@@ -42,7 +42,7 @@ describe('completePayment', () => {
       metadata: { documentId: '11111111-1111-4111-8111-111111111111' },
     } as unknown as Stripe.Response<Stripe.PaymentIntent>)
 
-    const record = await completePayment({ stripe, dataRoot, logger })({
+    const record = await purchaseDocument({ stripe, dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
       paymentIntentId: 'pi_1',
     })
@@ -75,7 +75,7 @@ describe('completePayment', () => {
       new Error('network error'),
     )
 
-    const result = completePayment({ stripe, dataRoot, logger })({
+    const result = purchaseDocument({ stripe, dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
       paymentIntentId: 'pi_1',
     })
@@ -90,7 +90,7 @@ describe('completePayment', () => {
       metadata: { documentId: '11111111-1111-4111-8111-111111111111' },
     } as unknown as Stripe.Response<Stripe.PaymentIntent>)
 
-    const result = completePayment({ stripe, dataRoot, logger })({
+    const result = purchaseDocument({ stripe, dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
       paymentIntentId: 'pi_1',
     })
@@ -105,7 +105,7 @@ describe('completePayment', () => {
       metadata: { documentId: '22222222-2222-4222-8222-222222222222' },
     } as unknown as Stripe.Response<Stripe.PaymentIntent>)
 
-    const result = completePayment({ stripe, dataRoot, logger })({
+    const result = purchaseDocument({ stripe, dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
       paymentIntentId: 'pi_1',
     })
@@ -124,7 +124,7 @@ describe('completePayment', () => {
     // fails with ENOTDIR — deterministic regardless of user/root.
     await writeFile(`${dataRoot}/not-a-directory`, '', 'utf-8')
 
-    const result = completePayment({
+    const result = purchaseDocument({
       stripe,
       dataRoot: `${dataRoot}/not-a-directory`,
       logger,

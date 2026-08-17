@@ -53,7 +53,7 @@ export default async function PaymentPage({
         </Subheading>
         {document.clientSecret && (
           <PaymentForm
-            documentId={document.documentId}
+            documentId={document.id}
             clientSecret={document.clientSecret}
             publishableKey={publishableKey}
           />

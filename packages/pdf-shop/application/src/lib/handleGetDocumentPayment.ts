@@ -10,7 +10,7 @@ type GetDocumentOrder = {
 }
 
 type DocumentPaymentView = {
-  documentId: string
+  id: string
   clientSecret: string | null
   spec: DocumentSpec
 }
@@ -36,7 +36,7 @@ export function handleGetDocumentPayment(env: {
     )
 
     return {
-      documentId: document.id,
+      id: document.id,
       clientSecret,
       spec: document.spec,
     }

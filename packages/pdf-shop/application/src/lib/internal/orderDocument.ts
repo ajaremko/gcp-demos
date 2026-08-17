@@ -10,7 +10,7 @@ import { ApplicationError } from '../ApplicationError'
 const DEMO_PRICE_CENTS = 999
 const DEMO_PRICE_CURRENCY = 'usd'
 
-type CreateDocumentOrder = {
+type OrderDocument = {
   colorScheme: 'light' | 'dark'
   title: string
   body: string
@@ -30,13 +30,13 @@ export class DocumentOrderWriteFailed extends ApplicationError {
   }
 }
 
-export function createDocumentOrder(env: {
+export function orderDocument(env: {
   stripe: Stripe
   dataRoot: string
   logger: Logger
 }) {
   const logger = env.logger.child({
-    method: 'createDocumentOrder',
+    method: 'orderDocument',
   })
 
   async function createPaymentIntent(documentId: string) {
@@ -67,7 +67,7 @@ export function createDocumentOrder(env: {
 
   async function writeDocumentRecord(
     documentId: string,
-    input: CreateDocumentOrder,
+    input: OrderDocument,
     payment: { paymentIntentId: string; amount: number; currency: string },
   ) {
     try {
@@ -103,9 +103,7 @@ export function createDocumentOrder(env: {
     }
   }
 
-  return async function (
-    input: CreateDocumentOrder,
-  ): Promise<DocumentOrder> {
+  return async function (input: OrderDocument): Promise<DocumentOrder> {
     const documentId = randomUUID()
 
     const payment = await createPaymentIntent(documentId)

@@ -1,7 +1,7 @@
 import { type Stripe } from 'stripe'
 import { type Logger } from 'pino'
 
-import { createDocumentOrder } from './internal/createDocumentOrder'
+import { orderDocument } from './internal/orderDocument'
 
 type CreateDocument = {
   colorScheme: 'light' | 'dark'
@@ -9,15 +9,15 @@ type CreateDocument = {
   body: string
 }
 
-export function handleCreateDocument(env: {
+export function handleOrderDocument(env: {
   stripe: Stripe
   dataRoot: string
   logger: Logger
 }) {
   return async function (input: CreateDocument) {
-    const logger = env.logger.child({ handler: 'handleCreateDocument' })
+    const logger = env.logger.child({ handler: 'handleOrderDocument' })
     const localEnv = { ...env, logger }
-    const document = await createDocumentOrder(localEnv)(input)
+    const document = await orderDocument(localEnv)(input)
     return document
   }
 }

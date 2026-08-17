@@ -6,7 +6,7 @@ import { type Logger } from 'pino'
 import { type PaymentCompleted } from './records'
 import { ApplicationError } from '../ApplicationError'
 
-type CompletePayment = {
+type PurchaseDocument = {
   documentId: string
   paymentIntentId: string
 }
@@ -32,13 +32,13 @@ export class PaymentRecordWriteFailed extends ApplicationError {
   }
 }
 
-export function completePayment(env: {
+export function purchaseDocument(env: {
   stripe: Stripe
   dataRoot: string
   logger: Logger
 }) {
   const logger = env.logger.child({
-    method: 'completePayment',
+    method: 'purchaseDocument',
   })
 
   async function retreivePaymentIntent(paymentIntentId: string) {
@@ -110,7 +110,9 @@ export function completePayment(env: {
     }
   }
 
-  return async function (input: CompletePayment): Promise<PaymentCompleted> {
+  return async function (
+    input: PurchaseDocument,
+  ): Promise<PaymentCompleted> {
     const intent = await retreivePaymentIntent(input.paymentIntentId)
     await validatePaymentIntent(input.documentId, intent)
     return writePaymentRecord(input.documentId, intent)
