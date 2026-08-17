@@ -5,9 +5,9 @@ import { type Logger } from 'pino'
 import { type DocumentCreated, documentCreatedSchema } from './records'
 import { ApplicationError } from '../ApplicationError'
 
-type GetDocumentSpec = {
-  documentId: string
-}
+type GetDocumentCreated =
+  | { documentId: string }
+  | { path: string }
 
 export class DocumentRecordNotFound extends ApplicationError {
   readonly tag = 'DocumentRecordNotFound'
@@ -24,9 +24,12 @@ export class DocumentRecordInvalid extends ApplicationError {
 }
 
 export function getDocumentCreated(env: { dataRoot: string; logger: Logger }) {
-  async function readDocumentRecordFile(documentId: string) {
+  async function readDocumentRecordFile(input: GetDocumentCreated) {
     try {
-      const recordPath = path.join(env.dataRoot, documentId, 'created.json')
+      const recordPath =
+        'path' in input
+          ? path.join(env.dataRoot, input.path)
+          : path.join(env.dataRoot, input.documentId, 'created.json')
       return await readFile(recordPath, 'utf-8')
     } catch (err) {
       throw new DocumentRecordNotFound(err)
@@ -42,14 +45,16 @@ export function getDocumentCreated(env: { dataRoot: string; logger: Logger }) {
     }
   }
 
-  return async function (input: GetDocumentSpec): Promise<DocumentCreated> {
+  return async function (input: GetDocumentCreated): Promise<DocumentCreated> {
     const logger = env.logger.child({
       method: 'getDocumentCreated',
-      documentId: input.documentId,
+      ...('path' in input
+        ? { path: input.path }
+        : { documentId: input.documentId }),
     })
 
     logger.trace({}, 'Reading document spec file')
-    const raw = await readDocumentRecordFile(input.documentId)
+    const raw = await readDocumentRecordFile(input)
 
     return parseDocumentRecord(raw)
   }
