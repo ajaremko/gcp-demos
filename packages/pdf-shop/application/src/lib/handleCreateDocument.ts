@@ -17,7 +17,7 @@ export function handleCreateDocument(env: {
   return async function (input: CreateDocument) {
     const logger = env.logger.child({ handler: 'handleCreateDocument' })
     const localEnv = { ...env, logger }
-    const spec = await createDocument(localEnv)(input)
-    return spec
+    const document = await createDocument(localEnv)(input)
+    return document
   }
 }

@@ -10,7 +10,7 @@ export default function LandingPage() {
           Stripe sandbox account, and download the generated PDF once it&apos;s
           ready.
         </Subheading>
-        <NavLinkButton href="/spec">Create a document</NavLinkButton>
+        <NavLinkButton href="/create">Create a document</NavLinkButton>
       </Card>
     </PageShell>
   )

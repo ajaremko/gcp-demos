@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 export const colorSchemeSchema = z.enum(['light', 'dark'])
 
-export const createDocumentSpecSchema = z.object({
+export const documentSpecSchema = z.object({
   colorScheme: colorSchemeSchema,
   title: z
     .string()
@@ -16,4 +16,4 @@ export const createDocumentSpecSchema = z.object({
     .max(20_000, 'Body is too long'),
 })
 
-export type CreateDocument = z.infer<typeof createDocumentSpecSchema>
+export type DocumentSpec = z.infer<typeof documentSpecSchema>

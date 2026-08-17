@@ -2,7 +2,7 @@
 import { useActionState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { createDocumentSpecSchema, type CreateDocument } from './schema'
+import { documentSpecSchema, type DocumentSpec } from './schema'
 import {
   Field,
   Label,
@@ -13,21 +13,21 @@ import {
   HelperText,
   Button,
 } from '@/lib/ui'
-import { submitDocumentSpecAction, type SpecActionState } from './actions'
+import { createDocumentAction, type CreateDocumentActionState } from './actions'
 
-const initialState: SpecActionState = { errors: {} }
+const initialState: CreateDocumentActionState = { errors: {} }
 
 export function CreateDocumentSpecForm() {
   const [state, formAction, isPending] = useActionState(
-    submitDocumentSpecAction,
+    createDocumentAction,
     initialState,
   )
 
   const {
     register,
     formState: { errors },
-  } = useForm<CreateDocument>({
-    resolver: zodResolver(createDocumentSpecSchema),
+  } = useForm<DocumentSpec>({
+    resolver: zodResolver(documentSpecSchema),
     errors: state.errors,
     mode: 'onBlur',
     defaultValues: {

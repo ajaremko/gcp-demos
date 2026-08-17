@@ -11,7 +11,7 @@ import { stripeClient } from '@/lib/stripe'
 import { pinoLogger } from '@/lib/pino'
 import { zodFieldErrors } from '@/lib/formErrors'
 
-import { createDocumentSpecSchema } from './schema'
+import { documentSpecSchema } from './schema'
 
 const handler = handleCreateDocument({
   stripe: stripeClient,
@@ -19,18 +19,18 @@ const handler = handleCreateDocument({
   logger: pinoLogger,
 })
 
-export type SpecActionState = {
+export type CreateDocumentActionState = {
   errors: FieldErrors
   message?: string
 }
 
-export async function submitDocumentSpecAction(
-  _prevState: SpecActionState,
+export async function createDocumentAction(
+  _prevState: CreateDocumentActionState,
   formData: FormData,
-): Promise<SpecActionState> {
+): Promise<CreateDocumentActionState> {
   const raw = Object.fromEntries(formData)
 
-  const parsed = createDocumentSpecSchema.safeParse(raw)
+  const parsed = documentSpecSchema.safeParse(raw)
   if (!parsed.success) {
     return { errors: zodFieldErrors(parsed.error) }
   }
@@ -41,10 +41,7 @@ export async function submitDocumentSpecAction(
   } catch (err) {
     // Handle filesystem and stripe integration errors
     if (isApplicationError(err)) {
-      console.warn({
-        error: err,
-        handler: 'submitDocumentSpecAction',
-      })
+      console.warn(err)
       return {
         errors: {},
         message:
