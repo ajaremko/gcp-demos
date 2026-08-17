@@ -41,7 +41,8 @@ app.post('/', async (req, res) => {
     typeof objectId !== 'string' ||
     !objectId.endsWith('/created.json')
   ) {
-    res.status(422).send()
+    // Not 422 because we want to avoid retrying the request
+    res.status(201).send()
     return
   }
 

@@ -5,9 +5,7 @@ import { type Logger } from 'pino'
 import { type DocumentCreated, documentCreatedSchema } from './records'
 import { ApplicationError } from '../ApplicationError'
 
-type GetDocumentCreated =
-  | { documentId: string }
-  | { path: string }
+type GetDocumentCreated = { documentId: string } | { path: string }
 
 export class DocumentRecordNotFound extends ApplicationError {
   readonly tag = 'DocumentRecordNotFound'
@@ -28,7 +26,7 @@ export function getDocumentCreated(env: { dataRoot: string; logger: Logger }) {
     try {
       const recordPath =
         'path' in input
-          ? path.join(env.dataRoot, input.path)
+          ? input.path
           : path.join(env.dataRoot, input.documentId, 'created.json')
       return await readFile(recordPath, 'utf-8')
     } catch (err) {

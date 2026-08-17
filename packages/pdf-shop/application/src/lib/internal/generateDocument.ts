@@ -32,9 +32,20 @@ export class GeneratedDocumentRecordWriteFailed extends ApplicationError {
 }
 
 export function generateDocument(env: { dataRoot: string; logger: Logger }) {
+  const logger = env.logger.child({
+    method: 'generateDocument',
+  })
+
   async function prepareOutputDirectory(documentId: string) {
     try {
       const outputDir = path.join(env.dataRoot, documentId)
+      logger.trace(
+        {
+          documentId,
+          path: outputDir,
+        },
+        'Preparing output directory for document',
+      )
       await mkdir(outputDir, { recursive: true })
       return outputDir
     } catch (err) {
@@ -49,7 +60,15 @@ export function generateDocument(env: { dataRoot: string; logger: Logger }) {
     try {
       const generatedData = `Generated document for spec ${input.documentId}\n\n${JSON.stringify(input.spec, null, 2)}`
       const generatedPath = path.join(outputDir, `generated.txt`)
+      logger.trace(
+        {
+          documentId: input.documentId,
+          path: generatedPath,
+        },
+        'Writing generated document record',
+      )
       await writeFile(generatedPath, generatedData, 'utf-8')
+      return generatedPath
     } catch (err) {
       throw new GeneratedDocumentFileWriteFailed(err)
     }
@@ -57,12 +76,13 @@ export function generateDocument(env: { dataRoot: string; logger: Logger }) {
 
   async function writeGeneratedDocumentRecord(
     outputDir: string,
+    generatedPath: string,
     input: GenerateDocument,
   ) {
     try {
       const record: DocumentGenerated = {
         documentId: input.documentId,
-        path: input.documentId,
+        path: generatedPath,
         filename: `${input.documentId}.txt`,
         contentType: 'text/plain',
         timestamp: new Date().toISOString(),
@@ -70,6 +90,15 @@ export function generateDocument(env: { dataRoot: string; logger: Logger }) {
 
       const recordData = JSON.stringify(record)
       const recordPath = path.join(outputDir, 'generated.json')
+      logger.trace(
+        {
+          documentId: record.documentId,
+          path: recordPath,
+          filename: record.filename,
+          contentType: record.contentType,
+        },
+        'Writing generated document file',
+      )
       await writeFile(recordPath, recordData, 'utf-8')
 
       return record
@@ -79,18 +108,8 @@ export function generateDocument(env: { dataRoot: string; logger: Logger }) {
   }
 
   return async function (input: GenerateDocument): Promise<DocumentGenerated> {
-    const logger = env.logger.child({
-      method: 'generateDocument',
-      documentId: input.documentId,
-    })
-
-    logger.trace({}, 'Preparing output directory for document')
     const outputDir = await prepareOutputDirectory(input.documentId)
-
-    logger.trace({}, 'Writing generated document file')
-    await writeGeneratedDocumentFile(outputDir, input)
-
-    logger.trace({}, 'Writing generated document record')
-    return writeGeneratedDocumentRecord(outputDir, input)
+    const generatedPath = await writeGeneratedDocumentFile(outputDir, input)
+    return writeGeneratedDocumentRecord(outputDir, generatedPath, input)
   }
 }

@@ -40,7 +40,8 @@ describe('POST /', () => {
         attributes: {
           eventType: 'OBJECT_FINALIZE',
           bucketId: 'pdf-shop-documents',
-          objectId: '11111111-1111-4111-8111-111111111111/created.json',
+          objectId:
+            '/tmp/pdf-shop-worker-data/11111111-1111-4111-8111-111111111111/created.json',
           objectGeneration: '1700000000000000',
           payloadFormat: 'JSON_API_V1',
         },
@@ -93,7 +94,8 @@ describe('POST /', () => {
         attributes: {
           eventType: 'OBJECT_FINALIZE',
           bucketId: 'pdf-shop-documents',
-          objectId: '22222222-2222-4222-8222-222222222222/generated.json',
+          objectId:
+            '/tmp/pdf-shop-worker-data/22222222-2222-4222-8222-222222222222/generated.json',
           objectGeneration: '1700000000000001',
           payloadFormat: 'JSON_API_V1',
         },
@@ -123,7 +125,8 @@ describe('POST /', () => {
           attributes: {
             eventType: 'OBJECT_FINALIZE',
             bucketId: 'pdf-shop-documents',
-            objectId: '33333333-3333-4333-8333-333333333333/created.json',
+            objectId:
+              '/tmp/pdf-shop-worker-data/33333333-3333-4333-8333-333333333333/created.json',
             objectGeneration: '1700000000000002',
             payloadFormat: 'JSON_API_V1',
           },

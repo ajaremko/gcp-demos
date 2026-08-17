@@ -23,10 +23,9 @@ describe('getDocumentCreated', () => {
   })
 
   it('reads and parses an existing document spec file', async () => {
-    await mkdir(
-      `${dataRoot}/11111111-1111-4111-8111-111111111111`,
-      { recursive: true },
-    )
+    await mkdir(`${dataRoot}/11111111-1111-4111-8111-111111111111`, {
+      recursive: true,
+    })
     await writeFile(
       `${dataRoot}/11111111-1111-4111-8111-111111111111/created.json`,
       '{' +
@@ -51,10 +50,9 @@ describe('getDocumentCreated', () => {
   })
 
   it('reads and parses an existing document spec file by path', async () => {
-    await mkdir(
-      `${dataRoot}/11111111-1111-4111-8111-111111111111`,
-      { recursive: true },
-    )
+    await mkdir(`${dataRoot}/11111111-1111-4111-8111-111111111111`, {
+      recursive: true,
+    })
     await writeFile(
       `${dataRoot}/11111111-1111-4111-8111-111111111111/created.json`,
       '{' +
@@ -67,7 +65,7 @@ describe('getDocumentCreated', () => {
     )
 
     const result = await getDocumentCreated({ dataRoot, logger })({
-      path: '11111111-1111-4111-8111-111111111111/created.json',
+      path: `${dataRoot}/11111111-1111-4111-8111-111111111111/created.json`,
     })
 
     expect(result).toEqual({
@@ -86,10 +84,9 @@ describe('getDocumentCreated', () => {
   })
 
   it('throws DocumentRecordInvalid when the file contains invalid JSON', async () => {
-    await mkdir(
-      `${dataRoot}/11111111-1111-4111-8111-111111111111`,
-      { recursive: true },
-    )
+    await mkdir(`${dataRoot}/11111111-1111-4111-8111-111111111111`, {
+      recursive: true,
+    })
     await writeFile(
       `${dataRoot}/11111111-1111-4111-8111-111111111111/created.json`,
       'not json',
@@ -103,10 +100,9 @@ describe('getDocumentCreated', () => {
   })
 
   it('throws DocumentRecordInvalid when the file content fails schema validation', async () => {
-    await mkdir(
-      `${dataRoot}/11111111-1111-4111-8111-111111111111`,
-      { recursive: true },
-    )
+    await mkdir(`${dataRoot}/11111111-1111-4111-8111-111111111111`, {
+      recursive: true,
+    })
     await writeFile(
       `${dataRoot}/11111111-1111-4111-8111-111111111111/created.json`,
       '{"foo":"bar"}',

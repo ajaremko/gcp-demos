@@ -36,7 +36,7 @@ describe('generateDocument', () => {
 
     expect(record).toEqual({
       documentId: '11111111-1111-4111-8111-111111111111',
-      path: '11111111-1111-4111-8111-111111111111',
+      path: `${dataRoot}/11111111-1111-4111-8111-111111111111/generated.txt`,
       filename: '11111111-1111-4111-8111-111111111111.txt',
       contentType: 'text/plain',
       timestamp: '2024-01-01T00:00:00.000Z',
@@ -57,7 +57,7 @@ describe('generateDocument', () => {
     expect(generatedRecord).toBe(
       '{' +
         '"documentId":"11111111-1111-4111-8111-111111111111",' +
-        '"path":"11111111-1111-4111-8111-111111111111",' +
+        `"path":"${dataRoot}/11111111-1111-4111-8111-111111111111/generated.txt",` +
         '"filename":"11111111-1111-4111-8111-111111111111.txt",' +
         '"contentType":"text/plain",' +
         '"timestamp":"2024-01-01T00:00:00.000Z"' +
