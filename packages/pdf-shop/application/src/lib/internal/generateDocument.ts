@@ -2,8 +2,10 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { type Logger } from 'pino'
 
-import { type DocumentGenerated, type DocumentSpec } from './records'
 import { ApplicationError } from '../ApplicationError'
+
+import { type GenerationRecord } from './data/GenerationRecord'
+import { type DocumentSpec } from './data/DocumentSpec'
 
 type GenerateDocument = {
   documentId: string
@@ -53,10 +55,7 @@ export function generateDocument(env: { dataRoot: string; logger: Logger }) {
     }
   }
 
-  async function writeGeneratedDocumentFile(
-    outputDir: string,
-    input: GenerateDocument,
-  ) {
+  async function writeDocument(outputDir: string, input: GenerateDocument) {
     try {
       const generatedData = `Generated document for spec ${input.documentId}\n\n${JSON.stringify(input.spec, null, 2)}`
       const generatedPath = path.join(outputDir, `generated.txt`)
@@ -74,13 +73,13 @@ export function generateDocument(env: { dataRoot: string; logger: Logger }) {
     }
   }
 
-  async function writeGeneratedDocumentRecord(
+  async function writeRecord(
     outputDir: string,
     generatedPath: string,
     input: GenerateDocument,
   ) {
     try {
-      const record: DocumentGenerated = {
+      const record: GenerationRecord = {
         documentId: input.documentId,
         path: generatedPath,
         filename: `${input.documentId}.txt`,
@@ -107,9 +106,9 @@ export function generateDocument(env: { dataRoot: string; logger: Logger }) {
     }
   }
 
-  return async function (input: GenerateDocument): Promise<DocumentGenerated> {
+  return async function (input: GenerateDocument): Promise<GenerationRecord> {
     const outputDir = await prepareOutputDirectory(input.documentId)
-    const generatedPath = await writeGeneratedDocumentFile(outputDir, input)
-    return writeGeneratedDocumentRecord(outputDir, generatedPath, input)
+    const generatedPath = await writeDocument(outputDir, input)
+    return writeRecord(outputDir, generatedPath, input)
   }
 }

@@ -3,13 +3,13 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 
 import {
-  getGeneratedDocument,
+  readGenerationRecord,
   GeneratedDocumentRecordNotFound,
   GeneratedDocumentRecordInvalid,
-} from '../../lib/internal/getGeneratedDocument'
+} from '../../lib/internal/readGenerationRecord'
 import { createTempDataRoot, createTestLogger } from '../testEnv'
 
-describe('getGeneratedDocument', () => {
+describe('readGenerationRecord', () => {
   let dataRoot: string
   let cleanup: () => Promise<void>
   const logger = createTestLogger()
@@ -38,7 +38,7 @@ describe('getGeneratedDocument', () => {
       'utf-8',
     )
 
-    const result = await getGeneratedDocument({ dataRoot, logger })({
+    const result = await readGenerationRecord({ dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
 
@@ -52,7 +52,7 @@ describe('getGeneratedDocument', () => {
   })
 
   it('throws GeneratedDocumentRecordNotFound when the file does not exist', async () => {
-    const result = getGeneratedDocument({ dataRoot, logger })({
+    const result = readGenerationRecord({ dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
     await expect(result).rejects.toBeInstanceOf(GeneratedDocumentRecordNotFound)
@@ -68,7 +68,7 @@ describe('getGeneratedDocument', () => {
       'utf-8',
     )
 
-    const result = getGeneratedDocument({ dataRoot, logger })({
+    const result = readGenerationRecord({ dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
     await expect(result).rejects.toBeInstanceOf(GeneratedDocumentRecordInvalid)
@@ -84,7 +84,7 @@ describe('getGeneratedDocument', () => {
       'utf-8',
     )
 
-    const result = getGeneratedDocument({ dataRoot, logger })({
+    const result = readGenerationRecord({ dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
     await expect(result).rejects.toBeInstanceOf(GeneratedDocumentRecordInvalid)

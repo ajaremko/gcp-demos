@@ -3,13 +3,8 @@ import path from 'node:path'
 import type Stripe from 'stripe'
 import { type Logger } from 'pino'
 
-import { type PaymentCompleted } from './records'
+import { type PaymentRecord } from './data/PaymentRecord'
 import { ApplicationError } from '../ApplicationError'
-
-type PurchaseDocument = {
-  documentId: string
-  paymentIntentId: string
-}
 
 export class PaymentIntentNotFound extends ApplicationError {
   readonly tag = 'PaymentIntentNotFound'
@@ -30,6 +25,11 @@ export class PaymentRecordWriteFailed extends ApplicationError {
   constructor(cause: unknown) {
     super('Failed to persist payment record to file', cause)
   }
+}
+
+type PurchaseDocument = {
+  documentId: string
+  paymentIntentId: string
 }
 
 export function purchaseDocument(env: {
@@ -84,7 +84,7 @@ export function purchaseDocument(env: {
       const outputDir = path.join(env.dataRoot, documentId)
       await mkdir(outputDir, { recursive: true })
 
-      const record: PaymentCompleted = {
+      const record: PaymentRecord = {
         documentId,
         stripePaymentIntentId: paymentIntent.id,
         amount: paymentIntent.amount,
@@ -110,9 +110,7 @@ export function purchaseDocument(env: {
     }
   }
 
-  return async function (
-    input: PurchaseDocument,
-  ): Promise<PaymentCompleted> {
+  return async function (input: PurchaseDocument): Promise<PaymentRecord> {
     const intent = await retreivePaymentIntent(input.paymentIntentId)
     await validatePaymentIntent(input.documentId, intent)
     return writePaymentRecord(input.documentId, intent)

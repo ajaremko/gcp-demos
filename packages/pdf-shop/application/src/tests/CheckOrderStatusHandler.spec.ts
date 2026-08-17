@@ -2,12 +2,12 @@ import { mkdir, writeFile } from 'node:fs/promises'
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 
-import { handleCheckOrderStatus } from '../lib/handleCheckOrderStatus'
-import { GeneratedDocumentRecordNotFound } from '../lib/internal/getGeneratedDocument'
-import { PaymentConfirmationNotFound } from '../lib/internal/getPayment'
+import { CheckOrderStatusHandler } from '../lib/CheckOrderStatusHandler'
+import { GeneratedDocumentRecordNotFound } from '../lib/internal/readGenerationRecord'
+import { PaymentConfirmationNotFound } from '../lib/internal/readPaymentRecord'
 import { createTempDataRoot, createTestLogger } from './testEnv'
 
-describe('handleCheckOrderStatus', () => {
+describe('CheckOrderStatusHandler', () => {
   let dataRoot: string
   let cleanup: () => Promise<void>
   const logger = createTestLogger()
@@ -21,10 +21,9 @@ describe('handleCheckOrderStatus', () => {
   })
 
   it('validates input and returns true when the document is generated and paid for', async () => {
-    await mkdir(
-      `${dataRoot}/11111111-1111-4111-8111-111111111111`,
-      { recursive: true },
-    )
+    await mkdir(`${dataRoot}/11111111-1111-4111-8111-111111111111`, {
+      recursive: true,
+    })
     await writeFile(
       `${dataRoot}/11111111-1111-4111-8111-111111111111/generated.json`,
       '{' +
@@ -48,7 +47,7 @@ describe('handleCheckOrderStatus', () => {
       'utf-8',
     )
 
-    const result = await handleCheckOrderStatus({
+    const result = await CheckOrderStatusHandler({
       dataRoot,
       logger,
     })({
@@ -58,8 +57,8 @@ describe('handleCheckOrderStatus', () => {
     expect(result).toBe(true)
   })
 
-  it('propagates GeneratedDocumentRecordNotFound from getGeneratedDocument', async () => {
-    const result = handleCheckOrderStatus({ dataRoot, logger })({
+  it('propagates GeneratedDocumentRecordNotFound from readGenerationRecord', async () => {
+    const result = CheckOrderStatusHandler({ dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
 
@@ -67,10 +66,9 @@ describe('handleCheckOrderStatus', () => {
   })
 
   it('propagates PaymentConfirmationNotFound from getPayment', async () => {
-    await mkdir(
-      `${dataRoot}/11111111-1111-4111-8111-111111111111`,
-      { recursive: true },
-    )
+    await mkdir(`${dataRoot}/11111111-1111-4111-8111-111111111111`, {
+      recursive: true,
+    })
     await writeFile(
       `${dataRoot}/11111111-1111-4111-8111-111111111111/generated.json`,
       '{' +
@@ -83,7 +81,7 @@ describe('handleCheckOrderStatus', () => {
       'utf-8',
     )
 
-    const result = handleCheckOrderStatus({ dataRoot, logger })({
+    const result = CheckOrderStatusHandler({ dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
 

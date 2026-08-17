@@ -3,7 +3,7 @@ import path from 'node:path'
 
 import { type Logger } from 'pino'
 
-import { type PaymentCompleted, paymentCompletedSchema } from './records'
+import { type PaymentRecord, paymentRecordSchema } from './data/PaymentRecord'
 import { ApplicationError } from '../ApplicationError'
 
 type GetPayment = {
@@ -24,12 +24,12 @@ export class PaymentConfirmationInvalid extends ApplicationError {
   }
 }
 
-export function getPaymentCompleted(env: { dataRoot: string; logger: Logger }) {
+export function readPaymentRecord(env: { dataRoot: string; logger: Logger }) {
   const logger = env.logger.child({
-    method: 'getPaymentCompleted',
+    method: 'readPaymentRecord',
   })
 
-  async function readPaymentConfirmationFile(documentId: string) {
+  async function readRecord(documentId: string) {
     try {
       const recordPath = path.join(env.dataRoot, documentId, 'paid.json')
       logger.trace(
@@ -42,17 +42,17 @@ export function getPaymentCompleted(env: { dataRoot: string; logger: Logger }) {
     }
   }
 
-  function parsePaymentConfirmation(raw: string): PaymentCompleted {
+  function parseRecord(raw: string): PaymentRecord {
     try {
       const record = JSON.parse(raw)
-      return paymentCompletedSchema.parse(record)
+      return paymentRecordSchema.parse(record)
     } catch (err) {
       throw new PaymentConfirmationInvalid(err)
     }
   }
 
-  return async function (input: GetPayment): Promise<PaymentCompleted> {
-    const raw = await readPaymentConfirmationFile(input.documentId)
-    return parsePaymentConfirmation(raw)
+  return async function (input: GetPayment): Promise<PaymentRecord> {
+    const raw = await readRecord(input.documentId)
+    return parseRecord(raw)
   }
 }

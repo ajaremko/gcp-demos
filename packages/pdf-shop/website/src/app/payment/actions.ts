@@ -4,7 +4,7 @@ import { type FieldErrors } from 'react-hook-form'
 
 import {
   isApplicationError,
-  handlePurchaseDocument,
+  PurchaseDocumentHandler,
 } from '@org/pdf-shop-application'
 
 import { stripeClient } from '@/lib/stripe'
@@ -13,7 +13,7 @@ import { zodFieldErrors } from '@/lib/formErrors'
 
 import { completePaymentSchema } from './schema'
 
-const handler = handlePurchaseDocument({
+const handler = PurchaseDocumentHandler({
   stripe: stripeClient,
   dataRoot: process.env.DATA_ROOT ?? '',
   logger: pinoLogger,

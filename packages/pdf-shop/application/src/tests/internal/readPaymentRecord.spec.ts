@@ -3,13 +3,13 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 
 import {
-  getPaymentCompleted,
+  readPaymentRecord,
   PaymentConfirmationNotFound,
   PaymentConfirmationInvalid,
-} from '../../lib/internal/getPayment'
+} from '../../lib/internal/readPaymentRecord'
 import { createTempDataRoot, createTestLogger } from '../testEnv'
 
-describe('getPaymentCompleted', () => {
+describe('readPaymentRecord', () => {
   let dataRoot: string
   let cleanup: () => Promise<void>
   const logger = createTestLogger()
@@ -38,7 +38,7 @@ describe('getPaymentCompleted', () => {
       'utf-8',
     )
 
-    const result = await getPaymentCompleted({ dataRoot, logger })({
+    const result = await readPaymentRecord({ dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
 
@@ -52,7 +52,7 @@ describe('getPaymentCompleted', () => {
   })
 
   it('throws PaymentConfirmationNotFound when the file does not exist', async () => {
-    const result = getPaymentCompleted({ dataRoot, logger })({
+    const result = readPaymentRecord({ dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
     await expect(result).rejects.toBeInstanceOf(PaymentConfirmationNotFound)
@@ -68,7 +68,7 @@ describe('getPaymentCompleted', () => {
       'utf-8',
     )
 
-    const result = getPaymentCompleted({ dataRoot, logger })({
+    const result = readPaymentRecord({ dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
     await expect(result).rejects.toBeInstanceOf(PaymentConfirmationInvalid)
@@ -84,7 +84,7 @@ describe('getPaymentCompleted', () => {
       'utf-8',
     )
 
-    const result = getPaymentCompleted({ dataRoot, logger })({
+    const result = readPaymentRecord({ dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
     await expect(result).rejects.toBeInstanceOf(PaymentConfirmationInvalid)

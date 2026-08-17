@@ -2,8 +2,12 @@ import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { type Logger } from 'pino'
 
-import { type DocumentGenerated, documentGeneratedSchema } from './records'
 import { ApplicationError } from '../ApplicationError'
+
+import {
+  type GenerationRecord,
+  generationRecordSchema,
+} from './data/GenerationRecord'
 
 type GetGeneratedDocument = {
   documentId: string
@@ -23,15 +27,15 @@ export class GeneratedDocumentRecordInvalid extends ApplicationError {
   }
 }
 
-export function getGeneratedDocument(env: {
+export function readGenerationRecord(env: {
   dataRoot: string
   logger: Logger
 }) {
   const logger = env.logger.child({
-    method: 'getGeneratedDocument',
+    method: 'readGenerationRecord',
   })
 
-  async function readGeneratedDocumentFile(documentId: string) {
+  async function readRecordFile(documentId: string) {
     try {
       const recordPath = path.join(env.dataRoot, documentId, 'generated.json')
       logger.trace(
@@ -44,10 +48,10 @@ export function getGeneratedDocument(env: {
     }
   }
 
-  function parseGeneratedDocumentRecord(raw: string): DocumentGenerated {
+  function parseRecord(raw: string): GenerationRecord {
     try {
       const record = JSON.parse(raw)
-      return documentGeneratedSchema.parse(record)
+      return generationRecordSchema.parse(record)
     } catch (err) {
       throw new GeneratedDocumentRecordInvalid(err)
     }
@@ -55,8 +59,8 @@ export function getGeneratedDocument(env: {
 
   return async function (
     input: GetGeneratedDocument,
-  ): Promise<DocumentGenerated> {
-    const raw = await readGeneratedDocumentFile(input.documentId)
-    return parseGeneratedDocumentRecord(raw)
+  ): Promise<GenerationRecord> {
+    const raw = await readRecordFile(input.documentId)
+    return parseRecord(raw)
   }
 }

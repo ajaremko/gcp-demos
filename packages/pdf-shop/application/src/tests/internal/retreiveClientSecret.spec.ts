@@ -2,12 +2,12 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import type Stripe from 'stripe'
 
 import {
-  getPaymentIntentClientSecret,
+  retreiveClientSecret,
   PaymentIntentRetrievalFailed,
-} from '../../lib/internal/getPaymentIntentClientSecret'
+} from '../../lib/internal/retreiveClientSecret'
 import { createFakeStripe, createTestLogger } from '../testEnv'
 
-describe('getPaymentIntentClientSecret', () => {
+describe('retreiveClientSecret', () => {
   const logger = createTestLogger()
   let stripe: Stripe
 
@@ -20,9 +20,7 @@ describe('getPaymentIntentClientSecret', () => {
       client_secret: 'secret_123',
     } as unknown as Stripe.Response<Stripe.PaymentIntent>)
 
-    const result = await getPaymentIntentClientSecret({ stripe, logger })(
-      'pi_1',
-    )
+    const result = await retreiveClientSecret({ stripe, logger })('pi_1')
 
     expect(result).toBe('secret_123')
     expect(stripe.paymentIntents.retrieve).toHaveBeenCalledWith('pi_1')
@@ -33,9 +31,7 @@ describe('getPaymentIntentClientSecret', () => {
       client_secret: null,
     } as unknown as Stripe.Response<Stripe.PaymentIntent>)
 
-    const result = await getPaymentIntentClientSecret({ stripe, logger })(
-      'pi_1',
-    )
+    const result = await retreiveClientSecret({ stripe, logger })('pi_1')
 
     expect(result).toBeNull()
   })
@@ -45,7 +41,7 @@ describe('getPaymentIntentClientSecret', () => {
       new Error('network error'),
     )
 
-    const result = getPaymentIntentClientSecret({ stripe, logger })('pi_1')
+    const result = retreiveClientSecret({ stripe, logger })('pi_1')
     await expect(result).rejects.toBeInstanceOf(PaymentIntentRetrievalFailed)
   })
 })

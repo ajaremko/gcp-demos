@@ -9,13 +9,13 @@ type CreateDocument = {
   body: string
 }
 
-export function handleOrderDocument(env: {
+export function OrderDocumentHandler(env: {
   stripe: Stripe
   dataRoot: string
   logger: Logger
 }) {
   return async function (input: CreateDocument) {
-    const logger = env.logger.child({ handler: 'handleOrderDocument' })
+    const logger = env.logger.child({ handler: 'OrderDocumentHandler' })
     const localEnv = { ...env, logger }
     const document = await orderDocument(localEnv)(input)
     return document

@@ -3,13 +3,13 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 
 import {
-  getDocumentOrder,
+  readOrderRecord,
   DocumentOrderNotFound,
   DocumentOrderInvalid,
-} from '../../lib/internal/getDocumentOrder'
+} from '../../lib/internal/readOrderRecord'
 import { createTempDataRoot, createTestLogger } from '../testEnv'
 
-describe('getDocumentOrder', () => {
+describe('readOrderRecord', () => {
   let dataRoot: string
   let cleanup: () => Promise<void>
   const logger = createTestLogger()
@@ -37,7 +37,7 @@ describe('getDocumentOrder', () => {
       'utf-8',
     )
 
-    const result = await getDocumentOrder({ dataRoot, logger })({
+    const result = await readOrderRecord({ dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
 
@@ -64,7 +64,7 @@ describe('getDocumentOrder', () => {
       'utf-8',
     )
 
-    const result = await getDocumentOrder({ dataRoot, logger })({
+    const result = await readOrderRecord({ dataRoot, logger })({
       path: `${dataRoot}/11111111-1111-4111-8111-111111111111/created.json`,
     })
 
@@ -77,7 +77,7 @@ describe('getDocumentOrder', () => {
   })
 
   it('throws DocumentOrderNotFound when the file does not exist', async () => {
-    const result = getDocumentOrder({ dataRoot, logger })({
+    const result = readOrderRecord({ dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
     await expect(result).rejects.toBeInstanceOf(DocumentOrderNotFound)
@@ -93,7 +93,7 @@ describe('getDocumentOrder', () => {
       'utf-8',
     )
 
-    const result = getDocumentOrder({ dataRoot, logger })({
+    const result = readOrderRecord({ dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
     await expect(result).rejects.toBeInstanceOf(DocumentOrderInvalid)
@@ -109,7 +109,7 @@ describe('getDocumentOrder', () => {
       'utf-8',
     )
 
-    const result = getDocumentOrder({ dataRoot, logger })({
+    const result = readOrderRecord({ dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
     await expect(result).rejects.toBeInstanceOf(DocumentOrderInvalid)

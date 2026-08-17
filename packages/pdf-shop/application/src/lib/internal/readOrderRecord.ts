@@ -2,10 +2,9 @@ import path from 'node:path'
 import { readFile } from 'node:fs/promises'
 import { type Logger } from 'pino'
 
-import { type DocumentOrder, documentOrderSchema } from './records'
 import { ApplicationError } from '../ApplicationError'
 
-type GetDocumentOrder = { documentId: string } | { path: string }
+import { type OrderRecord, orderRecordSchema } from './data/OrderRecord'
 
 export class DocumentOrderNotFound extends ApplicationError {
   readonly tag = 'DocumentOrderNotFound'
@@ -21,12 +20,14 @@ export class DocumentOrderInvalid extends ApplicationError {
   }
 }
 
-export function getDocumentOrder(env: { dataRoot: string; logger: Logger }) {
+export function readOrderRecord(env: { dataRoot: string; logger: Logger }) {
   const logger = env.logger.child({
-    method: 'getDocumentOrder',
+    method: 'readOrderRecord',
   })
 
-  async function readDocumentRecordFile(input: GetDocumentOrder) {
+  async function readRecordFile(
+    input: { documentId: string } | { path: string },
+  ) {
     try {
       const recordPath =
         'path' in input
@@ -39,17 +40,19 @@ export function getDocumentOrder(env: { dataRoot: string; logger: Logger }) {
     }
   }
 
-  function parseDocumentRecord(raw: string): DocumentOrder {
+  function parseRecord(raw: string): OrderRecord {
     try {
       const record = JSON.parse(raw)
-      return documentOrderSchema.parse(record)
+      return orderRecordSchema.parse(record)
     } catch (err) {
       throw new DocumentOrderInvalid(err)
     }
   }
 
-  return async function (input: GetDocumentOrder): Promise<DocumentOrder> {
-    const raw = await readDocumentRecordFile(input)
-    return parseDocumentRecord(raw)
+  return async function (
+    input: { documentId: string } | { path: string },
+  ): Promise<OrderRecord> {
+    const raw = await readRecordFile(input)
+    return parseRecord(raw)
   }
 }

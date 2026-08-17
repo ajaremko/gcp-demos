@@ -8,7 +8,7 @@ type CompletePayment = {
   paymentIntentId: string
 }
 
-export function handlePurchaseDocument(env: {
+export function PurchaseDocumentHandler(env: {
   stripe: Stripe
   dataRoot: string
   logger: Logger
@@ -16,7 +16,7 @@ export function handlePurchaseDocument(env: {
   return async function (input: CompletePayment) {
     const { documentId, paymentIntentId } = input
     const logger = env.logger.child({
-      handler: 'handlePurchaseDocument',
+      handler: 'PurchaseDocumentHandler',
       documentId,
       paymentIntentId,
     })

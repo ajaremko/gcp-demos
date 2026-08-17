@@ -22,12 +22,12 @@ export class GeneratedDocumentStreamEmpty extends ApplicationError {
   }
 }
 
-export function getGeneratedDocumentStream(env: { logger: Logger }) {
+export function readDocumentStream(env: { logger: Logger }) {
   const logger = env.logger.child({
-    method: 'getGeneratedDocumentStream',
+    method: 'readDocumentStream',
   })
 
-  async function statGeneratedDocumentFile(path: string) {
+  async function statFile(path: string) {
     try {
       logger.trace({ path }, 'Reading generated document file stats')
       return await stat(path)
@@ -39,7 +39,7 @@ export function getGeneratedDocumentStream(env: { logger: Logger }) {
   return async function (
     input: GetGeneratedDocumentStream,
   ): Promise<{ stream: ReadStream; size: number }> {
-    const { size } = await statGeneratedDocumentFile(input.path)
+    const { size } = await statFile(input.path)
 
     if (!size) {
       throw new GeneratedDocumentStreamEmpty(new Error('File is empty'))

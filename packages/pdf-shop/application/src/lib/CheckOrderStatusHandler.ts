@@ -1,25 +1,25 @@
 import { type Logger } from 'pino'
 
-import { getGeneratedDocument } from './internal/getGeneratedDocument'
-import { getPaymentCompleted } from './internal/getPayment'
+import { readGenerationRecord } from './internal/readGenerationRecord'
+import { readPaymentRecord } from './internal/readPaymentRecord'
 
 type GetGeneratedDocument = {
   documentId: string
 }
 
-export function handleCheckOrderStatus(env: {
+export function CheckOrderStatusHandler(env: {
   dataRoot: string
   logger: Logger
 }) {
   return async function (input: GetGeneratedDocument) {
     const { documentId } = input
     const logger = env.logger.child({
-      handler: 'handleCheckOrderStatus',
+      handler: 'CheckOrderStatusHandler',
       documentId,
     })
     const localEnv = { ...env, logger }
-    await getGeneratedDocument(localEnv)({ documentId })
-    await getPaymentCompleted(localEnv)({ documentId })
+    await readGenerationRecord(localEnv)({ documentId })
+    await readPaymentRecord(localEnv)({ documentId })
     return true
   }
 }

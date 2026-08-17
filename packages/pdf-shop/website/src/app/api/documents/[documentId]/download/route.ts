@@ -1,11 +1,11 @@
 import { Readable } from 'node:stream'
 
-import { handleDownloadDocument } from '@org/pdf-shop-application'
+import { DownloadDocumentHandler } from '@org/pdf-shop-application'
 
 import { pinoLogger } from '@/lib/pino'
 import { documentIdSchema } from '@/lib/schemas'
 
-const handler = handleDownloadDocument({
+const handler = DownloadDocumentHandler({
   dataRoot: process.env.DATA_ROOT ?? '',
   logger: pinoLogger,
 })

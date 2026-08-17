@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 
-import { handleCheckOrderStatus } from '@org/pdf-shop-application'
+import { CheckOrderStatusHandler } from '@org/pdf-shop-application'
 
 import { PageShell, Card, Heading, Subheading } from '@/lib/ui'
 import { pinoLogger } from '@/lib/pino'
@@ -8,7 +8,7 @@ import { documentIdSchema } from '@/lib/schemas'
 
 import { DownloadStatusPoller } from './download-status-poller'
 
-const handler = handleCheckOrderStatus({
+const handler = CheckOrderStatusHandler({
   dataRoot: process.env.DATA_ROOT ?? '',
   logger: pinoLogger,
 })

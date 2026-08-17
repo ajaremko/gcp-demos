@@ -2,12 +2,12 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises'
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 
-import { handleGenerateDocument } from '../lib/handleGenerateDocument'
-import { DocumentOrderNotFound } from '../lib/internal/getDocumentOrder'
+import { GenerateDocumentHandler } from '../lib/GenerateDocumentHandler'
+import { DocumentOrderNotFound } from '../lib/internal/readOrderRecord'
 import { GeneratedDocumentFileWriteFailed } from '../lib/internal/generateDocument'
 import { createTempDataRoot, createTestLogger } from './testEnv'
 
-describe('handleGenerateDocument', () => {
+describe('GenerateDocumentHandler', () => {
   let dataRoot: string
   let cleanup: () => Promise<void>
   const logger = createTestLogger()
@@ -38,7 +38,7 @@ describe('handleGenerateDocument', () => {
       'utf-8',
     )
 
-    const record = await handleGenerateDocument({ dataRoot, logger })({
+    const record = await GenerateDocumentHandler({ dataRoot, logger })({
       path: `${dataRoot}/11111111-1111-4111-8111-111111111111/created.json`,
     })
 
@@ -73,8 +73,8 @@ describe('handleGenerateDocument', () => {
     )
   })
 
-  it('propagates DocumentOrderNotFound from getDocumentOrder', async () => {
-    const result = handleGenerateDocument({ dataRoot, logger })({
+  it('propagates DocumentOrderNotFound from readOrderRecord', async () => {
+    const result = GenerateDocumentHandler({ dataRoot, logger })({
       path: `${dataRoot}/11111111-1111-4111-8111-111111111111/created.json`,
     })
 
@@ -102,7 +102,7 @@ describe('handleGenerateDocument', () => {
       { recursive: true },
     )
 
-    const result = handleGenerateDocument({ dataRoot, logger })({
+    const result = GenerateDocumentHandler({ dataRoot, logger })({
       path: `${dataRoot}/11111111-1111-4111-8111-111111111111/created.json`,
     })
 

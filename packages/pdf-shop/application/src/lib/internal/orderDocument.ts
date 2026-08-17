@@ -4,8 +4,9 @@ import { randomUUID } from 'node:crypto'
 import { type Stripe } from 'stripe'
 import { type Logger } from 'pino'
 
-import { type DocumentOrder } from './records'
 import { ApplicationError } from '../ApplicationError'
+
+import { type OrderRecord } from './data/OrderRecord'
 
 const DEMO_PRICE_CENTS = 999
 const DEMO_PRICE_CURRENCY = 'usd'
@@ -74,7 +75,7 @@ export function orderDocument(env: {
       const outputDir = path.join(env.dataRoot, documentId)
       await mkdir(outputDir, { recursive: true })
 
-      const record: DocumentOrder = {
+      const record: OrderRecord = {
         id: documentId,
         createdAt: new Date().toISOString(),
         spec: {
@@ -103,7 +104,7 @@ export function orderDocument(env: {
     }
   }
 
-  return async function (input: OrderDocument): Promise<DocumentOrder> {
+  return async function (input: OrderDocument): Promise<OrderRecord> {
     const documentId = randomUUID()
 
     const payment = await createPaymentIntent(documentId)

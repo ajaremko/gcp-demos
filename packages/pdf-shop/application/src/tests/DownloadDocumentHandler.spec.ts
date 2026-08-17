@@ -2,10 +2,10 @@ import { mkdir, writeFile } from 'node:fs/promises'
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 
-import { handleDownloadDocument } from '../lib/handleDownloadDocument'
-import { GeneratedDocumentRecordNotFound } from '../lib/internal/getGeneratedDocument'
-import { PaymentConfirmationNotFound } from '../lib/internal/getPayment'
-import { GeneratedDocumentStreamNotFound } from '../lib/internal/getGeneratedDocumentStream'
+import { DownloadDocumentHandler } from '../lib/DownloadDocumentHandler'
+import { GeneratedDocumentRecordNotFound } from '../lib/internal/readGenerationRecord'
+import { PaymentConfirmationNotFound } from '../lib/internal/readPaymentRecord'
+import { GeneratedDocumentStreamNotFound } from '../lib/internal/readDocumentStream'
 import { createTempDataRoot, createTestLogger } from './testEnv'
 
 function readStreamToString(stream: NodeJS.ReadableStream): Promise<string> {
@@ -17,7 +17,7 @@ function readStreamToString(stream: NodeJS.ReadableStream): Promise<string> {
   })
 }
 
-describe('handleDownloadDocument', () => {
+describe('DownloadDocumentHandler', () => {
   let dataRoot: string
   let cleanup: () => Promise<void>
   const logger = createTestLogger()
@@ -31,12 +31,11 @@ describe('handleDownloadDocument', () => {
   })
 
   it('reads the generated document, confirms payment, and streams the file', async () => {
-    await mkdir(
-      `${dataRoot}/11111111-1111-4111-8111-111111111111`,
-      { recursive: true },
-    )
+    await mkdir(`${dataRoot}/11111111-1111-4111-8111-111111111111`, {
+      recursive: true,
+    })
     // generated.json's "path" is a real, directly-statable absolute path —
-    // getGeneratedDocumentStream stats/reads it as-is, with no dataRoot
+    // readDocumentStream stats/reads it as-is, with no dataRoot
     // joining, so the fixture must point straight at a real file.
     await writeFile(`${dataRoot}/generated-output.txt`, 'hello world', 'utf-8')
     await writeFile(
@@ -62,20 +61,18 @@ describe('handleDownloadDocument', () => {
       'utf-8',
     )
 
-    const result = await handleDownloadDocument({ dataRoot, logger })({
+    const result = await DownloadDocumentHandler({ dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
 
     expect(result.filename).toBe('contract.txt')
     expect(result.contentType).toBe('text/plain')
     expect(result.size).toBe(11)
-    await expect(readStreamToString(result.stream)).resolves.toBe(
-      'hello world',
-    )
+    await expect(readStreamToString(result.stream)).resolves.toBe('hello world')
   })
 
-  it('propagates GeneratedDocumentRecordNotFound from getGeneratedDocument', async () => {
-    const result = handleDownloadDocument({ dataRoot, logger })({
+  it('propagates GeneratedDocumentRecordNotFound from readGenerationRecord', async () => {
+    const result = DownloadDocumentHandler({ dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
 
@@ -83,10 +80,9 @@ describe('handleDownloadDocument', () => {
   })
 
   it('propagates PaymentConfirmationNotFound from getPayment', async () => {
-    await mkdir(
-      `${dataRoot}/11111111-1111-4111-8111-111111111111`,
-      { recursive: true },
-    )
+    await mkdir(`${dataRoot}/11111111-1111-4111-8111-111111111111`, {
+      recursive: true,
+    })
     await writeFile(`${dataRoot}/generated-output.txt`, 'hello world', 'utf-8')
     await writeFile(
       `${dataRoot}/11111111-1111-4111-8111-111111111111/generated.json`,
@@ -100,18 +96,17 @@ describe('handleDownloadDocument', () => {
       'utf-8',
     )
 
-    const result = handleDownloadDocument({ dataRoot, logger })({
+    const result = DownloadDocumentHandler({ dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
 
     await expect(result).rejects.toBeInstanceOf(PaymentConfirmationNotFound)
   })
 
-  it('propagates GeneratedDocumentStreamNotFound from getGeneratedDocumentStream', async () => {
-    await mkdir(
-      `${dataRoot}/11111111-1111-4111-8111-111111111111`,
-      { recursive: true },
-    )
+  it('propagates GeneratedDocumentStreamNotFound from readDocumentStream', async () => {
+    await mkdir(`${dataRoot}/11111111-1111-4111-8111-111111111111`, {
+      recursive: true,
+    })
     // No file written at generated-output.txt — the record points at a
     // path that doesn't exist.
     await writeFile(
@@ -137,7 +132,7 @@ describe('handleDownloadDocument', () => {
       'utf-8',
     )
 
-    const result = handleDownloadDocument({ dataRoot, logger })({
+    const result = DownloadDocumentHandler({ dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
 

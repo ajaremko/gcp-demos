@@ -3,7 +3,7 @@ import { writeFile } from 'node:fs/promises'
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import type Stripe from 'stripe'
 
-import { handlePurchaseDocument } from '../lib/handlePurchaseDocument'
+import { PurchaseDocumentHandler } from '../lib/PurchaseDocumentHandler'
 import {
   PaymentIntentNotFound,
   PaymentIntentInvalid,
@@ -15,7 +15,7 @@ import {
   createTestLogger,
 } from './testEnv'
 
-describe('handlePurchaseDocument', () => {
+describe('PurchaseDocumentHandler', () => {
   let dataRoot: string
   let cleanup: () => Promise<void>
   const logger = createTestLogger()
@@ -41,7 +41,7 @@ describe('handlePurchaseDocument', () => {
       metadata: { documentId: '11111111-1111-4111-8111-111111111111' },
     } as unknown as Stripe.Response<Stripe.PaymentIntent>)
 
-    const result = await handlePurchaseDocument({
+    const result = await PurchaseDocumentHandler({
       stripe,
       dataRoot,
       logger,
@@ -60,7 +60,7 @@ describe('handlePurchaseDocument', () => {
       new Error('network error'),
     )
 
-    const result = handlePurchaseDocument({ stripe, dataRoot, logger })({
+    const result = PurchaseDocumentHandler({ stripe, dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
       paymentIntentId: 'pi_1',
     })
@@ -76,7 +76,7 @@ describe('handlePurchaseDocument', () => {
       metadata: { documentId: '11111111-1111-4111-8111-111111111111' },
     } as unknown as Stripe.Response<Stripe.PaymentIntent>)
 
-    const result = handlePurchaseDocument({ stripe, dataRoot, logger })({
+    const result = PurchaseDocumentHandler({ stripe, dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
       paymentIntentId: 'pi_1',
     })
@@ -96,7 +96,7 @@ describe('handlePurchaseDocument', () => {
     // fails with ENOTDIR — deterministic regardless of user/root.
     await writeFile(`${dataRoot}/not-a-directory`, '', 'utf-8')
 
-    const result = handlePurchaseDocument({
+    const result = PurchaseDocumentHandler({
       stripe,
       dataRoot: `${dataRoot}/not-a-directory`,
       logger,

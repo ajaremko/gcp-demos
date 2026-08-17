@@ -1,7 +1,7 @@
 import express from 'express'
 import * as path from 'path'
 
-import { handleGenerateDocument } from '@org/pdf-shop-application'
+import { GenerateDocumentHandler } from '@org/pdf-shop-application'
 
 import { pino } from 'pino'
 
@@ -27,7 +27,7 @@ const pinoLogger = pino({
   ...(process.env.NODE_ENV === 'production' ? {} : pinoDevConfig),
 })
 
-const generateDocument = handleGenerateDocument({
+const generateDocument = GenerateDocumentHandler({
   dataRoot: process.env.DATA_ROOT ?? '',
   logger: pinoLogger,
 })

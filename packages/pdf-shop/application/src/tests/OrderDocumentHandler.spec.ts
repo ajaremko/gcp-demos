@@ -3,7 +3,7 @@ import { readFile, writeFile } from 'node:fs/promises'
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import type Stripe from 'stripe'
 
-import { handleOrderDocument } from '../lib/handleOrderDocument'
+import { OrderDocumentHandler } from '../lib/OrderDocumentHandler'
 import {
   PaymentIntentCreationFailed,
   DocumentOrderWriteFailed,
@@ -14,7 +14,7 @@ import {
   createTestLogger,
 } from './testEnv'
 
-// orderDocument (wrapped by handleOrderDocument) generates its own
+// orderDocument (wrapped by OrderDocumentHandler) generates its own
 // documentId internally via randomUUID(), so node:crypto is mocked to make
 // it deterministic and hardcodable below.
 vi.mock('node:crypto', async (importOriginal) => {
@@ -22,7 +22,7 @@ vi.mock('node:crypto', async (importOriginal) => {
   return { ...actual, randomUUID: () => '11111111-1111-4111-8111-111111111111' }
 })
 
-describe('handleOrderDocument', () => {
+describe('OrderDocumentHandler', () => {
   let dataRoot: string
   let cleanup: () => Promise<void>
   const logger = createTestLogger()
@@ -47,7 +47,7 @@ describe('handleOrderDocument', () => {
       currency: 'usd',
     } as unknown as Stripe.Response<Stripe.PaymentIntent>)
 
-    const record = await handleOrderDocument({ stripe, dataRoot, logger })({
+    const record = await OrderDocumentHandler({ stripe, dataRoot, logger })({
       colorScheme: 'light',
       title: 'Test',
       body: 'Body',
@@ -79,7 +79,7 @@ describe('handleOrderDocument', () => {
       new Error('network error'),
     )
 
-    const result = handleOrderDocument({ stripe, dataRoot, logger })({
+    const result = OrderDocumentHandler({ stripe, dataRoot, logger })({
       colorScheme: 'light',
       title: 'Test',
       body: 'Body',
@@ -99,7 +99,7 @@ describe('handleOrderDocument', () => {
     // fails with ENOTDIR — deterministic regardless of user/root.
     await writeFile(`${dataRoot}/not-a-directory`, '', 'utf-8')
 
-    const result = handleOrderDocument({
+    const result = OrderDocumentHandler({
       stripe,
       dataRoot: `${dataRoot}/not-a-directory`,
       logger,

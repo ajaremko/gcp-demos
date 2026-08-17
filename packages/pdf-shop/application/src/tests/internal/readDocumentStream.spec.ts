@@ -3,13 +3,13 @@ import { writeFile } from 'node:fs/promises'
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 
 import {
-  getGeneratedDocumentStream,
+  readDocumentStream,
   GeneratedDocumentStreamNotFound,
   GeneratedDocumentStreamEmpty,
-} from '../../lib/internal/getGeneratedDocumentStream'
+} from '../../lib/internal/readDocumentStream'
 import { createTempDataRoot, createTestLogger } from '../testEnv'
 
-describe('getGeneratedDocumentStream', () => {
+describe('readDocumentStream', () => {
   let dataRoot: string
   let cleanup: () => Promise<void>
   const logger = createTestLogger()
@@ -25,7 +25,7 @@ describe('getGeneratedDocumentStream', () => {
   it('streams an existing non-empty file and reports its size', async () => {
     await writeFile(`${dataRoot}/document.txt`, 'hello world', 'utf-8')
 
-    const { stream, size } = await getGeneratedDocumentStream({ logger })({
+    const { stream, size } = await readDocumentStream({ logger })({
       path: `${dataRoot}/document.txt`,
     })
 
@@ -41,7 +41,7 @@ describe('getGeneratedDocumentStream', () => {
   })
 
   it('throws GeneratedDocumentStreamNotFound when the file does not exist', async () => {
-    const result = getGeneratedDocumentStream({ logger })({
+    const result = readDocumentStream({ logger })({
       path: `${dataRoot}/missing.txt`,
     })
     await expect(result).rejects.toBeInstanceOf(GeneratedDocumentStreamNotFound)
@@ -50,7 +50,7 @@ describe('getGeneratedDocumentStream', () => {
   it('throws GeneratedDocumentStreamEmpty when the file is empty', async () => {
     await writeFile(`${dataRoot}/empty.txt`, '', 'utf-8')
 
-    const result = getGeneratedDocumentStream({ logger })({
+    const result = readDocumentStream({ logger })({
       path: `${dataRoot}/empty.txt`,
     })
     await expect(result).rejects.toBeInstanceOf(GeneratedDocumentStreamEmpty)

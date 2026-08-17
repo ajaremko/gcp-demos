@@ -1,19 +1,19 @@
 import { type Logger } from 'pino'
 
-import { getDocumentOrder } from './internal/getDocumentOrder'
+import { readOrderRecord } from './internal/readOrderRecord'
 import { generateDocument } from './internal/generateDocument'
 
 type GenerateDocument = { path: string }
 
-export function handleGenerateDocument(env: {
+export function GenerateDocumentHandler(env: {
   dataRoot: string
   logger: Logger
 }) {
-  const logger = env.logger.child({ handler: 'handleGenerateDocument' })
+  const logger = env.logger.child({ handler: 'GenerateDocumentHandler' })
   return async function (input: GenerateDocument) {
     const localEnv = { ...env, logger }
 
-    const document = await getDocumentOrder(localEnv)(input)
+    const document = await readOrderRecord(localEnv)(input)
     return generateDocument(localEnv)({
       documentId: document.id,
       spec: document.spec,

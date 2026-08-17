@@ -3,16 +3,16 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import type Stripe from 'stripe'
 
-import { handleGetPaymentContext } from '../lib/handleGetPaymentContext'
-import { DocumentOrderNotFound } from '../lib/internal/getDocumentOrder'
-import { PaymentIntentRetrievalFailed } from '../lib/internal/getPaymentIntentClientSecret'
+import { GetPaymentContextHandler } from '../lib/GetPaymentContextHandler'
+import { DocumentOrderNotFound } from '../lib/internal/readOrderRecord'
+import { PaymentIntentRetrievalFailed } from '../lib/internal/retreiveClientSecret'
 import {
   createFakeStripe,
   createTempDataRoot,
   createTestLogger,
 } from './testEnv'
 
-describe('handleGetPaymentContext', () => {
+describe('GetPaymentContextHandler', () => {
   let dataRoot: string
   let cleanup: () => Promise<void>
   const logger = createTestLogger()
@@ -28,10 +28,9 @@ describe('handleGetPaymentContext', () => {
   })
 
   it('validates input, reads the document, and retrieves the payment intent client secret', async () => {
-    await mkdir(
-      `${dataRoot}/11111111-1111-4111-8111-111111111111`,
-      { recursive: true },
-    )
+    await mkdir(`${dataRoot}/11111111-1111-4111-8111-111111111111`, {
+      recursive: true,
+    })
     await writeFile(
       `${dataRoot}/11111111-1111-4111-8111-111111111111/created.json`,
       '{' +
@@ -46,7 +45,7 @@ describe('handleGetPaymentContext', () => {
       client_secret: 'secret_123',
     } as unknown as Stripe.Response<Stripe.PaymentIntent>)
 
-    const result = await handleGetPaymentContext({
+    const result = await GetPaymentContextHandler({
       stripe,
       dataRoot,
       logger,
@@ -61,19 +60,18 @@ describe('handleGetPaymentContext', () => {
     })
   })
 
-  it('propagates DocumentOrderNotFound from getDocumentOrder', async () => {
-    const result = handleGetPaymentContext({ stripe, dataRoot, logger })({
+  it('propagates DocumentOrderNotFound from readOrderRecord', async () => {
+    const result = GetPaymentContextHandler({ stripe, dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
 
     await expect(result).rejects.toBeInstanceOf(DocumentOrderNotFound)
   })
 
-  it('propagates PaymentIntentRetrievalFailed from getPaymentIntentClientSecret', async () => {
-    await mkdir(
-      `${dataRoot}/11111111-1111-4111-8111-111111111111`,
-      { recursive: true },
-    )
+  it('propagates PaymentIntentRetrievalFailed from retreiveClientSecret', async () => {
+    await mkdir(`${dataRoot}/11111111-1111-4111-8111-111111111111`, {
+      recursive: true,
+    })
     await writeFile(
       `${dataRoot}/11111111-1111-4111-8111-111111111111/created.json`,
       '{' +
@@ -88,7 +86,7 @@ describe('handleGetPaymentContext', () => {
       new Error('network error'),
     )
 
-    const result = handleGetPaymentContext({ stripe, dataRoot, logger })({
+    const result = GetPaymentContextHandler({ stripe, dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
 
