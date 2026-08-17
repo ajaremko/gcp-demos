@@ -2,10 +2,10 @@ import { type Stripe } from 'stripe'
 import { type Logger } from 'pino'
 
 import { type DocumentSpec } from './internal/records'
-import { getDocumentCreated } from './internal/getDocumentCreated'
+import { getDocumentOrder } from './internal/getDocumentOrder'
 import { getPaymentIntentClientSecret } from './internal/getPaymentIntentClientSecret'
 
-type GetDocumentSpec = {
+type GetDocumentOrder = {
   documentId: string
 }
 
@@ -21,7 +21,7 @@ export function handleGetDocumentPayment(env: {
   logger: Logger
 }) {
   return async function (
-    input: GetDocumentSpec,
+    input: GetDocumentOrder,
   ): Promise<DocumentPaymentView> {
     const { documentId } = input
     const logger = env.logger.child({
@@ -30,7 +30,7 @@ export function handleGetDocumentPayment(env: {
     })
     const localEnv = { ...env, logger }
 
-    const document = await getDocumentCreated(localEnv)({ documentId })
+    const document = await getDocumentOrder(localEnv)({ documentId })
     const clientSecret = await getPaymentIntentClientSecret(localEnv)(
       document.payment.paymentIntentId,
     )

@@ -4,24 +4,25 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import type Stripe from 'stripe'
 
 import {
-  createDocument,
+  createDocumentOrder,
   PaymentIntentCreationFailed,
-  DocumentRecordWriteFailed,
-} from '../lib/internal/createDocument'
+  DocumentOrderWriteFailed,
+} from '../lib/internal/createDocumentOrder'
 import {
   createFakeStripe,
   createTempDataRoot,
   createTestLogger,
 } from './testEnv'
 
-// createDocument generates its own documentId internally via randomUUID(),
-// so node:crypto is mocked to make it deterministic and hardcodable below.
+// createDocumentOrder generates its own documentId internally via
+// randomUUID(), so node:crypto is mocked to make it deterministic and
+// hardcodable below.
 vi.mock('node:crypto', async (importOriginal) => {
   const actual = await importOriginal<typeof import('node:crypto')>()
   return { ...actual, randomUUID: () => '11111111-1111-4111-8111-111111111111' }
 })
 
-describe('createDocument', () => {
+describe('createDocumentOrder', () => {
   let dataRoot: string
   let cleanup: () => Promise<void>
   const logger = createTestLogger()
@@ -46,7 +47,7 @@ describe('createDocument', () => {
       currency: 'usd',
     } as unknown as Stripe.Response<Stripe.PaymentIntent>)
 
-    const record = await createDocument({ stripe, dataRoot, logger })({
+    const record = await createDocumentOrder({ stripe, dataRoot, logger })({
       colorScheme: 'light',
       title: 'Test',
       body: 'Body',
@@ -79,7 +80,7 @@ describe('createDocument', () => {
       new Error('network error'),
     )
 
-    const result = createDocument({ stripe, dataRoot, logger })({
+    const result = createDocumentOrder({ stripe, dataRoot, logger })({
       colorScheme: 'light',
       title: 'Test',
       body: 'Body',
@@ -87,7 +88,7 @@ describe('createDocument', () => {
     await expect(result).rejects.toBeInstanceOf(PaymentIntentCreationFailed)
   })
 
-  it('throws DocumentRecordWriteFailed when the document record cannot be written', async () => {
+  it('throws DocumentOrderWriteFailed when the document record cannot be written', async () => {
     vi.mocked(stripe.paymentIntents.create).mockResolvedValue({
       id: 'pi_1',
       amount: 999,
@@ -98,7 +99,7 @@ describe('createDocument', () => {
     // fails with ENOTDIR — deterministic regardless of user/root.
     await writeFile(`${dataRoot}/not-a-directory`, '', 'utf-8')
 
-    const result = createDocument({
+    const result = createDocumentOrder({
       stripe,
       dataRoot: `${dataRoot}/not-a-directory`,
       logger,
@@ -107,6 +108,6 @@ describe('createDocument', () => {
       title: 'Test',
       body: 'Body',
     })
-    await expect(result).rejects.toBeInstanceOf(DocumentRecordWriteFailed)
+    await expect(result).rejects.toBeInstanceOf(DocumentOrderWriteFailed)
   })
 })

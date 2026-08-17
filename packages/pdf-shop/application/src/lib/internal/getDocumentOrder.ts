@@ -2,31 +2,31 @@ import path from 'node:path'
 import { readFile } from 'node:fs/promises'
 import { type Logger } from 'pino'
 
-import { type DocumentCreated, documentCreatedSchema } from './records'
+import { type DocumentOrder, documentOrderSchema } from './records'
 import { ApplicationError } from '../ApplicationError'
 
-type GetDocumentCreated = { documentId: string } | { path: string }
+type GetDocumentOrder = { documentId: string } | { path: string }
 
-export class DocumentRecordNotFound extends ApplicationError {
-  readonly tag = 'DocumentRecordNotFound'
+export class DocumentOrderNotFound extends ApplicationError {
+  readonly tag = 'DocumentOrderNotFound'
   constructor(cause: unknown) {
     super('Document record file could not be found', cause)
   }
 }
 
-export class DocumentRecordInvalid extends ApplicationError {
-  readonly tag = 'DocumentRecordInvalid'
+export class DocumentOrderInvalid extends ApplicationError {
+  readonly tag = 'DocumentOrderInvalid'
   constructor(cause: unknown) {
     super('Document record file is invalid', cause)
   }
 }
 
-export function getDocumentCreated(env: { dataRoot: string; logger: Logger }) {
+export function getDocumentOrder(env: { dataRoot: string; logger: Logger }) {
   const logger = env.logger.child({
-    method: 'getDocumentCreated',
+    method: 'getDocumentOrder',
   })
 
-  async function readDocumentRecordFile(input: GetDocumentCreated) {
+  async function readDocumentRecordFile(input: GetDocumentOrder) {
     try {
       const recordPath =
         'path' in input
@@ -35,20 +35,20 @@ export function getDocumentCreated(env: { dataRoot: string; logger: Logger }) {
       logger.trace({ path: recordPath }, 'Reading document spec file')
       return await readFile(recordPath, 'utf-8')
     } catch (err) {
-      throw new DocumentRecordNotFound(err)
+      throw new DocumentOrderNotFound(err)
     }
   }
 
-  function parseDocumentRecord(raw: string): DocumentCreated {
+  function parseDocumentRecord(raw: string): DocumentOrder {
     try {
       const record = JSON.parse(raw)
-      return documentCreatedSchema.parse(record)
+      return documentOrderSchema.parse(record)
     } catch (err) {
-      throw new DocumentRecordInvalid(err)
+      throw new DocumentOrderInvalid(err)
     }
   }
 
-  return async function (input: GetDocumentCreated): Promise<DocumentCreated> {
+  return async function (input: GetDocumentOrder): Promise<DocumentOrder> {
     const raw = await readDocumentRecordFile(input)
     return parseDocumentRecord(raw)
   }

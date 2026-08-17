@@ -4,7 +4,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import type Stripe from 'stripe'
 
 import { handleGetDocumentPayment } from '../lib/handleGetDocumentPayment'
-import { DocumentRecordNotFound } from '../lib/internal/getDocumentCreated'
+import { DocumentOrderNotFound } from '../lib/internal/getDocumentOrder'
 import { PaymentIntentRetrievalFailed } from '../lib/internal/getPaymentIntentClientSecret'
 import {
   createFakeStripe,
@@ -61,12 +61,12 @@ describe('handleGetDocumentPayment', () => {
     })
   })
 
-  it('propagates DocumentRecordNotFound from getDocumentCreated', async () => {
+  it('propagates DocumentOrderNotFound from getDocumentOrder', async () => {
     const result = handleGetDocumentPayment({ stripe, dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
 
-    await expect(result).rejects.toBeInstanceOf(DocumentRecordNotFound)
+    await expect(result).rejects.toBeInstanceOf(DocumentOrderNotFound)
   })
 
   it('propagates PaymentIntentRetrievalFailed from getPaymentIntentClientSecret', async () => {

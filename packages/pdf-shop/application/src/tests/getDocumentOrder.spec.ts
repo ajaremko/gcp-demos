@@ -3,13 +3,13 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 
 import {
-  getDocumentCreated,
-  DocumentRecordNotFound,
-  DocumentRecordInvalid,
-} from '../lib/internal/getDocumentCreated'
+  getDocumentOrder,
+  DocumentOrderNotFound,
+  DocumentOrderInvalid,
+} from '../lib/internal/getDocumentOrder'
 import { createTempDataRoot, createTestLogger } from './testEnv'
 
-describe('getDocumentCreated', () => {
+describe('getDocumentOrder', () => {
   let dataRoot: string
   let cleanup: () => Promise<void>
   const logger = createTestLogger()
@@ -37,7 +37,7 @@ describe('getDocumentCreated', () => {
       'utf-8',
     )
 
-    const result = await getDocumentCreated({ dataRoot, logger })({
+    const result = await getDocumentOrder({ dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
 
@@ -64,7 +64,7 @@ describe('getDocumentCreated', () => {
       'utf-8',
     )
 
-    const result = await getDocumentCreated({ dataRoot, logger })({
+    const result = await getDocumentOrder({ dataRoot, logger })({
       path: `${dataRoot}/11111111-1111-4111-8111-111111111111/created.json`,
     })
 
@@ -76,14 +76,14 @@ describe('getDocumentCreated', () => {
     })
   })
 
-  it('throws DocumentRecordNotFound when the file does not exist', async () => {
-    const result = getDocumentCreated({ dataRoot, logger })({
+  it('throws DocumentOrderNotFound when the file does not exist', async () => {
+    const result = getDocumentOrder({ dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
-    await expect(result).rejects.toBeInstanceOf(DocumentRecordNotFound)
+    await expect(result).rejects.toBeInstanceOf(DocumentOrderNotFound)
   })
 
-  it('throws DocumentRecordInvalid when the file contains invalid JSON', async () => {
+  it('throws DocumentOrderInvalid when the file contains invalid JSON', async () => {
     await mkdir(`${dataRoot}/11111111-1111-4111-8111-111111111111`, {
       recursive: true,
     })
@@ -93,13 +93,13 @@ describe('getDocumentCreated', () => {
       'utf-8',
     )
 
-    const result = getDocumentCreated({ dataRoot, logger })({
+    const result = getDocumentOrder({ dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
-    await expect(result).rejects.toBeInstanceOf(DocumentRecordInvalid)
+    await expect(result).rejects.toBeInstanceOf(DocumentOrderInvalid)
   })
 
-  it('throws DocumentRecordInvalid when the file content fails schema validation', async () => {
+  it('throws DocumentOrderInvalid when the file content fails schema validation', async () => {
     await mkdir(`${dataRoot}/11111111-1111-4111-8111-111111111111`, {
       recursive: true,
     })
@@ -109,9 +109,9 @@ describe('getDocumentCreated', () => {
       'utf-8',
     )
 
-    const result = getDocumentCreated({ dataRoot, logger })({
+    const result = getDocumentOrder({ dataRoot, logger })({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
-    await expect(result).rejects.toBeInstanceOf(DocumentRecordInvalid)
+    await expect(result).rejects.toBeInstanceOf(DocumentOrderInvalid)
   })
 })

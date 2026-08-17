@@ -10,7 +10,7 @@ export const documentSpecSchema = z.object({
 
 export type DocumentSpec = z.infer<typeof documentSpecSchema>
 
-export const documentCreatedSchema = z.object({
+export const documentOrderSchema = z.object({
   id: z.uuid(),
   createdAt: z.iso.datetime(),
   spec: documentSpecSchema,
@@ -21,7 +21,7 @@ export const documentCreatedSchema = z.object({
   }),
 })
 
-export type DocumentCreated = z.infer<typeof documentCreatedSchema>
+export type DocumentOrder = z.infer<typeof documentOrderSchema>
 
 export const documentGeneratedSchema = z.object({
   documentId: z.uuid(),

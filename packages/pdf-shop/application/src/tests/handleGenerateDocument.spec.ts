@@ -3,7 +3,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 
 import { handleGenerateDocument } from '../lib/handleGenerateDocument'
-import { DocumentRecordNotFound } from '../lib/internal/getDocumentCreated'
+import { DocumentOrderNotFound } from '../lib/internal/getDocumentOrder'
 import { GeneratedDocumentFileWriteFailed } from '../lib/internal/generateDocument'
 import { createTempDataRoot, createTestLogger } from './testEnv'
 
@@ -73,12 +73,12 @@ describe('handleGenerateDocument', () => {
     )
   })
 
-  it('propagates DocumentRecordNotFound from getDocumentCreated', async () => {
+  it('propagates DocumentOrderNotFound from getDocumentOrder', async () => {
     const result = handleGenerateDocument({ dataRoot, logger })({
       path: `${dataRoot}/11111111-1111-4111-8111-111111111111/created.json`,
     })
 
-    await expect(result).rejects.toBeInstanceOf(DocumentRecordNotFound)
+    await expect(result).rejects.toBeInstanceOf(DocumentOrderNotFound)
   })
 
   it('propagates GeneratedDocumentFileWriteFailed from generateDocument', async () => {

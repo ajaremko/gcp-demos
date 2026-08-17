@@ -6,15 +6,15 @@ import type Stripe from 'stripe'
 import { handleCreateDocument } from '../lib/handleCreateDocument'
 import {
   PaymentIntentCreationFailed,
-  DocumentRecordWriteFailed,
-} from '../lib/internal/createDocument'
+  DocumentOrderWriteFailed,
+} from '../lib/internal/createDocumentOrder'
 import {
   createFakeStripe,
   createTempDataRoot,
   createTestLogger,
 } from './testEnv'
 
-// createDocument (wrapped by handleCreateDocument) generates its own
+// createDocumentOrder (wrapped by handleCreateDocument) generates its own
 // documentId internally via randomUUID(), so node:crypto is mocked to make
 // it deterministic and hardcodable below.
 vi.mock('node:crypto', async (importOriginal) => {
@@ -74,7 +74,7 @@ describe('handleCreateDocument', () => {
     )
   })
 
-  it('propagates PaymentIntentCreationFailed from createDocument', async () => {
+  it('propagates PaymentIntentCreationFailed from createDocumentOrder', async () => {
     vi.mocked(stripe.paymentIntents.create).mockRejectedValue(
       new Error('network error'),
     )
@@ -88,7 +88,7 @@ describe('handleCreateDocument', () => {
     await expect(result).rejects.toBeInstanceOf(PaymentIntentCreationFailed)
   })
 
-  it('propagates DocumentRecordWriteFailed from createDocument', async () => {
+  it('propagates DocumentOrderWriteFailed from createDocumentOrder', async () => {
     vi.mocked(stripe.paymentIntents.create).mockResolvedValue({
       id: 'pi_1',
       amount: 999,
@@ -109,6 +109,6 @@ describe('handleCreateDocument', () => {
       body: 'Body',
     })
 
-    await expect(result).rejects.toBeInstanceOf(DocumentRecordWriteFailed)
+    await expect(result).rejects.toBeInstanceOf(DocumentOrderWriteFailed)
   })
 })

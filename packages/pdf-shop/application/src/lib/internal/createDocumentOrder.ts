@@ -4,13 +4,13 @@ import { randomUUID } from 'node:crypto'
 import { type Stripe } from 'stripe'
 import { type Logger } from 'pino'
 
-import { type DocumentCreated } from './records'
+import { type DocumentOrder } from './records'
 import { ApplicationError } from '../ApplicationError'
 
 const DEMO_PRICE_CENTS = 999
 const DEMO_PRICE_CURRENCY = 'usd'
 
-type CreateDocument = {
+type CreateDocumentOrder = {
   colorScheme: 'light' | 'dark'
   title: string
   body: string
@@ -23,20 +23,20 @@ export class PaymentIntentCreationFailed extends ApplicationError {
   }
 }
 
-export class DocumentRecordWriteFailed extends ApplicationError {
-  readonly tag = 'DocumentRecordWriteFailed'
+export class DocumentOrderWriteFailed extends ApplicationError {
+  readonly tag = 'DocumentOrderWriteFailed'
   constructor(cause: unknown) {
     super('Failed to write document record to file', cause)
   }
 }
 
-export function createDocument(env: {
+export function createDocumentOrder(env: {
   stripe: Stripe
   dataRoot: string
   logger: Logger
 }) {
   const logger = env.logger.child({
-    method: 'createDocument',
+    method: 'createDocumentOrder',
   })
 
   async function createPaymentIntent(documentId: string) {
@@ -67,14 +67,14 @@ export function createDocument(env: {
 
   async function writeDocumentRecord(
     documentId: string,
-    input: CreateDocument,
+    input: CreateDocumentOrder,
     payment: { paymentIntentId: string; amount: number; currency: string },
   ) {
     try {
       const outputDir = path.join(env.dataRoot, documentId)
       await mkdir(outputDir, { recursive: true })
 
-      const record: DocumentCreated = {
+      const record: DocumentOrder = {
         id: documentId,
         createdAt: new Date().toISOString(),
         spec: {
@@ -99,11 +99,13 @@ export function createDocument(env: {
 
       return record
     } catch (err) {
-      throw new DocumentRecordWriteFailed(err)
+      throw new DocumentOrderWriteFailed(err)
     }
   }
 
-  return async function (input: CreateDocument): Promise<DocumentCreated> {
+  return async function (
+    input: CreateDocumentOrder,
+  ): Promise<DocumentOrder> {
     const documentId = randomUUID()
 
     const payment = await createPaymentIntent(documentId)
