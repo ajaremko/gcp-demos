@@ -51,9 +51,6 @@
   "references": [
     {
       "path": "../application"
-    },
-    {
-      "path": "../contracts"
     }
   ]
 }

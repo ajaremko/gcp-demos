@@ -2,14 +2,13 @@ import path from 'node:path'
 import { readFile } from 'node:fs/promises'
 import { type Logger } from 'pino'
 
-import {
-  type GetDocumentSpec,
-  type DocumentCreated,
-  encodeDocumentPath,
-  documentCreatedSchema,
-} from '@org/pdf-shop-contracts'
-
+import { type DocumentCreated, documentCreatedSchema } from './records'
+import { encodeDocumentPath } from './documentPath'
 import { ApplicationError } from '../ApplicationError'
+
+type GetDocumentSpec = {
+  documentId: string
+}
 
 export class DocumentRecordNotFound extends ApplicationError {
   readonly tag = 'DocumentRecordNotFound'

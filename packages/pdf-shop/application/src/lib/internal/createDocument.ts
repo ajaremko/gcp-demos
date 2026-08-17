@@ -4,16 +4,18 @@ import { randomUUID } from 'node:crypto'
 import { type Stripe } from 'stripe'
 import { type Logger } from 'pino'
 
-import {
-  type CreateDocument,
-  type DocumentCreated,
-  encodeDocumentPath,
-} from '@org/pdf-shop-contracts'
-
+import { type DocumentCreated } from './records'
+import { encodeDocumentPath } from './documentPath'
 import { ApplicationError } from '../ApplicationError'
 
 const DEMO_PRICE_CENTS = 999
 const DEMO_PRICE_CURRENCY = 'usd'
+
+type CreateDocument = {
+  colorScheme: 'light' | 'dark'
+  title: string
+  body: string
+}
 
 export class PaymentIntentCreationFailed extends ApplicationError {
   readonly tag = 'PaymentIntentCreationFailed'

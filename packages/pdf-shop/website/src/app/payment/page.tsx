@@ -5,6 +5,7 @@ import { handleGetDocumentPayment } from '@org/pdf-shop-application'
 import { PageShell, Card, Heading, Subheading } from '@/lib/ui'
 import { stripeClient } from '@/lib/stripe'
 import { pinoLogger } from '@/lib/pino'
+import { documentIdSchema } from '@/lib/schemas'
 
 import { PaymentForm } from './CompletePaymentForm'
 import { TestCards } from './TestCards'
@@ -25,9 +26,14 @@ export default async function PaymentPage({
     redirect('/spec')
   }
 
+  const parsed = documentIdSchema.safeParse({ documentId })
+  if (!parsed.success) {
+    redirect('/spec')
+  }
+
   let document: Awaited<ReturnType<typeof handler>>
   try {
-    document = await handler({ documentId })
+    document = await handler(parsed.data)
   } catch (error) {
     console.error(error)
     redirect('/spec')

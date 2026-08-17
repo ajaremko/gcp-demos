@@ -2,13 +2,14 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { type Logger } from 'pino'
 
-import {
-  type DocumentGenerated,
-  type GenerateDocument,
-  encodeDocumentPath,
-} from '@org/pdf-shop-contracts'
-
+import { type DocumentGenerated, type DocumentSpec } from './records'
+import { encodeDocumentPath } from './documentPath'
 import { ApplicationError } from '../ApplicationError'
+
+type GenerateDocument = {
+  documentId: string
+  spec: DocumentSpec
+}
 
 export class GeneratedDocumentDirectoryFailed extends ApplicationError {
   readonly tag = 'GeneratedDocumentDirectoryFailed'
@@ -38,7 +39,7 @@ export function generateDocument(env: { dataRoot: string; logger: Logger }) {
         documentId,
         version: 1,
       })
-      const outputDir = path.join(env.dataRoot, documentPath)
+      const outputDir = path.join(env.dataRoot, documentId)
       await mkdir(outputDir, { recursive: true })
       return { documentPath, outputDir }
     } catch (err) {

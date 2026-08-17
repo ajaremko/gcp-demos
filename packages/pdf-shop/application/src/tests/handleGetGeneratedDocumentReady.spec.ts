@@ -1,7 +1,6 @@
 import { mkdir, writeFile } from 'node:fs/promises'
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { ZodError } from 'zod'
 
 import { handleGetGeneratedDocumentReady } from '../lib/handleGetGeneratedDocumentReady'
 import { GeneratedDocumentRecordNotFound } from '../lib/internal/getGeneratedDocument'
@@ -57,14 +56,6 @@ describe('handleGetGeneratedDocumentReady', () => {
     })
 
     expect(result).toBe(true)
-  })
-
-  it('throws ZodError when the input is invalid', async () => {
-    const result = handleGetGeneratedDocumentReady({ dataRoot, logger })({
-      documentId: 'not-a-uuid',
-    })
-
-    await expect(result).rejects.toBeInstanceOf(ZodError)
   })
 
   it('propagates GeneratedDocumentRecordNotFound from getGeneratedDocument', async () => {

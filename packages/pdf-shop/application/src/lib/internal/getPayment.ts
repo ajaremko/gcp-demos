@@ -3,14 +3,13 @@ import path from 'node:path'
 
 import { type Logger } from 'pino'
 
-import {
-  type PaymentCompleted,
-  type GetPayment,
-  encodeDocumentPath,
-  paymentCompletedSchema,
-} from '@org/pdf-shop-contracts'
-
+import { type PaymentCompleted, paymentCompletedSchema } from './records'
+import { encodeDocumentPath } from './documentPath'
 import { ApplicationError } from '../ApplicationError'
+
+type GetPayment = {
+  documentId: string
+}
 
 export class PaymentConfirmationNotFound extends ApplicationError {
   readonly tag = 'PaymentConfirmationNotFound'

@@ -6,6 +6,7 @@ import {
 } from '@org/pdf-shop-application'
 
 import { pinoLogger } from '@/lib/pino'
+import { documentIdSchema } from '@/lib/schemas'
 
 const handler = handleGetGeneratedDocumentReady({
   dataRoot: process.env.DATA_ROOT ?? '',
@@ -16,8 +17,9 @@ export async function GET(
   _request: Request,
   req: { params: Promise<{ documentId: string }> },
 ) {
-  const params = await req.params
+  const rawParams = await req.params
   try {
+    const params = documentIdSchema.parse(rawParams)
     const ready = await handler(params)
     return Response.json({ ready })
   } catch (err) {

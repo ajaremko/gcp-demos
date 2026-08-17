@@ -3,13 +3,14 @@ import path from 'node:path'
 import type Stripe from 'stripe'
 import { type Logger } from 'pino'
 
-import {
-  type PaymentCompleted,
-  type CompletePayment,
-  encodeDocumentPath,
-} from '@org/pdf-shop-contracts'
-
+import { type PaymentCompleted } from './records'
+import { encodeDocumentPath } from './documentPath'
 import { ApplicationError } from '../ApplicationError'
+
+type CompletePayment = {
+  documentId: string
+  paymentIntentId: string
+}
 
 export class PaymentIntentNotFound extends ApplicationError {
   readonly tag = 'PaymentIntentNotFound'

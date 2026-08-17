@@ -1,16 +1,18 @@
 import { type Logger } from 'pino'
 
-import { getGeneratedDocumentSchema } from '@org/pdf-shop-contracts'
-
 import { getGeneratedDocument } from './internal/getGeneratedDocument'
 import { getPaymentCompleted } from './internal/getPayment'
+
+type GetGeneratedDocument = {
+  documentId: string
+}
 
 export function handleGetGeneratedDocumentReady(env: {
   dataRoot: string
   logger: Logger
 }) {
-  return async function (input: object) {
-    const { documentId } = getGeneratedDocumentSchema.parse(input)
+  return async function (input: GetGeneratedDocument) {
+    const { documentId } = input
     const logger = env.logger.child({
       handler: 'handleGetGeneratedDocumentReady',
       documentId,

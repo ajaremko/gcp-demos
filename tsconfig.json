@@ -7,9 +7,6 @@
       "path": "./packages/pdf-shop/website"
     },
     {
-      "path": "./packages/pdf-shop/contracts"
-    },
-    {
       "path": "./packages/pdf-shop/application"
     }
   ],

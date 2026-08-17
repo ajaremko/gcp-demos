@@ -2,14 +2,13 @@ import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { type Logger } from 'pino'
 
-import {
-  type GetGeneratedDocument,
-  type DocumentGenerated,
-  encodeDocumentPath,
-  documentGeneratedSchema,
-} from '@org/pdf-shop-contracts'
-
+import { type DocumentGenerated, documentGeneratedSchema } from './records'
+import { encodeDocumentPath } from './documentPath'
 import { ApplicationError } from '../ApplicationError'
+
+type GetGeneratedDocument = {
+  documentId: string
+}
 
 export class GeneratedDocumentRecordNotFound extends ApplicationError {
   readonly tag = 'GeneratedDocumentRecordNotFound'

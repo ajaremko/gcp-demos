@@ -17,13 +17,3 @@ This is a known, dev-only artifact of the Stripe.js + React StrictMode interacti
 **Decision:** Leave as-is. Not worth trading away StrictMode's double-invoke effect-cleanup checks app-wide to silence a cosmetic dev-console error.
 
 **If this ever needs to be fixed:** add `reactStrictMode: false` to `next.config.js`. One-line change, directly eliminates the double-invoke race. Confirmed this actually disables StrictMode for the App Router tree in the installed Next version (not just the Pages Router) — same `define-env.js` check resolves `__NEXT_STRICT_MODE_APP` to `false` when the config value is explicitly set to `false`.
-
-## `nx dev` doesn't pick up `@org/pdf-shop-contracts` edits automatically
-
-**Symptom:** editing a schema/type in `packages/pdf-shop/contracts/src/**` while `nx dev pdf-shop-website` is running has no effect until the contracts package is rebuilt — no hot reload, no error, the website just keeps using the previously compiled output.
-
-**Root cause:** `@org/pdf-shop-contracts` is a real compiled buildable library (`packages/pdf-shop/contracts/package.json`'s `exports` point at `./dist/`, produced by `nx build pdf-shop-contracts`) rather than something the website's bundler reads as raw source. This is intentional — see the contracts library's own tsconfig, which inherits the workspace's NodeNext module resolution and needs a real compiled `dist/` for its `.js`-suffixed relative imports to resolve, including under Turbopack, which (confirmed via `node_modules/next/dist/server/config-shared.d.ts`) has no equivalent of webpack's `resolve.extensionAlias` to remap those at bundle time. `pdf-shop-website`'s `dev` target (`next dev`) just runs Next directly — it has no `dependsOn` relationship to `pdf-shop-contracts`'s `build`, so nothing rebuilds contracts as you edit it.
-
-**Decision:** Leave as-is — this is standard Nx behavior for an app that depends on a buildable library, not a bug. The workspace already has the target that solves it (`watch-deps`), it's just a separate command from `dev`.
-
-**Workaround:** run `npx nx watch-deps pdf-shop-website` alongside `npx nx dev pdf-shop-website` (separate terminal, or `npx nx run-many -t dev watch-deps -p pdf-shop-website`) — it rebuilds `pdf-shop-contracts` automatically whenever its source changes, so the website's next request picks up the new compiled output. Without it, run `npx nx build pdf-shop-contracts` manually after each contracts edit.

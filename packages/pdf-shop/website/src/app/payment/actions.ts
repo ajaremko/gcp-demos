@@ -1,5 +1,4 @@
 'use server'
-import { ZodError, z } from 'zod'
 import { redirect } from 'next/navigation'
 import { type FieldErrors } from 'react-hook-form'
 
@@ -10,6 +9,9 @@ import {
 
 import { stripeClient } from '@/lib/stripe'
 import { pinoLogger } from '@/lib/pino'
+import { zodFieldErrors } from '@/lib/formErrors'
+
+import { completePaymentSchema } from './schema'
 
 const handler = handleCompletePayment({
   stripe: stripeClient,
@@ -26,20 +28,20 @@ export async function confirmPaymentAction(
   _prevState: ConfirmPaymentState,
   raw: { documentId: string; paymentIntentId: string },
 ): Promise<ConfirmPaymentState> {
+  const parsed = completePaymentSchema.safeParse(raw)
+  if (!parsed.success) {
+    return { errors: zodFieldErrors(parsed.error) }
+  }
+
   let documentId: string
   try {
-    const result = await handler(raw)
+    const result = await handler(parsed.data)
     documentId = result.documentId
   } catch (err) {
     console.warn({
       error: err,
       handler: 'confirmPaymentAction',
     })
-    // Handle serverside validation errors
-    if (err instanceof ZodError) {
-      const fieldErrors = z.flattenError(err).fieldErrors
-      return { errors: fieldErrors }
-    }
     // Handle filesystem and stripe integration errors
     if (isApplicationError(err)) {
       switch (err.tag) {

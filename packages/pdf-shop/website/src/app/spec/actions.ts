@@ -1,5 +1,4 @@
 'use server'
-import { ZodError, z } from 'zod'
 import { redirect } from 'next/navigation'
 import { type FieldErrors } from 'react-hook-form'
 
@@ -10,6 +9,9 @@ import {
 
 import { stripeClient } from '@/lib/stripe'
 import { pinoLogger } from '@/lib/pino'
+import { zodFieldErrors } from '@/lib/formErrors'
+
+import { createDocumentSpecSchema } from './schema'
 
 const handler = handleCreateDocument({
   stripe: stripeClient,
@@ -28,35 +30,27 @@ export async function submitDocumentSpecAction(
 ): Promise<SpecActionState> {
   const raw = Object.fromEntries(formData)
 
-  let documentId: string
+  const parsed = createDocumentSpecSchema.safeParse(raw)
+  if (!parsed.success) {
+    return { errors: zodFieldErrors(parsed.error) }
+  }
+
   try {
-    const result = await handler(raw)
-    documentId = result.id
+    const result = await handler(parsed.data)
+    redirect(`/payment?documentId=${result.id}`)
   } catch (err) {
-    console.warn({
-      error: err,
-      handler: 'submitDocumentSpecAction',
-    })
-    // Handle serverside validation errors
-    if (err instanceof ZodError) {
-      const fieldErrors = z.flattenError(err).fieldErrors
-      return { errors: fieldErrors }
-    }
     // Handle filesystem and stripe integration errors
     if (isApplicationError(err)) {
+      console.warn({
+        error: err,
+        handler: 'submitDocumentSpecAction',
+      })
       return {
         errors: {},
         message:
           "We couldn't save your document at this time. Please try again later.",
       }
     }
-    // Handle any other unexpected errors
-    return {
-      errors: {},
-      message:
-        'Something went wrong while processing your request. Please try again later.',
-    }
+    throw err
   }
-
-  redirect(`/payment?documentId=${documentId}`)
 }

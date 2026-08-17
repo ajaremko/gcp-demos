@@ -23,9 +23,5 @@
     "src/**/*.test.jsx",
     "src/**/*.spec.jsx"
   ],
-  "references": [
-    {
-      "path": "../contracts/tsconfig.lib.json"
-    }
-  ]
+  "references": []
 }

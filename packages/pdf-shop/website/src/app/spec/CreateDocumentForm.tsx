@@ -2,10 +2,7 @@
 import { useActionState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import {
-  createDocumentSpecSchema,
-  type CreateDocument,
-} from '@org/pdf-shop-contracts'
+import { createDocumentSpecSchema, type CreateDocument } from './schema'
 import {
   Field,
   Label,

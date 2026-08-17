@@ -1,7 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises'
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { ZodError } from 'zod'
 import type Stripe from 'stripe'
 
 import { handleCreateDocument } from '../lib/handleCreateDocument'
@@ -73,16 +72,6 @@ describe('handleCreateDocument', () => {
         '"payment":{"paymentIntentId":"pi_1","amount":999,"currency":"usd"}' +
         '}',
     )
-  })
-
-  it('throws ZodError when the input is invalid', async () => {
-    const result = handleCreateDocument({ stripe, dataRoot, logger })({
-      colorScheme: 'not-a-color',
-      title: '',
-      body: 'Body',
-    })
-
-    await expect(result).rejects.toBeInstanceOf(ZodError)
   })
 
   it('propagates PaymentIntentCreationFailed from createDocument', async () => {

@@ -1,7 +1,6 @@
 import { writeFile } from 'node:fs/promises'
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { ZodError } from 'zod'
 import type Stripe from 'stripe'
 
 import { handleCompletePayment } from '../lib/handleCompletePayment'
@@ -50,15 +49,6 @@ describe('handleCompletePayment', () => {
     expect(result).toEqual({
       documentId: '11111111-1111-4111-8111-111111111111',
     })
-  })
-
-  it('throws ZodError when the input is invalid', async () => {
-    const result = handleCompletePayment({ stripe, dataRoot, logger })({
-      documentId: 'not-a-uuid',
-      paymentIntentId: 'pi_1',
-    })
-
-    await expect(result).rejects.toBeInstanceOf(ZodError)
   })
 
   it('propagates PaymentIntentNotFound from completePayment', async () => {

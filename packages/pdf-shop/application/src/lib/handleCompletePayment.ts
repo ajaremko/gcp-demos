@@ -1,17 +1,20 @@
 import { type Stripe } from 'stripe'
 import { type Logger } from 'pino'
 
-import { completePaymentSchema } from '@org/pdf-shop-contracts'
-
 import { completePayment } from './internal/completePayment'
+
+type CompletePayment = {
+  documentId: string
+  paymentIntentId: string
+}
 
 export function handleCompletePayment(env: {
   stripe: Stripe
   dataRoot: string
   logger: Logger
 }) {
-  return async function (input: object) {
-    const { documentId, paymentIntentId } = completePaymentSchema.parse(input)
+  return async function (input: CompletePayment) {
+    const { documentId, paymentIntentId } = input
     const logger = env.logger.child({
       handler: 'handleCompletePayment',
       documentId,

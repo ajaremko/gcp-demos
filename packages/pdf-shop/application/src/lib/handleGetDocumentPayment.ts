@@ -1,13 +1,13 @@
 import { type Stripe } from 'stripe'
 import { type Logger } from 'pino'
 
-import {
-  getGeneratedDocumentSchema,
-  type DocumentSpec,
-} from '@org/pdf-shop-contracts'
-
+import { type DocumentSpec } from './internal/records'
 import { getDocumentCreated } from './internal/getDocumentCreated'
 import { getPaymentIntentClientSecret } from './internal/getPaymentIntentClientSecret'
+
+type GetDocumentSpec = {
+  documentId: string
+}
 
 type DocumentPaymentView = {
   documentId: string
@@ -20,8 +20,10 @@ export function handleGetDocumentPayment(env: {
   stripe: Stripe
   logger: Logger
 }) {
-  return async function (input: object): Promise<DocumentPaymentView> {
-    const { documentId } = getGeneratedDocumentSchema.parse(input)
+  return async function (
+    input: GetDocumentSpec,
+  ): Promise<DocumentPaymentView> {
+    const { documentId } = input
     const logger = env.logger.child({
       handler: 'handleGetDocumentPayment',
       documentId,

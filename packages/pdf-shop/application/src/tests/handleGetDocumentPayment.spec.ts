@@ -1,7 +1,6 @@
 import { mkdir, writeFile } from 'node:fs/promises'
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { ZodError } from 'zod'
 import type Stripe from 'stripe'
 
 import { handleGetDocumentPayment } from '../lib/handleGetDocumentPayment'
@@ -60,14 +59,6 @@ describe('handleGetDocumentPayment', () => {
       clientSecret: 'secret_123',
       spec: { colorScheme: 'light', title: 'Test Contract', body: 'Body' },
     })
-  })
-
-  it('throws ZodError when the input is invalid', async () => {
-    const result = handleGetDocumentPayment({ stripe, dataRoot, logger })({
-      documentId: 'not-a-uuid',
-    })
-
-    await expect(result).rejects.toBeInstanceOf(ZodError)
   })
 
   it('propagates DocumentRecordNotFound from getDocumentCreated', async () => {

@@ -4,6 +4,7 @@ import { handleGetGeneratedDocumentReady } from '@org/pdf-shop-application'
 
 import { PageShell, Card, Heading, Subheading } from '@/lib/ui'
 import { pinoLogger } from '@/lib/pino'
+import { documentIdSchema } from '@/lib/schemas'
 
 import { DownloadStatusPoller } from './download-status-poller'
 
@@ -21,12 +22,16 @@ export default async function DownloadPage({
   if (!documentId) {
     redirect('/spec')
   }
+  const parsed = documentIdSchema.safeParse({ documentId })
+
   let status: boolean | null = null
-  try {
-    status = await handler({ documentId })
-  } catch (err) {
-    console.warn(err)
-    status = null
+  if (parsed.success) {
+    try {
+      status = await handler(parsed.data)
+    } catch (err) {
+      console.warn(err)
+      status = null
+    }
   }
   const ready = Boolean(status)
 

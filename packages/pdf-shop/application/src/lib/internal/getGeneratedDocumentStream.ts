@@ -2,9 +2,11 @@ import { type ReadStream, createReadStream } from 'node:fs'
 import { stat } from 'node:fs/promises'
 import { type Logger } from 'pino'
 
-import { type GetGeneratedDocumentStream } from '@org/pdf-shop-contracts'
-
 import { ApplicationError } from '../ApplicationError'
+
+type GetGeneratedDocumentStream = {
+  path: string
+}
 
 export class GeneratedDocumentStreamNotFound extends ApplicationError {
   readonly tag = 'GeneratedDocumentStreamNotFound'
