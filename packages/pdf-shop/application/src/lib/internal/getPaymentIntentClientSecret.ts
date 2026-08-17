@@ -15,15 +15,16 @@ export function getPaymentIntentClientSecret(env: {
   logger: Logger
 }) {
   return async function (intentId: string): Promise<string | null> {
-    const logger = env.logger.child({
-      method: 'getPaymentIntentClientSecret',
-      paymentIntentId: intentId,
-    })
-
     try {
-      logger.trace({}, 'Retrieving payment intent from Stripe')
+      const logger = env.logger.child({
+        method: 'getPaymentIntentClientSecret',
+        paymentIntentId: intentId,
+      })
+      logger.trace('Retrieving payment intent from Stripe')
       const intent = await env.stripe.paymentIntents.retrieve(intentId)
-      return intent.client_secret ?? null
+      const clientSecret = intent.client_secret ?? null
+      logger.trace('Retrieved payment intent from Stripe')
+      return clientSecret
     } catch (err) {
       throw new PaymentIntentRetrievalFailed(err)
     }

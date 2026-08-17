@@ -22,12 +22,17 @@ export class DocumentRecordInvalid extends ApplicationError {
 }
 
 export function getDocumentCreated(env: { dataRoot: string; logger: Logger }) {
+  const logger = env.logger.child({
+    method: 'getDocumentCreated',
+  })
+
   async function readDocumentRecordFile(input: GetDocumentCreated) {
     try {
       const recordPath =
         'path' in input
           ? input.path
           : path.join(env.dataRoot, input.documentId, 'created.json')
+      logger.trace({ path: recordPath }, 'Reading document spec file')
       return await readFile(recordPath, 'utf-8')
     } catch (err) {
       throw new DocumentRecordNotFound(err)
@@ -44,16 +49,7 @@ export function getDocumentCreated(env: { dataRoot: string; logger: Logger }) {
   }
 
   return async function (input: GetDocumentCreated): Promise<DocumentCreated> {
-    const logger = env.logger.child({
-      method: 'getDocumentCreated',
-      ...('path' in input
-        ? { path: input.path }
-        : { documentId: input.documentId }),
-    })
-
-    logger.trace({}, 'Reading document spec file')
     const raw = await readDocumentRecordFile(input)
-
     return parseDocumentRecord(raw)
   }
 }

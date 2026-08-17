@@ -35,8 +35,17 @@ export function createDocument(env: {
   dataRoot: string
   logger: Logger
 }) {
+  const logger = env.logger.child({
+    method: 'createDocument',
+  })
+
   async function createPaymentIntent(documentId: string) {
     try {
+      const idempotencyKey = `pdf-shop-payment-intent-${documentId}`
+      logger.trace(
+        { documentId, idempotencyKey },
+        'Creating payment intent with Stripe',
+      )
       const intent = await env.stripe.paymentIntents.create(
         {
           amount: DEMO_PRICE_CENTS,
@@ -44,7 +53,7 @@ export function createDocument(env: {
           automatic_payment_methods: { enabled: true },
           metadata: { documentId },
         },
-        { idempotencyKey: `pdf-shop-payment-intent-${documentId}` },
+        { idempotencyKey },
       )
       return {
         paymentIntentId: intent.id,
@@ -78,6 +87,14 @@ export function createDocument(env: {
 
       const recordPath = path.join(outputDir, 'created.json')
       const recordData = JSON.stringify(record)
+      logger.trace(
+        {
+          documentId,
+          path: recordPath,
+          paymentIntentId: payment.paymentIntentId,
+        },
+        'Writing document record to file',
+      )
       await writeFile(recordPath, recordData, 'utf-8')
 
       return record
@@ -89,17 +106,7 @@ export function createDocument(env: {
   return async function (input: CreateDocument): Promise<DocumentCreated> {
     const documentId = randomUUID()
 
-    const logger = env.logger.child({
-      method: 'createDocument',
-      documentId,
-    })
-
-    logger.trace({}, 'Creating payment intent with Stripe')
     const payment = await createPaymentIntent(documentId)
-
-    logger.trace({}, 'Writing document record to file')
-    const record = await writeDocumentRecord(documentId, input, payment)
-
-    return record
+    return writeDocumentRecord(documentId, input, payment)
   }
 }

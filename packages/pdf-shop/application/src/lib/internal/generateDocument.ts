@@ -65,7 +65,7 @@ export function generateDocument(env: { dataRoot: string; logger: Logger }) {
           documentId: input.documentId,
           path: generatedPath,
         },
-        'Writing generated document record',
+        'Writing generated document file',
       )
       await writeFile(generatedPath, generatedData, 'utf-8')
       return generatedPath
@@ -97,7 +97,7 @@ export function generateDocument(env: { dataRoot: string; logger: Logger }) {
           filename: record.filename,
           contentType: record.contentType,
         },
-        'Writing generated document file',
+        'Writing generated document record',
       )
       await writeFile(recordPath, recordData, 'utf-8')
 

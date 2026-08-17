@@ -37,8 +37,13 @@ export function completePayment(env: {
   dataRoot: string
   logger: Logger
 }) {
+  const logger = env.logger.child({
+    method: 'completePayment',
+  })
+
   async function retreivePaymentIntent(paymentIntentId: string) {
     try {
+      logger.trace({ paymentIntentId }, 'Retrieving payment intent from Stripe')
       return await env.stripe.paymentIntents.retrieve(paymentIntentId)
     } catch (err) {
       throw new PaymentIntentNotFound(err)
@@ -50,6 +55,14 @@ export function completePayment(env: {
     paymentIntent: Stripe.PaymentIntent,
   ) {
     try {
+      logger.trace(
+        {
+          documentId,
+          intentStatus: paymentIntent.status,
+          intentMetadata: paymentIntent.metadata,
+        },
+        'Checking payment intent status and metadata',
+      )
       if (paymentIntent.status !== 'succeeded') {
         throw new Error('Payment intent is not successful')
       }
@@ -81,6 +94,14 @@ export function completePayment(env: {
 
       const recordData = JSON.stringify(record)
       const recordPath = path.join(outputDir, 'paid.json')
+      logger.trace(
+        {
+          documentId,
+          path: recordPath,
+          stripePaymentIntentId: record.stripePaymentIntentId,
+        },
+        'Writing payment record to file',
+      )
       await writeFile(recordPath, recordData, 'utf-8')
 
       return record
@@ -90,27 +111,8 @@ export function completePayment(env: {
   }
 
   return async function (input: CompletePayment): Promise<PaymentCompleted> {
-    const logger = env.logger.child({
-      method: 'completePayment',
-      paymentIntentId: input.paymentIntentId,
-      documentId: input.documentId,
-    })
-
-    logger.trace({}, 'Retrieving payment intent from Stripe')
     const intent = await retreivePaymentIntent(input.paymentIntentId)
-
-    logger.trace(
-      {
-        intentStatus: intent.status,
-        intentMetadata: intent.metadata,
-      },
-      'Checking payment intent status and metadata',
-    )
     await validatePaymentIntent(input.documentId, intent)
-
-    logger.trace({}, 'Writing payment record to file')
-    const record = await writePaymentRecord(input.documentId, intent)
-
-    return record
+    return writePaymentRecord(input.documentId, intent)
   }
 }

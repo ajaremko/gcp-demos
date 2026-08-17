@@ -25,9 +25,17 @@ export class PaymentConfirmationInvalid extends ApplicationError {
 }
 
 export function getPaymentCompleted(env: { dataRoot: string; logger: Logger }) {
+  const logger = env.logger.child({
+    method: 'getPaymentCompleted',
+  })
+
   async function readPaymentConfirmationFile(documentId: string) {
     try {
       const recordPath = path.join(env.dataRoot, documentId, 'paid.json')
+      logger.trace(
+        { documentId, path: recordPath },
+        'Reading payment confirmation file',
+      )
       return await readFile(recordPath, 'utf-8')
     } catch (err) {
       throw new PaymentConfirmationNotFound(err)
@@ -44,14 +52,7 @@ export function getPaymentCompleted(env: { dataRoot: string; logger: Logger }) {
   }
 
   return async function (input: GetPayment): Promise<PaymentCompleted> {
-    const logger = env.logger.child({
-      method: 'getPaymentCompleted',
-      documentId: input.documentId,
-    })
-
-    logger.trace({}, 'Reading payment confirmation file')
     const raw = await readPaymentConfirmationFile(input.documentId)
-
     return parsePaymentConfirmation(raw)
   }
 }

@@ -27,9 +27,17 @@ export function getGeneratedDocument(env: {
   dataRoot: string
   logger: Logger
 }) {
+  const logger = env.logger.child({
+    method: 'getGeneratedDocument',
+  })
+
   async function readGeneratedDocumentFile(documentId: string) {
     try {
       const recordPath = path.join(env.dataRoot, documentId, 'generated.json')
+      logger.trace(
+        { documentId, path: recordPath },
+        'Reading generated document file',
+      )
       return await readFile(recordPath, 'utf-8')
     } catch (err) {
       throw new GeneratedDocumentRecordNotFound(err)
@@ -48,14 +56,7 @@ export function getGeneratedDocument(env: {
   return async function (
     input: GetGeneratedDocument,
   ): Promise<DocumentGenerated> {
-    const logger = env.logger.child({
-      method: 'getGeneratedDocument',
-      documentId: input.documentId,
-    })
-
-    logger.trace({}, 'Reading generated document file')
     const raw = await readGeneratedDocumentFile(input.documentId)
-
     return parseGeneratedDocumentRecord(raw)
   }
 }

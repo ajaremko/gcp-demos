@@ -23,8 +23,13 @@ export class GeneratedDocumentStreamEmpty extends ApplicationError {
 }
 
 export function getGeneratedDocumentStream(env: { logger: Logger }) {
+  const logger = env.logger.child({
+    method: 'getGeneratedDocumentStream',
+  })
+
   async function statGeneratedDocumentFile(path: string) {
     try {
+      logger.trace({ path }, 'Reading generated document file stats')
       return await stat(path)
     } catch (err) {
       throw new GeneratedDocumentStreamNotFound(err)
@@ -34,12 +39,6 @@ export function getGeneratedDocumentStream(env: { logger: Logger }) {
   return async function (
     input: GetGeneratedDocumentStream,
   ): Promise<{ stream: ReadStream; size: number }> {
-    const logger = env.logger.child({
-      method: 'getGeneratedDocumentStream',
-      path: input.path,
-    })
-
-    logger.trace({}, 'Reading generated document file stats')
     const { size } = await statGeneratedDocumentFile(input.path)
 
     if (!size) {
