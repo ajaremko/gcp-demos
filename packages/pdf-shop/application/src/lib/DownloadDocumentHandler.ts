@@ -4,7 +4,7 @@ import { readGenerationRecord } from './internal/readGenerationRecord'
 import { readDocumentStream } from './internal/readDocumentStream'
 import { readPaymentRecord } from './internal/readPaymentRecord'
 
-type GetGeneratedDocument = {
+export interface DownloadDocument {
   documentId: string
 }
 
@@ -13,7 +13,7 @@ export function DownloadDocumentHandler(env: {
   logger: Logger
 }) {
   const logger = env.logger.child({ handler: 'DownloadDocumentHandler' })
-  return async function (input: GetGeneratedDocument) {
+  return async function (input: DownloadDocument) {
     const { documentId } = input
     const localEnv = { ...env, logger }
 

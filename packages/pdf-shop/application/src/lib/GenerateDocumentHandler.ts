@@ -3,7 +3,9 @@ import { type Logger } from 'pino'
 import { readOrderRecord } from './internal/readOrderRecord'
 import { generateDocument } from './internal/generateDocument'
 
-type GenerateDocument = { path: string }
+export interface GenerateDocument {
+  path: string
+}
 
 export function GenerateDocumentHandler(env: {
   dataRoot: string

@@ -5,12 +5,12 @@ import { type DocumentSpec } from './internal/data/DocumentSpec'
 import { readOrderRecord } from './internal/readOrderRecord'
 import { retreiveClientSecret } from './internal/retreiveClientSecret'
 
-type GetDocumentOrder = {
+export interface GetPaymentContext {
   documentId: string
 }
 
-type DocumentPaymentView = {
-  id: string
+export interface PaymentContextView {
+  documentId: string
   clientSecret: string | null
   spec: DocumentSpec
 }
@@ -21,8 +21,8 @@ export function GetPaymentContextHandler(env: {
   logger: Logger
 }) {
   return async function (
-    input: GetDocumentOrder,
-  ): Promise<DocumentPaymentView> {
+    input: GetPaymentContext,
+  ): Promise<PaymentContextView> {
     const { documentId } = input
     const logger = env.logger.child({
       handler: 'GetPaymentContextHandler',
@@ -36,7 +36,7 @@ export function GetPaymentContextHandler(env: {
     )
 
     return {
-      id: document.id,
+      documentId: document.id,
       clientSecret,
       spec: document.spec,
     }

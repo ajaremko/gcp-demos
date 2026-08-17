@@ -4,7 +4,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 
 import { GenerateDocumentHandler } from '../lib/GenerateDocumentHandler'
 import { DocumentOrderNotFound } from '../lib/internal/readOrderRecord'
-import { GeneratedDocumentFileWriteFailed } from '../lib/internal/generateDocument'
+import { GeneratedDocumentWriteFailed } from '../lib/internal/generateDocument'
 import { createTempDataRoot, createTestLogger } from './testEnv'
 
 describe('GenerateDocumentHandler', () => {
@@ -81,7 +81,7 @@ describe('GenerateDocumentHandler', () => {
     await expect(result).rejects.toBeInstanceOf(DocumentOrderNotFound)
   })
 
-  it('propagates GeneratedDocumentFileWriteFailed from generateDocument', async () => {
+  it('propagates GeneratedDocumentWriteFailed from generateDocument', async () => {
     await mkdir(`${dataRoot}/11111111-1111-4111-8111-111111111111`, {
       recursive: true,
     })
@@ -106,8 +106,6 @@ describe('GenerateDocumentHandler', () => {
       path: `${dataRoot}/11111111-1111-4111-8111-111111111111/created.json`,
     })
 
-    await expect(result).rejects.toBeInstanceOf(
-      GeneratedDocumentFileWriteFailed,
-    )
+    await expect(result).rejects.toBeInstanceOf(GeneratedDocumentWriteFailed)
   })
 })

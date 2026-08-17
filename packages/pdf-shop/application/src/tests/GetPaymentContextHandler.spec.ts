@@ -54,7 +54,7 @@ describe('GetPaymentContextHandler', () => {
     })
 
     expect(result).toEqual({
-      id: '11111111-1111-4111-8111-111111111111',
+      documentId: '11111111-1111-4111-8111-111111111111',
       clientSecret: 'secret_123',
       spec: { colorScheme: 'light', title: 'Test Contract', body: 'Body' },
     })

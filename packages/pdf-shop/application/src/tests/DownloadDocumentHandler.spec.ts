@@ -5,7 +5,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { DownloadDocumentHandler } from '../lib/DownloadDocumentHandler'
 import { GeneratedDocumentRecordNotFound } from '../lib/internal/readGenerationRecord'
 import { PaymentConfirmationNotFound } from '../lib/internal/readPaymentRecord'
-import { GeneratedDocumentStreamNotFound } from '../lib/internal/readDocumentStream'
+import { GeneratedDocumentNotFound } from '../lib/internal/readDocumentStream'
 import { createTempDataRoot, createTestLogger } from './testEnv'
 
 function readStreamToString(stream: NodeJS.ReadableStream): Promise<string> {
@@ -103,7 +103,7 @@ describe('DownloadDocumentHandler', () => {
     await expect(result).rejects.toBeInstanceOf(PaymentConfirmationNotFound)
   })
 
-  it('propagates GeneratedDocumentStreamNotFound from readDocumentStream', async () => {
+  it('propagates GeneratedDocumentNotFound from readDocumentStream', async () => {
     await mkdir(`${dataRoot}/11111111-1111-4111-8111-111111111111`, {
       recursive: true,
     })
@@ -136,6 +136,6 @@ describe('DownloadDocumentHandler', () => {
       documentId: '11111111-1111-4111-8111-111111111111',
     })
 
-    await expect(result).rejects.toBeInstanceOf(GeneratedDocumentStreamNotFound)
+    await expect(result).rejects.toBeInstanceOf(GeneratedDocumentNotFound)
   })
 })

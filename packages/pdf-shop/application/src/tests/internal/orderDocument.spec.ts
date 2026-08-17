@@ -6,7 +6,7 @@ import type Stripe from 'stripe'
 import {
   orderDocument,
   PaymentIntentCreationFailed,
-  DocumentOrderWriteFailed,
+  OrderRecordWriteFailed,
 } from '../../lib/internal/orderDocument'
 import {
   createFakeStripe,
@@ -87,7 +87,7 @@ describe('orderDocument', () => {
     await expect(result).rejects.toBeInstanceOf(PaymentIntentCreationFailed)
   })
 
-  it('throws DocumentOrderWriteFailed when the document record cannot be written', async () => {
+  it('throws OrderRecordWriteFailed when the document record cannot be written', async () => {
     vi.mocked(stripe.paymentIntents.create).mockResolvedValue({
       id: 'pi_1',
       amount: 999,
@@ -107,6 +107,6 @@ describe('orderDocument', () => {
       title: 'Test',
       body: 'Body',
     })
-    await expect(result).rejects.toBeInstanceOf(DocumentOrderWriteFailed)
+    await expect(result).rejects.toBeInstanceOf(OrderRecordWriteFailed)
   })
 })

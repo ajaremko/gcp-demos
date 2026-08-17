@@ -3,12 +3,9 @@ import path from 'node:path'
 
 import { type Logger } from 'pino'
 
-import { type PaymentRecord, paymentRecordSchema } from './data/PaymentRecord'
 import { ApplicationError } from '../ApplicationError'
 
-type GetPayment = {
-  documentId: string
-}
+import { type PaymentRecord, paymentRecordSchema } from './data/PaymentRecord'
 
 export class PaymentConfirmationNotFound extends ApplicationError {
   readonly tag = 'PaymentConfirmationNotFound'
@@ -51,7 +48,9 @@ export function readPaymentRecord(env: { dataRoot: string; logger: Logger }) {
     }
   }
 
-  return async function (input: GetPayment): Promise<PaymentRecord> {
+  return async function (input: {
+    documentId: string
+  }): Promise<PaymentRecord> {
     const raw = await readRecord(input.documentId)
     return parseRecord(raw)
   }

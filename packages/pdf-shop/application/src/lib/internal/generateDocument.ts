@@ -19,17 +19,17 @@ export class GeneratedDocumentDirectoryFailed extends ApplicationError {
   }
 }
 
-export class GeneratedDocumentFileWriteFailed extends ApplicationError {
-  readonly tag = 'GeneratedDocumentFileWriteFailed'
+export class GeneratedDocumentWriteFailed extends ApplicationError {
+  readonly tag = 'GeneratedDocumentWriteFailed'
   constructor(cause: unknown) {
     super('Failed to write generated document file', cause)
   }
 }
 
-export class GeneratedDocumentRecordWriteFailed extends ApplicationError {
-  readonly tag = 'GeneratedDocumentRecordWriteFailed'
+export class GenerationRecordWriteFailed extends ApplicationError {
+  readonly tag = 'GenerationRecordWriteFailed'
   constructor(cause: unknown) {
-    super('Failed to write generated document record', cause)
+    super('Failed to write generation record', cause)
   }
 }
 
@@ -69,7 +69,7 @@ export function generateDocument(env: { dataRoot: string; logger: Logger }) {
       await writeFile(generatedPath, generatedData, 'utf-8')
       return generatedPath
     } catch (err) {
-      throw new GeneratedDocumentFileWriteFailed(err)
+      throw new GeneratedDocumentWriteFailed(err)
     }
   }
 
@@ -102,7 +102,7 @@ export function generateDocument(env: { dataRoot: string; logger: Logger }) {
 
       return record
     } catch (err) {
-      throw new GeneratedDocumentRecordWriteFailed(err)
+      throw new GenerationRecordWriteFailed(err)
     }
   }
 

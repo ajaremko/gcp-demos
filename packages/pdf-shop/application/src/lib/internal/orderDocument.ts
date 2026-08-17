@@ -24,8 +24,8 @@ export class PaymentIntentCreationFailed extends ApplicationError {
   }
 }
 
-export class DocumentOrderWriteFailed extends ApplicationError {
-  readonly tag = 'DocumentOrderWriteFailed'
+export class OrderRecordWriteFailed extends ApplicationError {
+  readonly tag = 'OrderRecordWriteFailed'
   constructor(cause: unknown) {
     super('Failed to write document record to file', cause)
   }
@@ -100,7 +100,7 @@ export function orderDocument(env: {
 
       return record
     } catch (err) {
-      throw new DocumentOrderWriteFailed(err)
+      throw new OrderRecordWriteFailed(err)
     }
   }
 

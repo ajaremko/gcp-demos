@@ -4,19 +4,15 @@ import { type Logger } from 'pino'
 
 import { ApplicationError } from '../ApplicationError'
 
-type GetGeneratedDocumentStream = {
-  path: string
-}
-
-export class GeneratedDocumentStreamNotFound extends ApplicationError {
-  readonly tag = 'GeneratedDocumentStreamNotFound'
+export class GeneratedDocumentNotFound extends ApplicationError {
+  readonly tag = 'GeneratedDocumentNotFound'
   constructor(cause: unknown) {
     super('Generated document file could not be found', cause)
   }
 }
 
-export class GeneratedDocumentStreamEmpty extends ApplicationError {
-  readonly tag = 'GeneratedDocumentStreamEmpty'
+export class GeneratedDocumentEmpty extends ApplicationError {
+  readonly tag = 'GeneratedDocumentEmpty'
   constructor(cause: unknown) {
     super('Generated document file is empty', cause)
   }
@@ -32,17 +28,17 @@ export function readDocumentStream(env: { logger: Logger }) {
       logger.trace({ path }, 'Reading generated document file stats')
       return await stat(path)
     } catch (err) {
-      throw new GeneratedDocumentStreamNotFound(err)
+      throw new GeneratedDocumentNotFound(err)
     }
   }
 
-  return async function (
-    input: GetGeneratedDocumentStream,
-  ): Promise<{ stream: ReadStream; size: number }> {
+  return async function (input: {
+    path: string
+  }): Promise<{ stream: ReadStream; size: number }> {
     const { size } = await statFile(input.path)
 
     if (!size) {
-      throw new GeneratedDocumentStreamEmpty(new Error('File is empty'))
+      throw new GeneratedDocumentEmpty(new Error('File is empty'))
     }
 
     return { stream: createReadStream(input.path), size }

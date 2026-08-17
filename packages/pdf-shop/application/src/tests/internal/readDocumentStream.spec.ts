@@ -4,8 +4,8 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 
 import {
   readDocumentStream,
-  GeneratedDocumentStreamNotFound,
-  GeneratedDocumentStreamEmpty,
+  GeneratedDocumentNotFound,
+  GeneratedDocumentEmpty,
 } from '../../lib/internal/readDocumentStream'
 import { createTempDataRoot, createTestLogger } from '../testEnv'
 
@@ -40,19 +40,19 @@ describe('readDocumentStream', () => {
     await expect(result).resolves.toBe('hello world')
   })
 
-  it('throws GeneratedDocumentStreamNotFound when the file does not exist', async () => {
+  it('throws GeneratedDocumentNotFound when the file does not exist', async () => {
     const result = readDocumentStream({ logger })({
       path: `${dataRoot}/missing.txt`,
     })
-    await expect(result).rejects.toBeInstanceOf(GeneratedDocumentStreamNotFound)
+    await expect(result).rejects.toBeInstanceOf(GeneratedDocumentNotFound)
   })
 
-  it('throws GeneratedDocumentStreamEmpty when the file is empty', async () => {
+  it('throws GeneratedDocumentEmpty when the file is empty', async () => {
     await writeFile(`${dataRoot}/empty.txt`, '', 'utf-8')
 
     const result = readDocumentStream({ logger })({
       path: `${dataRoot}/empty.txt`,
     })
-    await expect(result).rejects.toBeInstanceOf(GeneratedDocumentStreamEmpty)
+    await expect(result).rejects.toBeInstanceOf(GeneratedDocumentEmpty)
   })
 })

@@ -9,10 +9,6 @@ import {
   generationRecordSchema,
 } from './data/GenerationRecord'
 
-type GetGeneratedDocument = {
-  documentId: string
-}
-
 export class GeneratedDocumentRecordNotFound extends ApplicationError {
   readonly tag = 'GeneratedDocumentRecordNotFound'
   constructor(cause: unknown) {
@@ -57,9 +53,9 @@ export function readGenerationRecord(env: {
     }
   }
 
-  return async function (
-    input: GetGeneratedDocument,
-  ): Promise<GenerationRecord> {
+  return async function (input: {
+    documentId: string
+  }): Promise<GenerationRecord> {
     const raw = await readRecordFile(input.documentId)
     return parseRecord(raw)
   }

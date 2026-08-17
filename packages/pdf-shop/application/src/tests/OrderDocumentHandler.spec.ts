@@ -6,7 +6,7 @@ import type Stripe from 'stripe'
 import { OrderDocumentHandler } from '../lib/OrderDocumentHandler'
 import {
   PaymentIntentCreationFailed,
-  DocumentOrderWriteFailed,
+  OrderRecordWriteFailed,
 } from '../lib/internal/orderDocument'
 import {
   createFakeStripe,
@@ -88,7 +88,7 @@ describe('OrderDocumentHandler', () => {
     await expect(result).rejects.toBeInstanceOf(PaymentIntentCreationFailed)
   })
 
-  it('propagates DocumentOrderWriteFailed from orderDocument', async () => {
+  it('propagates OrderRecordWriteFailed from orderDocument', async () => {
     vi.mocked(stripe.paymentIntents.create).mockResolvedValue({
       id: 'pi_1',
       amount: 999,
@@ -109,6 +109,6 @@ describe('OrderDocumentHandler', () => {
       body: 'Body',
     })
 
-    await expect(result).rejects.toBeInstanceOf(DocumentOrderWriteFailed)
+    await expect(result).rejects.toBeInstanceOf(OrderRecordWriteFailed)
   })
 })

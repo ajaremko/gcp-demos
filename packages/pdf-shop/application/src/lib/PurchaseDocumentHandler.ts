@@ -3,7 +3,7 @@ import { type Logger } from 'pino'
 
 import { purchaseDocument } from './internal/purchaseDocument'
 
-type CompletePayment = {
+export interface PurchaseDocument {
   documentId: string
   paymentIntentId: string
 }
@@ -13,7 +13,7 @@ export function PurchaseDocumentHandler(env: {
   dataRoot: string
   logger: Logger
 }) {
-  return async function (input: CompletePayment) {
+  return async function (input: PurchaseDocument) {
     const { documentId, paymentIntentId } = input
     const logger = env.logger.child({
       handler: 'PurchaseDocumentHandler',
