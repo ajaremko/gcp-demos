@@ -4,8 +4,8 @@ import type Stripe from 'stripe'
 import {
   getPaymentIntentClientSecret,
   PaymentIntentRetrievalFailed,
-} from '../lib/internal/getPaymentIntentClientSecret'
-import { createFakeStripe, createTestLogger } from './testEnv'
+} from '../../lib/internal/getPaymentIntentClientSecret'
+import { createFakeStripe, createTestLogger } from '../testEnv'
 
 describe('getPaymentIntentClientSecret', () => {
   const logger = createTestLogger()

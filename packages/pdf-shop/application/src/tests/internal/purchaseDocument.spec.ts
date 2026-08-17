@@ -8,12 +8,12 @@ import {
   PaymentIntentNotFound,
   PaymentRecordWriteFailed,
   purchaseDocument,
-} from '../lib/internal/purchaseDocument'
+} from '../../lib/internal/purchaseDocument'
 import {
   createFakeStripe,
   createTempDataRoot,
   createTestLogger,
-} from './testEnv'
+} from '../testEnv'
 
 describe('purchaseDocument', () => {
   let dataRoot: string

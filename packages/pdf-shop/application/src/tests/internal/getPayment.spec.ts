@@ -6,8 +6,8 @@ import {
   getPaymentCompleted,
   PaymentConfirmationNotFound,
   PaymentConfirmationInvalid,
-} from '../lib/internal/getPayment'
-import { createTempDataRoot, createTestLogger } from './testEnv'
+} from '../../lib/internal/getPayment'
+import { createTempDataRoot, createTestLogger } from '../testEnv'
 
 describe('getPaymentCompleted', () => {
   let dataRoot: string
@@ -23,10 +23,9 @@ describe('getPaymentCompleted', () => {
   })
 
   it('reads and parses an existing payment confirmation file', async () => {
-    await mkdir(
-      `${dataRoot}/11111111-1111-4111-8111-111111111111`,
-      { recursive: true },
-    )
+    await mkdir(`${dataRoot}/11111111-1111-4111-8111-111111111111`, {
+      recursive: true,
+    })
     await writeFile(
       `${dataRoot}/11111111-1111-4111-8111-111111111111/paid.json`,
       '{' +
@@ -60,10 +59,9 @@ describe('getPaymentCompleted', () => {
   })
 
   it('throws PaymentConfirmationInvalid when the file contains invalid JSON', async () => {
-    await mkdir(
-      `${dataRoot}/11111111-1111-4111-8111-111111111111`,
-      { recursive: true },
-    )
+    await mkdir(`${dataRoot}/11111111-1111-4111-8111-111111111111`, {
+      recursive: true,
+    })
     await writeFile(
       `${dataRoot}/11111111-1111-4111-8111-111111111111/paid.json`,
       'not json',
@@ -77,10 +75,9 @@ describe('getPaymentCompleted', () => {
   })
 
   it('throws PaymentConfirmationInvalid when the file content fails schema validation', async () => {
-    await mkdir(
-      `${dataRoot}/11111111-1111-4111-8111-111111111111`,
-      { recursive: true },
-    )
+    await mkdir(`${dataRoot}/11111111-1111-4111-8111-111111111111`, {
+      recursive: true,
+    })
     await writeFile(
       `${dataRoot}/11111111-1111-4111-8111-111111111111/paid.json`,
       '{"foo":"bar"}',

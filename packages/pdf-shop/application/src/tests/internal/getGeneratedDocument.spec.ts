@@ -6,8 +6,8 @@ import {
   getGeneratedDocument,
   GeneratedDocumentRecordNotFound,
   GeneratedDocumentRecordInvalid,
-} from '../lib/internal/getGeneratedDocument'
-import { createTempDataRoot, createTestLogger } from './testEnv'
+} from '../../lib/internal/getGeneratedDocument'
+import { createTempDataRoot, createTestLogger } from '../testEnv'
 
 describe('getGeneratedDocument', () => {
   let dataRoot: string
@@ -23,10 +23,9 @@ describe('getGeneratedDocument', () => {
   })
 
   it('reads and parses an existing generated document file', async () => {
-    await mkdir(
-      `${dataRoot}/11111111-1111-4111-8111-111111111111`,
-      { recursive: true },
-    )
+    await mkdir(`${dataRoot}/11111111-1111-4111-8111-111111111111`, {
+      recursive: true,
+    })
     await writeFile(
       `${dataRoot}/11111111-1111-4111-8111-111111111111/generated.json`,
       '{' +
@@ -60,10 +59,9 @@ describe('getGeneratedDocument', () => {
   })
 
   it('throws GeneratedDocumentRecordInvalid when the file contains invalid JSON', async () => {
-    await mkdir(
-      `${dataRoot}/11111111-1111-4111-8111-111111111111`,
-      { recursive: true },
-    )
+    await mkdir(`${dataRoot}/11111111-1111-4111-8111-111111111111`, {
+      recursive: true,
+    })
     await writeFile(
       `${dataRoot}/11111111-1111-4111-8111-111111111111/generated.json`,
       'not json',
@@ -77,10 +75,9 @@ describe('getGeneratedDocument', () => {
   })
 
   it('throws GeneratedDocumentRecordInvalid when the file content fails schema validation', async () => {
-    await mkdir(
-      `${dataRoot}/11111111-1111-4111-8111-111111111111`,
-      { recursive: true },
-    )
+    await mkdir(`${dataRoot}/11111111-1111-4111-8111-111111111111`, {
+      recursive: true,
+    })
     await writeFile(
       `${dataRoot}/11111111-1111-4111-8111-111111111111/generated.json`,
       '{"foo":"bar"}',

@@ -6,8 +6,8 @@ import {
   getDocumentOrder,
   DocumentOrderNotFound,
   DocumentOrderInvalid,
-} from '../lib/internal/getDocumentOrder'
-import { createTempDataRoot, createTestLogger } from './testEnv'
+} from '../../lib/internal/getDocumentOrder'
+import { createTempDataRoot, createTestLogger } from '../testEnv'
 
 describe('getDocumentOrder', () => {
   let dataRoot: string

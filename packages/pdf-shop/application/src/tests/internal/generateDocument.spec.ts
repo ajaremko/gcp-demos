@@ -5,8 +5,8 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import {
   generateDocument,
   GeneratedDocumentDirectoryFailed,
-} from '../lib/internal/generateDocument'
-import { createTempDataRoot, createTestLogger } from './testEnv'
+} from '../../lib/internal/generateDocument'
+import { createTempDataRoot, createTestLogger } from '../testEnv'
 
 describe('generateDocument', () => {
   let dataRoot: string

@@ -7,12 +7,12 @@ import {
   orderDocument,
   PaymentIntentCreationFailed,
   DocumentOrderWriteFailed,
-} from '../lib/internal/orderDocument'
+} from '../../lib/internal/orderDocument'
 import {
   createFakeStripe,
   createTempDataRoot,
   createTestLogger,
-} from './testEnv'
+} from '../testEnv'
 
 // orderDocument generates its own documentId internally via randomUUID(),
 // so node:crypto is mocked to make it deterministic and hardcodable below.
