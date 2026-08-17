@@ -1,0 +1,67 @@
+{
+  "name": "@org/pdf-shop-worker",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "name": "pdf-shop-worker",
+    "targets": {
+      "prune-lockfile": {
+        "dependsOn": [
+          "build"
+        ],
+        "cache": true,
+        "executor": "@nx/js:prune-lockfile",
+        "outputs": [
+          "{workspaceRoot}/packages/pdf-shop/worker/dist/package.json",
+          "{workspaceRoot}/packages/pdf-shop/worker/dist/package-lock.json"
+        ],
+        "options": {
+          "buildTarget": "build"
+        }
+      },
+      "copy-workspace-modules": {
+        "dependsOn": [
+          "build"
+        ],
+        "cache": true,
+        "outputs": [
+          "{workspaceRoot}/packages/pdf-shop/worker/dist/workspace_modules"
+        ],
+        "executor": "@nx/js:copy-workspace-modules",
+        "options": {
+          "buildTarget": "build"
+        }
+      },
+      "prune": {
+        "dependsOn": [
+          "prune-lockfile",
+          "copy-workspace-modules"
+        ],
+        "executor": "nx:noop"
+      },
+      "serve": {
+        "continuous": true,
+        "executor": "@nx/js:node",
+        "defaultConfiguration": "development",
+        "dependsOn": [
+          "build"
+        ],
+        "options": {
+          "buildTarget": "pdf-shop-worker:build",
+          "runBuildTargetDependencies": false
+        },
+        "configurations": {
+          "development": {
+            "buildTarget": "pdf-shop-worker:build:development"
+          },
+          "production": {
+            "buildTarget": "pdf-shop-worker:build:production"
+          }
+        }
+      }
+    }
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}

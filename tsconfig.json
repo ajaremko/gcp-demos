@@ -8,6 +8,12 @@
     },
     {
       "path": "./packages/pdf-shop/application"
+    },
+    {
+      "path": "./packages/pdf-shop/worker-e2e"
+    },
+    {
+      "path": "./packages/pdf-shop/worker"
     }
   ],
   "compilerOptions": {}
