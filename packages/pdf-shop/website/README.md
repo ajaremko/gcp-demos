@@ -6,35 +6,36 @@ it's ready. It's a thin UI/routing layer over `@org/pdf-shop-application` —
 every page and API route constructs a handler from that package and calls
 it; documents and payments are persisted to the filesystem under `DATA_ROOT`.
 
-Document *generation* itself happens outside this app, asynchronously, once
+Document _generation_ itself happens outside this app, asynchronously, once
 an order is placed — this app only polls for and serves the result once it
 exists.
 
 ## Pages and routes
 
-| Path | Purpose |
-| --- | --- |
-| `/` | Landing page |
-| `/create` | Document spec form (color scheme, title, body) |
-| `/purchase?doc=` | Stripe payment form for a specific document |
-| `/download?doc=` | Polls readiness, then offers the download |
-| `/api/documents/[documentId]/status` | Polled by the download page |
-| `/api/documents/[documentId]/download` | Streams the generated file |
+| Path                                   | Purpose                                        |
+| -------------------------------------- | ---------------------------------------------- |
+| `/`                                    | Landing page                                   |
+| `/create`                              | Document spec form (color scheme, title, body) |
+| `/purchase?doc=`                       | Stripe payment form for a specific document    |
+| `/download?doc=`                       | Polls readiness, then offers the download      |
+| `/api/documents/[documentId]/status`   | Polled by the download page                    |
+| `/api/documents/[documentId]/download` | Streams the generated file                     |
 
 ## Local setup
 
 Environment variables (see `.env`, which already has working sandbox
 defaults):
 
-| Variable | Purpose |
-| --- | --- |
-| `DATA_ROOT` | Filesystem root for document/payment records |
-| `STRIPE_SECRET_KEY` | Stripe sandbox secret key (server-side) |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe sandbox publishable key (client-side) |
-| `NODE_ENV` | `production` for structured JSON logs; anything else for pretty-printed dev logs |
-| `LOG_LEVEL` | Overrides the default log level (`info` in production, `trace` otherwise) |
+| Variable                             | Purpose                                                                                                                               |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `DATA_ROOT`                          | Filesystem root for document/payment records                                                                                          |
+| `STRIPE_SECRET_KEY`                  | Stripe sandbox secret key (server-side)                                                                                               |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe sandbox publishable key (client-side)                                                                                          |
+| `NODE_ENV`                           | By default, `production` for structured JSON logs and anything else for pretty-printed dev logs — see `PRETTY_PRINT_LOGS` to override |
+| `LOG_LEVEL`                          | Overrides the default log level (`info` in production, `trace` otherwise)                                                             |
+| `PRETTY_PRINT_LOGS`                  | `true`/`false`; overrides whether logs are pretty-printed. Defaults to `true` outside production, `false` in production               |
 
-Outside production, `DATA_ROOT` defaults to `/tmp/pdf-shop-worker-data` if
+Outside production, `DATA_ROOT` defaults to `/tmp/pdf-shop-data` if
 unset — the same default `worker` uses, so both point at the same
 directory locally without needing `.env`. In production, a request that
 needs `DATA_ROOT` throws instead of silently resolving to `''`.

@@ -11,7 +11,7 @@ app.use(express.json())
 
 app.use('/assets', express.static(path.join(__dirname, 'assets')))
 
-const pinoDevConfig = {
+const prettyPrintConfig = {
   transport: {
     target: 'pino-pretty',
     options: {
@@ -29,21 +29,33 @@ function resolveLogLevel(): string {
   )
 }
 
+function resolvePrettyPrintLogs(): boolean {
+  const value = process.env.PRETTY_PRINT_LOGS
+  if (value === undefined) {
+    return process.env.NODE_ENV !== 'production'
+  }
+  if (value === 'true') return true
+  if (value === 'false') return false
+  throw new Error(
+    `PRETTY_PRINT_LOGS must be "true" or "false", got: "${value}"`,
+  )
+}
+
 const pinoLogger = pino({
   level: resolveLogLevel(),
-  ...(process.env.NODE_ENV === 'production' ? {} : pinoDevConfig),
+  ...(resolvePrettyPrintLogs() ? prettyPrintConfig : {}),
 }).child({
   service: 'pdf-shop-worker',
 })
 
 function resolveDataRoot(): string {
-  if (process.env.DATA_ROOT) {
-    return process.env.DATA_ROOT
+  if (process.env.PDF_SHOP_DATA_DIR) {
+    return process.env.PDF_SHOP_DATA_DIR
   }
   if (process.env.NODE_ENV === 'production') {
-    throw new Error('DATA_ROOT is not set')
+    throw new Error('PDF_SHOP_DATA_DIR is not set')
   }
-  return '/tmp/pdf-shop-worker-data'
+  return '/tmp/pdf-shop-data'
 }
 
 const dataRoot = resolveDataRoot()

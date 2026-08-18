@@ -5,14 +5,15 @@ configuration, reading its logs, and debugging problems.
 
 ## Configuring the environment
 
-| Variable                             | Purpose                                                | Notes                                                                                                                                                |
-| ------------------------------------ | ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `DATA_ROOT`                          | Filesystem location of document/payment records        | Must point at the same storage location the rest of the system (e.g. `worker`) reads and writes to. Outside production, unset falls back to `/tmp/pdf-shop-worker-data` (matching `worker`'s own default). **In production, a request that needs it throws** (`resolveDataRoot()`, called per-request, not at build/startup time) rather than silently resolving to `''`. |
-| `STRIPE_SECRET_KEY`                  | Stripe secret key, server-side                         | Required — `getStripeClient()` throws the first time it's called (lazily, on first request that needs Stripe) if unset, not at build or startup time. |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe publishable key, client-side                    | Required for the purchase page to render its payment form; if unset, the purchase page throws when loaded.                                             |
-| `NODE_ENV`                           | Controls log format/verbosity, and Next's runtime mode | Set to `production` in production; the container image sets this.                                                                                    |
-| `PORT`                               | Port the server listens on                             | Read directly by Next's standalone `server.js`; in the container image this is injected by the deployment platform at runtime, not hardcoded.        |
-| `LOG_LEVEL`                          | Overrides the default pino level                       | Optional; if unset, defaults to `info` in production / `trace` otherwise. Must be a valid pino level (`trace`/`debug`/`info`/`warn`/`error`/`fatal`) — an invalid value makes the process throw at startup. |
+| Variable                             | Purpose                                                | Type                                                   | Notes                                                                                                                                                                                                                                                                                                                                                              |
+| ------------------------------------ | ------------------------------------------------------ | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `DATA_ROOT`                          | Filesystem location of document/payment records        | `string` (path)                                           | Must point at the same storage location the rest of the system (e.g. `worker`) reads and writes to. Outside production, unset falls back to `/tmp/pdf-shop-data` (matching `worker`'s own default). **In production, a request that needs it throws** (`resolveDataRoot()`, called per-request, not at build/startup time) rather than silently resolving to `''`. |
+| `STRIPE_SECRET_KEY`                  | Stripe secret key, server-side                         | `string`                                                  | Required — `getStripeClient()` throws the first time it's called (lazily, on first request that needs Stripe) if unset, not at build or startup time.                                                                                                                                                                                                              |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe publishable key, client-side                    | `string`                                                  | Required for the purchase page to render its payment form; if unset, the purchase page throws when loaded.                                                                                                                                                                                                                                                         |
+| `NODE_ENV`                           | Controls log format/verbosity, and Next's runtime mode | `string`                                                  | Set to `production` in production; the container image sets this.                                                                                                                                                                                                                                                                                                  |
+| `PORT`                               | Port the server listens on                             | `number`                                                  | Read directly by Next's standalone `server.js`; in the container image this is injected by the deployment platform at runtime, not hardcoded.                                                                                                                                                                                                                      |
+| `LOG_LEVEL`                          | Overrides the default pino level                       | `enum` (`trace`/`debug`/`info`/`warn`/`error`/`fatal`)    | Optional; if unset, defaults to `info` in production / `trace` otherwise.                                                                                                                                                                                                                                                                                           |
+| `PRETTY_PRINT_LOGS`                  | Whether logs are pretty-printed vs. JSON               | `boolean` (`"true"`/`"false"`)                            | Optional; any other value makes the process throw at startup. If unset, defaults to `true` outside production, `false` in production (today's behavior).                                                                                                                                                                                                          |
 
 There is no other application-level configuration surface.
 
@@ -22,6 +23,11 @@ All backend logging — `@org/pdf-shop-application` handler internals as well
 as this app's own pages, server actions, and API routes — goes through
 `pinoLogger`; nothing on the backend logs to `console.*`.
 
+By default, output is pretty-printed outside production and JSON in
+production; `PRETTY_PRINT_LOGS` overrides this independently of `NODE_ENV`
+(e.g. `PRETTY_PRINT_LOGS=false` for JSON output locally, or `=true` to get
+pretty output even with `NODE_ENV=production`).
+
 pino's level is a threshold: setting it to a given level shows that level
 and everything more severe. By default (`src/lib/pino.ts`) this app runs at
 one of two thresholds — `trace` in dev (`NODE_ENV` unset), `info` in
@@ -30,13 +36,13 @@ The table below shows what's visible at **the default** production level;
 if `LOG_LEVEL` is set, apply the same threshold rule directly against
 whatever level it's configured to instead:
 
-| Level   | Shown in production? | Emitted by                                                                                                                                           |
-| ------- | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `trace` | No                   | `@org/pdf-shop-application` handler internals — Stripe calls, file reads/writes, and similar step-by-step detail                                     |
+| Level   | Shown in production? | Emitted by                                                                                                                                            |
+| ------- | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `trace` | No                   | `@org/pdf-shop-application` handler internals — Stripe calls, file reads/writes, and similar step-by-step detail                                      |
 | `debug` | No                   | `purchase/page.tsx`, `download/page.tsx`, `status/route.ts`, `download/route.ts` — a failure loading payment context, checking status, or downloading |
-| `info`  | Yes                  | _(nothing currently logs at this level)_                                                                                                             |
-| `warn`  | Yes                  | `create/actions.ts`, `purchase/actions.ts` — a failure creating a document or confirming a payment                                                   |
-| `error` | Yes                  | _(nothing currently logs at this level)_                                                                                                             |
+| `info`  | Yes                  | _(nothing currently logs at this level)_                                                                                                              |
+| `warn`  | Yes                  | `create/actions.ts`, `purchase/actions.ts` — a failure creating a document or confirming a payment                                                    |
+| `error` | Yes                  | _(nothing currently logs at this level)_                                                                                                              |
 
 Browser-side (client component) code may log warnings and errors directly to the console.
 

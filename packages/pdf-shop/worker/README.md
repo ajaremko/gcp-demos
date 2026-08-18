@@ -10,14 +10,15 @@ generates the document's content using `@org/pdf-shop-application`'s
 
 Configuration is entirely via environment variables:
 
-| Variable    | Purpose                                                                          | Default outside production  |
-| ----------- | -------------------------------------------------------------------------------- | --------------------------- |
-| `DATA_ROOT` | Directory where document records live                                            | `/tmp/pdf-shop-worker-data` |
-| `PORT`      | Port the server listens on                                                       | `3333`                      |
-| `NODE_ENV`  | `production` for structured JSON logs; anything else for pretty-printed dev logs | unset (dev logs)            |
-| `LOG_LEVEL` | Overrides the default log level (`info` in production, `trace` otherwise)        | unset                       |
+| Variable            | Purpose                                                                                                                            | Default outside production |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| `DATA_ROOT`         | Directory where document records live                                                                                              | `/tmp/pdf-shop-data`       |
+| `PORT`              | Port the server listens on                                                                                                         | `3333`                     |
+| `NODE_ENV`          | By default, `production` for structured JSON logs, anything else for pretty-printed dev logs — see `PRETTY_PRINT_LOGS` to override | unset (dev logs)           |
+| `LOG_LEVEL`         | Overrides the default log level (`info` in production, `trace` otherwise)                                                          | unset                      |
+| `PRETTY_PRINT_LOGS` | `true`/`false`; overrides whether logs are pretty-printed. Defaults to `true` outside production, `false` in production            | unset (`true`)             |
 
-`DATA_ROOT` defaults to `/tmp/pdf-shop-worker-data` automatically outside of
+`DATA_ROOT` defaults to `/tmp/pdf-shop-data` automatically outside of
 production — the same path `worker-e2e`'s tests expect — so no `.env` is
 required to get started. Nx will automatically load `.env` files. Start the server with:
 

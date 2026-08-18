@@ -5,5 +5,5 @@ export function resolveDataRoot(): string {
   if (process.env.NODE_ENV === 'production') {
     throw new Error('DATA_ROOT is not set')
   }
-  return '/tmp/pdf-shop-worker-data'
+  return '/tmp/pdf-shop-data'
 }

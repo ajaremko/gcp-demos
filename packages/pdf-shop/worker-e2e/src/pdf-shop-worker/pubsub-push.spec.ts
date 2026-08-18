@@ -5,12 +5,11 @@ import axios from 'axios'
 
 describe('POST /', () => {
   it('generates the document when a Cloud Storage document-created notification is pushed via Pub/Sub', async () => {
-    await mkdir(
-      '/tmp/pdf-shop-worker-data/11111111-1111-4111-8111-111111111111',
-      { recursive: true },
-    )
+    await mkdir('/tmp/pdf-shop-data/11111111-1111-4111-8111-111111111111', {
+      recursive: true,
+    })
     await writeFile(
-      '/tmp/pdf-shop-worker-data/11111111-1111-4111-8111-111111111111/created.json',
+      '/tmp/pdf-shop-data/11111111-1111-4111-8111-111111111111/created.json',
       '{' +
         '"id":"11111111-1111-4111-8111-111111111111",' +
         '"createdAt":"2024-01-01T00:00:00.000Z",' +
@@ -41,7 +40,7 @@ describe('POST /', () => {
           eventType: 'OBJECT_FINALIZE',
           bucketId: 'pdf-shop-documents',
           objectId:
-            '/tmp/pdf-shop-worker-data/11111111-1111-4111-8111-111111111111/created.json',
+            '/tmp/pdf-shop-data/11111111-1111-4111-8111-111111111111/created.json',
           objectGeneration: '1700000000000000',
           payloadFormat: 'JSON_API_V1',
         },
@@ -55,7 +54,7 @@ describe('POST /', () => {
     expect(res.status).toBe(201)
 
     const generatedText = await readFile(
-      '/tmp/pdf-shop-worker-data/11111111-1111-4111-8111-111111111111/generated.txt',
+      '/tmp/pdf-shop-data/11111111-1111-4111-8111-111111111111/generated.txt',
       'utf-8',
     )
     expect(generatedText).toBe(
@@ -67,13 +66,13 @@ describe('POST /', () => {
     // timers — asserted structurally instead.
     const generatedRecord = JSON.parse(
       await readFile(
-        '/tmp/pdf-shop-worker-data/11111111-1111-4111-8111-111111111111/generated.json',
+        '/tmp/pdf-shop-data/11111111-1111-4111-8111-111111111111/generated.json',
         'utf-8',
       ),
     )
     expect(generatedRecord).toEqual({
       documentId: '11111111-1111-4111-8111-111111111111',
-      path: '/tmp/pdf-shop-worker-data/11111111-1111-4111-8111-111111111111/generated.txt',
+      path: '/tmp/pdf-shop-data/11111111-1111-4111-8111-111111111111/generated.txt',
       filename: '11111111-1111-4111-8111-111111111111.txt',
       contentType: 'text/plain',
       timestamp: expect.any(String),
@@ -95,7 +94,7 @@ describe('POST /', () => {
           eventType: 'OBJECT_FINALIZE',
           bucketId: 'pdf-shop-documents',
           objectId:
-            '/tmp/pdf-shop-worker-data/22222222-2222-4222-8222-222222222222/generated.json',
+            '/tmp/pdf-shop-data/22222222-2222-4222-8222-222222222222/generated.json',
           objectGeneration: '1700000000000001',
           payloadFormat: 'JSON_API_V1',
         },
@@ -126,7 +125,7 @@ describe('POST /', () => {
             eventType: 'OBJECT_FINALIZE',
             bucketId: 'pdf-shop-documents',
             objectId:
-              '/tmp/pdf-shop-worker-data/33333333-3333-4333-8333-333333333333/created.json',
+              '/tmp/pdf-shop-data/33333333-3333-4333-8333-333333333333/created.json',
             objectGeneration: '1700000000000002',
             payloadFormat: 'JSON_API_V1',
           },
