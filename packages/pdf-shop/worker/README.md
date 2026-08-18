@@ -10,14 +10,15 @@ generates the document's content using `@org/pdf-shop-application`'s
 
 Configuration is entirely via environment variables:
 
-| Variable | Purpose | Local default (`.env`) |
-| --- | --- | --- |
-| `DATA_ROOT` | Directory where document records live | `/tmp/pdf-shop-worker-data` |
-| `PORT` | Port the server listens on | `3333` |
-| `NODE_ENV` | `production` for structured JSON logs; anything else for pretty-printed dev logs | unset (dev logs) |
+| Variable    | Purpose                                                                          | Default outside production  |
+| ----------- | -------------------------------------------------------------------------------- | --------------------------- |
+| `DATA_ROOT` | Directory where document records live                                            | `/tmp/pdf-shop-worker-data` |
+| `PORT`      | Port the server listens on                                                       | `3333`                      |
+| `NODE_ENV`  | `production` for structured JSON logs; anything else for pretty-printed dev logs | unset (dev logs)            |
 
-`.env` already provides a working local default for `DATA_ROOT`. Start the
-server with:
+`DATA_ROOT` defaults to `/tmp/pdf-shop-worker-data` automatically outside of
+production — the same path `worker-e2e`'s tests expect — so no `.env` is
+required to get started. Nx will automatically load `.env` files. Start the server with:
 
 ```
 nx serve pdf-shop-worker

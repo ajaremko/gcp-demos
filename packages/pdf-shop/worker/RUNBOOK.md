@@ -7,7 +7,7 @@ configuration, reading its logs, and debugging problems.
 
 | Variable | Purpose | Notes |
 | --- | --- | --- |
-| `DATA_ROOT` | Filesystem location of document records (`created.json`, `generated.txt`, `generated.json`, `paid.json`) | Must point at the same storage location the rest of the system reads and writes to. If unset, it resolves to `''`, which means paths are read relative to the process's working directory — effectively broken; always set this explicitly. |
+| `DATA_ROOT` | Filesystem location of document records (`created.json`, `generated.txt`, `generated.json`, `paid.json`) | Must point at the same storage location the rest of the system reads and writes to. Outside production, unset falls back to `/tmp/pdf-shop-worker-data`. **In production (`NODE_ENV=production`), the process refuses to start if this is unset** — it throws immediately at startup rather than silently writing to the wrong place. |
 | `PORT` | Port the server listens on | Defaults to `3333` if unset. |
 | `NODE_ENV` | Controls log format and verbosity | Set to `production` in production. |
 
