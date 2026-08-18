@@ -19,17 +19,26 @@ export async function GET(
   req: { params: Promise<{ documentId: string }> },
 ) {
   const rawParams = await req.params
+  const handler = CheckOrderStatusHandler({
+    dataRoot: resolveDataRoot(),
+    logger: pinoLogger,
+  })
   try {
     const params = documentIdSchema.parse(rawParams)
-    const handler = CheckOrderStatusHandler({
-      dataRoot: resolveDataRoot(),
-      logger: pinoLogger,
-    })
     const ready = await handler(params)
     return Response.json({ ready })
   } catch (err) {
     if (isApplicationError(err)) {
-      pinoLogger.debug({ err }, 'Failed to check order status')
+      if (err.tag === 'GeneratedDocumentRecordNotFound') {
+        // Document has not been generated yet
+        return Response.json({ ready: false })
+      } else if (err.tag === 'PaymentConfirmationNotFound') {
+        // Document has not been paid for yet
+        return Response.json({ ready: false })
+      } else {
+        // Unexpected application error
+        pinoLogger.debug({ err }, 'Failed to check order status')
+      }
       return Response.json({ ready: false })
     }
     if (err instanceof ZodError) {
