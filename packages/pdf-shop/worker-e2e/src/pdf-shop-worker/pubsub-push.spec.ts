@@ -73,7 +73,7 @@ describe('POST /', () => {
     )
     expect(generatedRecord).toEqual({
       documentId: '11111111-1111-4111-8111-111111111111',
-      path: '11111111-1111-4111-8111-111111111111',
+      path: '/tmp/pdf-shop-worker-data/11111111-1111-4111-8111-111111111111/generated.txt',
       filename: '11111111-1111-4111-8111-111111111111.txt',
       contentType: 'text/plain',
       timestamp: expect.any(String),
