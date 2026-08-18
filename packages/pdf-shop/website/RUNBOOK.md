@@ -12,7 +12,7 @@ configuration, reading its logs, and debugging problems.
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | `string`  | Stripe publishable key, client-side                    | public     | Required for Stripe Elements integration                                     |
 | `NODE_ENV`                           | `string`  | Controls log format/verbosity, and Next's runtime mode | private    |                                                                              |
 | `PORT`                               | `number`  | Port the server listens on                             | private    |                                                                              |
-| `LOG_LEVEL`                          | `enum`    | Overrides the default pino level                       | private    | Defaults to `true` outside production                                        |
+| `LOG_LEVEL`                          | `enum`    | Overrides the default pino level                       | private    | Defaults to `trace` outside production                                       |
 | `PRETTY_PRINT_LOGS`                  | `boolean` | Whether logs are pretty-printed vs. JSON               | private    | Defaults to `true` outside production                                        |
 
 There is no other application-level configuration surface.
@@ -23,14 +23,14 @@ pino's level is a threshold: whatever `LOG_LEVEL` is set to (see the table
 above) shows that level and everything more severe. Here's what's emitted
 at each level:
 
-| Level   | Events logged                                                                                                   |
-| ------- | --------------------------------------------------------------------------------------------------------------- |
-| `trace` | Application internals details                                                                                   |
+| Level   | Events logged                                                                                                                                                                  |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `trace` | Application internals details                                                                                                                                                  |
 | `debug` | Failure loading payment context, checking order status, or downloading; `@org/pdf-shop-application` failure context, logged immediately before it throws an `ApplicationError` |
-| `info`  | _(nothing currently logs at this level)_                                                                        |
-| `warn`  | Failure creating a document or confirming a payment                                                             |
-| `error` | _(nothing currently logs at this level)_                                                                        |
-| `fatal` | Missing required configuration (`PDF_SHOP_DATA_DIR`, `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`) |
+| `info`  | _(nothing currently logs at this level)_                                                                                                                                       |
+| `warn`  | Failure creating a document or confirming a payment                                                                                                                            |
+| `error` | _(nothing currently logs at this level)_                                                                                                                                       |
+| `fatal` | Missing required configuration (`PDF_SHOP_DATA_DIR`, `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`)                                                                |
 
 Application level failures carry a `tag` (which specific error occurred —
 see below) and `cause` (the underlying error, e.g. a filesystem error).

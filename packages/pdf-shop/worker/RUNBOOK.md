@@ -1,6 +1,6 @@
 # pdf-shop-worker runbook
 
-Operational reference for running `worker` in production: environment
+Operational reference for running `pdf-shop-worker`: environment
 configuration, reading its logs, and debugging problems.
 
 ## Configuring the environment
@@ -10,29 +10,29 @@ configuration, reading its logs, and debugging problems.
 | `PDF_SHOP_DATA_DIR` | `string`  | Filesystem location of document records  | private    | Should point at the same storage the rest of the system reads and writes to. |
 | `PORT`              | `number`  | Port the server listens on               | private    | Defaults to `3333`                                                           |
 | `NODE_ENV`          | `string`  | Controls log format and verbosity        | private    |                                                                              |
-| `LOG_LEVEL`         | `enum`    | Overrides the default pino level         | private    | Defaults to `true` outside production                                        |
+| `LOG_LEVEL`         | `enum`    | Overrides the default pino level         | private    | Defaults to `trace` outside production                                       |
 | `PRETTY_PRINT_LOGS` | `boolean` | Whether logs are pretty-printed vs. JSON | private    | Defaults to `true` outside production                                        |
 
 There is no other configuration surface — no config file, no CLI flags.
 
-## Logging
+## Logging Levels
 
 pino's level is a threshold: whatever `LOG_LEVEL` is set to (see the table
 above) shows that level and everything more severe. Here's what's emitted
 at each level:
 
-| Level   | Events logged                                                                          |
-| ------- | -------------------------------------------------------------------------------------- |
-| `trace` | Application internals details                                                          |
-| `debug` | Resolved environment vars; `@org/pdf-shop-application` failure context, logged immediately before it throws an `ApplicationError` |
-| `info`  | Startup message                                                                        |
-| `warn`  | Message doesn't match the expected shape (ex. wrong `eventType`)                       |
-| `error` | Application level failures                                                             |
-| `fatal` | Express server errors; missing required configuration (crashes the process at startup) |
+| Level   | Events logged                                                    |
+| ------- | ---------------------------------------------------------------- |
+| `trace` | Internal application details                                     |
+| `debug` | Internal application failures                                    |
+| `info`  | Express server messages                                          |
+| `warn`  | Request doesn't match the expected shape (ex. wrong `eventType`) |
+| `error` | Caught application errors                                        |
+| `fatal` | Express server errors; configuration errors                      |
 
-Application level failures carry a `tag` (which specific error occurred — see below) and `cause`
+Application errors carry a `tag` (which specific error occurred — see below) and `cause`
 (the underlying error, e.g. a filesystem error). See `@org/pdf-shop-application`'s
-own README for its full logging strategy.
+own README for full logging and exception handling strategy.
 
 ## Debugging problems
 
@@ -71,5 +71,4 @@ was observed.
 `GET /health` is a plain liveness check — it confirms the process is up
 and listening. Doesn't guarantee notifications will succeed.
 
-See [`known-issues.md`](./known-issues.md) for a known gap in
-`PRETTY_PRINT_LOGS`/`LOG_LEVEL` misconfiguration logging.
+See [`known-issues.md`](./known-issues.md)

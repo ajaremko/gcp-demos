@@ -63,8 +63,6 @@ function resolveDataRoot(): string {
 
 const dataRoot = resolveDataRoot()
 
-pinoLogger.debug({ dataRoot }, 'Resolved data root for document generation')
-
 const generateDocument = GenerateDocumentHandler({
   dataRoot,
   logger: pinoLogger,
