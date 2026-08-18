@@ -12,13 +12,13 @@ Configuration is entirely via environment variables:
 
 | Variable            | Purpose                                                                                                                            | Default outside production |
 | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
-| `DATA_ROOT`         | Directory where document records live                                                                                              | `/tmp/pdf-shop-data`       |
+| `PDF_SHOP_DATA_DIR` | Directory where document records live                                                                                              | `/tmp/pdf-shop-data`       |
 | `PORT`              | Port the server listens on                                                                                                         | `3333`                     |
 | `NODE_ENV`          | By default, `production` for structured JSON logs, anything else for pretty-printed dev logs — see `PRETTY_PRINT_LOGS` to override | unset (dev logs)           |
 | `LOG_LEVEL`         | Overrides the default log level (`info` in production, `trace` otherwise)                                                          | unset                      |
 | `PRETTY_PRINT_LOGS` | `true`/`false`; overrides whether logs are pretty-printed. Defaults to `true` outside production, `false` in production            | unset (`true`)             |
 
-`DATA_ROOT` defaults to `/tmp/pdf-shop-data` automatically outside of
+`PDF_SHOP_DATA_DIR` defaults to `/tmp/pdf-shop-data` automatically outside of
 production — the same path `worker-e2e`'s tests expect — so no `.env` is
 required to get started. Nx will automatically load `.env` files. Start the server with:
 
@@ -39,7 +39,7 @@ To use it:
    there's a `created.json` for the worker to read.
 3. Set the collection's `documentId` variable to that id.
 4. Send the request. A `201` response means the notification was accepted;
-   check `DATA_ROOT` for the newly written `generated.txt`/`generated.json`
+   check `PDF_SHOP_DATA_DIR` for the newly written `generated.txt`/`generated.json`
    under that document's directory.
 
 If importing the collection into the Postman VS Code extension fails, see

@@ -4,7 +4,7 @@ A Next.js app implementing the pdf-shop demo flow: describe a document, pay
 for it with a Stripe sandbox account, and download the generated PDF once
 it's ready. It's a thin UI/routing layer over `@org/pdf-shop-application` —
 every page and API route constructs a handler from that package and calls
-it; documents and payments are persisted to the filesystem under `DATA_ROOT`.
+it; documents and payments are persisted to the filesystem under `PDF_SHOP_DATA_DIR`.
 
 Document _generation_ itself happens outside this app, asynchronously, once
 an order is placed — this app only polls for and serves the result once it
@@ -28,17 +28,17 @@ defaults):
 
 | Variable                             | Purpose                                                                                                                               |
 | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `DATA_ROOT`                          | Filesystem root for document/payment records                                                                                          |
+| `PDF_SHOP_DATA_DIR`                  | Filesystem root for document/payment records                                                                                          |
 | `STRIPE_SECRET_KEY`                  | Stripe sandbox secret key (server-side)                                                                                               |
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe sandbox publishable key (client-side)                                                                                          |
 | `NODE_ENV`                           | By default, `production` for structured JSON logs and anything else for pretty-printed dev logs — see `PRETTY_PRINT_LOGS` to override |
 | `LOG_LEVEL`                          | Overrides the default log level (`info` in production, `trace` otherwise)                                                             |
 | `PRETTY_PRINT_LOGS`                  | `true`/`false`; overrides whether logs are pretty-printed. Defaults to `true` outside production, `false` in production               |
 
-Outside production, `DATA_ROOT` defaults to `/tmp/pdf-shop-data` if
+Outside production, `PDF_SHOP_DATA_DIR` defaults to `/tmp/pdf-shop-data` if
 unset — the same default `worker` uses, so both point at the same
 directory locally without needing `.env`. In production, a request that
-needs `DATA_ROOT` throws instead of silently resolving to `''`.
+needs `PDF_SHOP_DATA_DIR` throws instead of silently resolving to `''`.
 
 Start the dev server with:
 
@@ -64,9 +64,9 @@ end-to-end:
    `/download` in a browser, using a test card above.
 2. Generation happens outside this app — to actually see a document become
    downloadable, something must process the order record this app writes to
-   `DATA_ROOT` (see the `worker` package, which does this for local/manual
+   `PDF_SHOP_DATA_DIR` (see the `worker` package, which does this for local/manual
    testing via its own Postman collection). Point `worker` at the same
-   `DATA_ROOT` this app is using so both see the same files.
+   `PDF_SHOP_DATA_DIR` this app is using so both see the same files.
 3. Once generation has written its output, the download page's poller will
    pick it up automatically and the download button will appear.
 

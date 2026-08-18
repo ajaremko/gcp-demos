@@ -5,52 +5,41 @@ configuration, reading its logs, and debugging problems.
 
 ## Configuring the environment
 
-| Variable                             | Type                            | Purpose                                                | Visibility | Notes                                                                        |
-| ------------------------------------ | -------------------------------- | ------------------------------------------------------ | ---------- | ---------------------------------------------------------------------------- |
-| `DATA_ROOT`                          | `string` (path)                 | Filesystem location of document/payment records        | private    | Should point at the same storage the rest of the system reads and writes to. |
-| `STRIPE_SECRET_KEY`                  | `string`                        | Stripe secret key, server-side                         | secret     | Throws if unset at runtime                                                   |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | `string`                        | Stripe publishable key, client-side                    | public     | Required for Stripe Elements integration                                     |
-| `NODE_ENV`                           | `string`                        | Controls log format/verbosity, and Next's runtime mode | private    |                                                                              |
-| `PORT`                               | `number`                        | Port the server listens on                             | private    |                                                                              |
-| `LOG_LEVEL`                          | `enum`                          | Overrides the default pino level                       | private    | Defaults to `true` outside production                                        |
-| `PRETTY_PRINT_LOGS`                  | `boolean` (`"true"`/`"false"`)  | Whether logs are pretty-printed vs. JSON               | private    | Defaults to `true` outside production                                        |
+| Variable                             | Type      | Purpose                                                | Visibility | Notes                                                                        |
+| ------------------------------------ | --------- | ------------------------------------------------------ | ---------- | ---------------------------------------------------------------------------- |
+| `PDF_SHOP_DATA_DIR`                  | `string`  | Filesystem location of document/payment records        | private    | Should point at the same storage the rest of the system reads and writes to. |
+| `STRIPE_SECRET_KEY`                  | `string`  | Stripe secret key, server-side                         | secret     | Throws if unset at runtime                                                   |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | `string`  | Stripe publishable key, client-side                    | public     | Required for Stripe Elements integration                                     |
+| `NODE_ENV`                           | `string`  | Controls log format/verbosity, and Next's runtime mode | private    |                                                                              |
+| `PORT`                               | `number`  | Port the server listens on                             | private    |                                                                              |
+| `LOG_LEVEL`                          | `enum`    | Overrides the default pino level                       | private    | Defaults to `true` outside production                                        |
+| `PRETTY_PRINT_LOGS`                  | `boolean` | Whether logs are pretty-printed vs. JSON               | private    | Defaults to `true` outside production                                        |
 
 There is no other application-level configuration surface.
 
-## Interpreting logs
+## Logging
 
-All backend logging — `@org/pdf-shop-application` handler internals as well
-as this app's own pages, server actions, and API routes — goes through
-`pinoLogger`; nothing on the backend logs to `console.*`.
+pino's level is a threshold: whatever `LOG_LEVEL` is set to (see the table
+above) shows that level and everything more severe. Here's what's emitted
+at each level:
 
-By default, output is pretty-printed outside production and JSON in
-production; `PRETTY_PRINT_LOGS` overrides this independently of `NODE_ENV`
-(e.g. `PRETTY_PRINT_LOGS=false` for JSON output locally, or `=true` to get
-pretty output even with `NODE_ENV=production`).
+| Level   | Events logged                                                          |
+| ------- | ------------------------------------------------------------------------ |
+| `trace` | Application internals details                                            |
+| `debug` | Failure loading payment context, checking order status, or downloading   |
+| `info`  | _(nothing currently logs at this level)_                                 |
+| `warn`  | Failure creating a document or confirming a payment                      |
+| `error` | _(nothing currently logs at this level)_                                 |
 
-pino's level is a threshold: setting it to a given level shows that level
-and everything more severe. By default (`src/lib/pino.ts`) this app runs at
-one of two thresholds — `trace` in dev (`NODE_ENV` unset), `info` in
-production — unless `LOG_LEVEL` is set, which takes precedence over both.
-The table below shows what's visible at **the default** production level;
-if `LOG_LEVEL` is set, apply the same threshold rule directly against
-whatever level it's configured to instead:
+Application level failures carry a `tag` (which specific error occurred —
+see below) and `cause` (the underlying error, e.g. a filesystem error).
 
-| Level   | Shown in production? | Emitted by                                                                                                                                            |
-| ------- | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `trace` | No                   | `@org/pdf-shop-application` handler internals — Stripe calls, file reads/writes, and similar step-by-step detail                                      |
-| `debug` | No                   | `purchase/page.tsx`, `download/page.tsx`, `status/route.ts`, `download/route.ts` — a failure loading payment context, checking status, or downloading |
-| `info`  | Yes                  | _(nothing currently logs at this level)_                                                                                                              |
-| `warn`  | Yes                  | `create/actions.ts`, `purchase/actions.ts` — a failure creating a document or confirming a payment                                                    |
-| `error` | Yes                  | _(nothing currently logs at this level)_                                                                                                              |
-
-Browser-side (client component) code may log warnings and errors directly to the console.
+Browser-side (client component) code may log warnings and errors directly
+to the console.
 
 ## Debugging problems
 
-Each page/route that calls into `@org/pdf-shop-application` handles a
-handler failure differently — worth knowing which failure mode you're
-looking at before assuming the worst:
+The various page/route that call into `@org/pdf-shop-application` may each handle failure differently.
 
 - **Creating a document** (`/create`'s server action): a thrown
   `ApplicationError` is logged at `warn` — visible in production — and the
@@ -77,11 +66,11 @@ looking at before assuming the worst:
   `ApplicationError` is logged at `debug`; any other error (a validation
   failure, something unexpected) is not logged at all. Both collapse to the
   same generic `404 File not found` response either way. Don't take that
-  message literally; check `DATA_ROOT` directly for the document in
+  message literally; check `PDF_SHOP_DATA_DIR` directly for the document in
   question rather than trusting the response.
 
 When investigating a report of a stuck or failed document, the most direct
-approach is usually to check the document's records under `DATA_ROOT`
+approach is usually to check the document's records under `PDF_SHOP_DATA_DIR`
 directly (does `created.json` exist? `generated.json`? `paid.json`?) rather
 than relying on this app's logs alone, since several of its failure paths
 are intentionally quiet toward the end user.
