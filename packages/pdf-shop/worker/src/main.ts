@@ -22,8 +22,15 @@ const pinoDevConfig = {
   },
 }
 
+function resolveLogLevel(): string {
+  return (
+    process.env.LOG_LEVEL ??
+    (process.env.NODE_ENV === 'production' ? 'info' : 'trace')
+  )
+}
+
 const pinoLogger = pino({
-  level: process.env.NODE_ENV === 'production' ? 'info' : 'trace',
+  level: resolveLogLevel(),
   ...(process.env.NODE_ENV === 'production' ? {} : pinoDevConfig),
 }).child({
   service: 'pdf-shop-worker',

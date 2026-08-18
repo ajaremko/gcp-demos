@@ -15,6 +15,7 @@ Configuration is entirely via environment variables:
 | `DATA_ROOT` | Directory where document records live                                            | `/tmp/pdf-shop-worker-data` |
 | `PORT`      | Port the server listens on                                                       | `3333`                      |
 | `NODE_ENV`  | `production` for structured JSON logs; anything else for pretty-printed dev logs | unset (dev logs)            |
+| `LOG_LEVEL` | Overrides the default log level (`info` in production, `trace` otherwise)        | unset                       |
 
 `DATA_ROOT` defaults to `/tmp/pdf-shop-worker-data` automatically outside of
 production — the same path `worker-e2e`'s tests expect — so no `.env` is

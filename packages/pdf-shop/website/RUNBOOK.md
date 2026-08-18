@@ -7,11 +7,12 @@ configuration, reading its logs, and debugging problems.
 
 | Variable                             | Purpose                                                | Notes                                                                                                                                                |
 | ------------------------------------ | ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `DATA_ROOT`                          | Filesystem location of document/payment records        | Must point at the same storage location the rest of the system (e.g. `worker`) reads and writes to. If unset, resolves to `''` — effectively broken. |
-| `STRIPE_SECRET_KEY`                  | Stripe secret key, server-side                         | Required — `stripeClient` construction throws immediately at startup if unset.                                                                       |
+| `DATA_ROOT`                          | Filesystem location of document/payment records        | Must point at the same storage location the rest of the system (e.g. `worker`) reads and writes to. Outside production, unset falls back to `/tmp/pdf-shop-worker-data` (matching `worker`'s own default). **In production, a request that needs it throws** (`resolveDataRoot()`, called per-request, not at build/startup time) rather than silently resolving to `''`. |
+| `STRIPE_SECRET_KEY`                  | Stripe secret key, server-side                         | Required — `getStripeClient()` throws the first time it's called (lazily, on first request that needs Stripe) if unset, not at build or startup time. |
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe publishable key, client-side                    | Required for the purchase page to render its payment form; if unset, the purchase page throws when loaded.                                             |
 | `NODE_ENV`                           | Controls log format/verbosity, and Next's runtime mode | Set to `production` in production; the container image sets this.                                                                                    |
 | `PORT`                               | Port the server listens on                             | Read directly by Next's standalone `server.js`; in the container image this is injected by the deployment platform at runtime, not hardcoded.        |
+| `LOG_LEVEL`                          | Overrides the default pino level                       | Optional; if unset, defaults to `info` in production / `trace` otherwise. Must be a valid pino level (`trace`/`debug`/`info`/`warn`/`error`/`fatal`) — an invalid value makes the process throw at startup. |
 
 There is no other application-level configuration surface.
 
@@ -22,9 +23,12 @@ as this app's own pages, server actions, and API routes — goes through
 `pinoLogger`; nothing on the backend logs to `console.*`.
 
 pino's level is a threshold: setting it to a given level shows that level
-and everything more severe. This app only ever runs at one of two
-thresholds (`src/lib/pino.ts`) — `trace` in dev (`NODE_ENV` unset), `info`
-in production. Here's what's actually emitted at each level:
+and everything more severe. By default (`src/lib/pino.ts`) this app runs at
+one of two thresholds — `trace` in dev (`NODE_ENV` unset), `info` in
+production — unless `LOG_LEVEL` is set, which takes precedence over both.
+The table below shows what's visible at **the default** production level;
+if `LOG_LEVEL` is set, apply the same threshold rule directly against
+whatever level it's configured to instead:
 
 | Level   | Shown in production? | Emitted by                                                                                                                                           |
 | ------- | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |

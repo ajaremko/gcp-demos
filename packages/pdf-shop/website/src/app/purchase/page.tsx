@@ -5,6 +5,7 @@ import { GetPaymentContextHandler } from '@org/pdf-shop-application'
 import { PageShell, Card, Heading, Subheading } from '@/lib/ui'
 import { getStripeClient } from '@/lib/stripe'
 import { pinoLogger } from '@/lib/pino'
+import { resolveDataRoot } from '@/lib/dataRoot'
 import { documentIdSchema } from '@/lib/schemas'
 
 import { PurchaseDocumentForm } from './PurchaseDocumentForm'
@@ -27,7 +28,7 @@ export default async function PurchasePage({
 
   const handler = GetPaymentContextHandler({
     stripe: getStripeClient(),
-    dataRoot: process.env.DATA_ROOT ?? '',
+    dataRoot: resolveDataRoot(),
     logger: pinoLogger,
   })
 

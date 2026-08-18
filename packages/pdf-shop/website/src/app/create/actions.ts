@@ -9,6 +9,7 @@ import {
 
 import { getStripeClient } from '@/lib/stripe'
 import { pinoLogger } from '@/lib/pino'
+import { resolveDataRoot } from '@/lib/dataRoot'
 import { zodFieldErrors } from '@/lib/formErrors'
 
 import { documentSpecSchema } from './documentSpecSchema'
@@ -31,7 +32,7 @@ export async function createDocumentAction(
 
   const handler = OrderDocumentHandler({
     stripe: getStripeClient(),
-    dataRoot: process.env.DATA_ROOT ?? '',
+    dataRoot: resolveDataRoot(),
     logger: pinoLogger,
   })
 

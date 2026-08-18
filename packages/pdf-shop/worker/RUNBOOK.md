@@ -5,35 +5,45 @@ configuration, reading its logs, and debugging problems.
 
 ## Configuring the environment
 
-| Variable | Purpose | Notes |
-| --- | --- | --- |
+| Variable    | Purpose                                                                                                  | Notes                                                                                                                                                                                                                                                                                                                                 |
+| ----------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `DATA_ROOT` | Filesystem location of document records (`created.json`, `generated.txt`, `generated.json`, `paid.json`) | Must point at the same storage location the rest of the system reads and writes to. Outside production, unset falls back to `/tmp/pdf-shop-worker-data`. **In production (`NODE_ENV=production`), the process refuses to start if this is unset** — it throws immediately at startup rather than silently writing to the wrong place. |
-| `PORT` | Port the server listens on | Defaults to `3333` if unset. |
-| `NODE_ENV` | Controls log format and verbosity | Set to `production` in production. |
+| `PORT`      | Port the server listens on                                                                               | Defaults to `3333` if unset.                                                                                                                                                                                                                                                                                                          |
+| `NODE_ENV`  | Controls log format and verbosity                                                                        | Set to `production` in production.                                                                                                                                                                                                                                                                                                    |
+| `LOG_LEVEL` | Overrides the default pino level                                                                         | Optional; if unset, defaults to `info` in production / `trace` otherwise. Must be a valid pino level (`trace`/`debug`/`info`/`warn`/`error`/`fatal`) — an invalid value makes the process throw at startup.                                                                                                                          |
 
 There is no other configuration surface — no config file, no CLI flags.
 
 ## Interpreting logs
 
-With `NODE_ENV=production`, logs are single-line JSON at `info` level (via
-pino). Without it, logs are pretty-printed and colorized at `trace` level —
-appropriate for local development, not for production log ingestion.
+Every log line carries `service: 'pdf-shop-worker'` (`pinoLogger` is a
+`pino` child logger), for when logs are aggregated alongside `website`'s.
 
-**Important**: the only log line `worker` itself emits is on failure —
-`{ err, objectId }` with the message `'Failed to generate document'`, written
-just before a `500` response. Successful generations are logged by
-`@org/pdf-shop-application`'s internal functions at `trace` level, which
-`info`-level production logging does not surface. In other words: **a quiet
-worker is a healthy worker** — don't expect a log line per successful
-notification. If you need visibility into successful generations too,
-temporarily run with `NODE_ENV` unset (or otherwise lower the log level) to
-get `trace`-level output.
+pino's level is a threshold: setting it to a given level shows that level
+and everything more severe. By default (`src/main.ts`) `worker` runs at one
+of two thresholds — `trace` in dev (`NODE_ENV` unset), `info` in
+production — unless `LOG_LEVEL` is set, which takes precedence over both.
+The table below shows what's visible at **the default** production level;
+if `LOG_LEVEL` is set, apply the same threshold rule directly against
+whatever level it's configured to instead:
 
-On the one failure log line, `err` carries the full thrown error, including
-its `tag` (which specific error occurred — see below) and `cause` (the
-underlying error, e.g. a filesystem error). `objectId` is the Cloud Storage
-object path from the triggering notification, which is what to use to find
-the document in question.
+| Level   | Shown in production? | Emitted by                                                                                                                                                          |
+| ------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `trace` | No                   | `@org/pdf-shop-application` handler internals — file reads/writes and similar step-by-step detail during generation                                                 |
+| `debug` | No                   | Startup: the resolved `DATA_ROOT` value                                                                                                                             |
+| `info`  | Yes                  | Startup: the port the server is listening on                                                                                                                        |
+| `warn`  | Yes                  | A push notification that doesn't match the expected shape (wrong `eventType`, or an `objectId` not ending in `/created.json`) — acknowledged with `201` but ignored |
+| `error` | Yes                  | A failure generating a document — the one case that also produces a `500` response                                                                                  |
+
+On the `error`-level failure line, `err` carries the full thrown error,
+including its `tag` (which specific error occurred — see below) and `cause`
+(the underlying error, e.g. a filesystem error). `objectId` is the Cloud
+Storage object path from the triggering notification, which is what to use
+to find the document in question.
+
+One exception to all of the above: a fatal error binding the server's port
+(`server.on('error', ...)`) is logged with plain `console.error`, not
+pino — this only fires if the process fails to start listening at all.
 
 ## Debugging problems
 
@@ -45,8 +55,9 @@ real problem.
 
 To investigate a specific failure:
 
-1. Find the failure log line and read its `objectId` — this identifies the
-   document (and, from the Cloud Storage object path, the document id).
+1. Find the `error`-level failure log line and read its `objectId` — this
+   identifies the document (and, from the Cloud Storage object path, the
+   document id).
 2. Check `err.tag` to narrow down what went wrong:
    - `DocumentOrderNotFound` / `DocumentOrderInvalid` — the referenced order
      record isn't present or isn't readable yet at `DATA_ROOT`. This can

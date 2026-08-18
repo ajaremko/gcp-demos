@@ -1,5 +1,7 @@
 import { pino } from 'pino'
 
+import { resolveLogLevel } from './logLevel'
+
 const devConfig = {
   transport: {
     target: 'pino-pretty',
@@ -12,6 +14,6 @@ const devConfig = {
 }
 
 export const pinoLogger = pino({
-  level: process.env.NODE_ENV === 'production' ? 'info' : 'trace',
+  level: resolveLogLevel(),
   ...(process.env.NODE_ENV === 'production' ? {} : devConfig),
 })

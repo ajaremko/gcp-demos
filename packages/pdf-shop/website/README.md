@@ -32,6 +32,12 @@ defaults):
 | `STRIPE_SECRET_KEY` | Stripe sandbox secret key (server-side) |
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe sandbox publishable key (client-side) |
 | `NODE_ENV` | `production` for structured JSON logs; anything else for pretty-printed dev logs |
+| `LOG_LEVEL` | Overrides the default log level (`info` in production, `trace` otherwise) |
+
+Outside production, `DATA_ROOT` defaults to `/tmp/pdf-shop-worker-data` if
+unset — the same default `worker` uses, so both point at the same
+directory locally without needing `.env`. In production, a request that
+needs `DATA_ROOT` throws instead of silently resolving to `''`.
 
 Start the dev server with:
 

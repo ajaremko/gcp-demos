@@ -6,12 +6,8 @@ import {
 } from '@org/pdf-shop-application'
 
 import { pinoLogger } from '@/lib/pino'
+import { resolveDataRoot } from '@/lib/dataRoot'
 import { documentIdSchema } from '@/lib/schemas'
-
-const handler = CheckOrderStatusHandler({
-  dataRoot: process.env.DATA_ROOT ?? '',
-  logger: pinoLogger,
-})
 
 export async function GET(
   _request: Request,
@@ -20,6 +16,10 @@ export async function GET(
   const rawParams = await req.params
   try {
     const params = documentIdSchema.parse(rawParams)
+    const handler = CheckOrderStatusHandler({
+      dataRoot: resolveDataRoot(),
+      logger: pinoLogger,
+    })
     const ready = await handler(params)
     return Response.json({ ready })
   } catch (err) {

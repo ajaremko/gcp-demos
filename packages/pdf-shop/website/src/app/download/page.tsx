@@ -4,14 +4,10 @@ import { CheckOrderStatusHandler } from '@org/pdf-shop-application'
 
 import { PageShell, Card, Heading, Subheading } from '@/lib/ui'
 import { pinoLogger } from '@/lib/pino'
+import { resolveDataRoot } from '@/lib/dataRoot'
 import { documentIdSchema } from '@/lib/schemas'
 
 import { DownloadStatusPoller } from './download-status-poller'
-
-const handler = CheckOrderStatusHandler({
-  dataRoot: process.env.DATA_ROOT ?? '',
-  logger: pinoLogger,
-})
 
 export default async function DownloadPage({
   searchParams,
@@ -26,6 +22,10 @@ export default async function DownloadPage({
 
   let status: boolean | null = null
   if (parsed.success) {
+    const handler = CheckOrderStatusHandler({
+      dataRoot: resolveDataRoot(),
+      logger: pinoLogger,
+    })
     try {
       status = await handler(parsed.data)
     } catch (err) {
