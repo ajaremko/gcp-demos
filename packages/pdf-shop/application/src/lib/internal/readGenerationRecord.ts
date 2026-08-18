@@ -58,6 +58,10 @@ export function readGenerationRecord(env: {
       )
       return await readFile(recordPath, 'utf-8')
     } catch (err) {
+      logger.debug(
+        { documentId, path: env.dataRoot },
+        'Generated document record file could not be found',
+      )
       throw new GeneratedDocumentRecordNotFound(err)
     }
   }
@@ -67,6 +71,7 @@ export function readGenerationRecord(env: {
       const record = JSON.parse(raw)
       return generationRecordSchema.parse(record)
     } catch (err) {
+      logger.debug('Generated document record file is invalid')
       throw new GeneratedDocumentRecordInvalid(err)
     }
   }

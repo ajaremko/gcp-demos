@@ -60,6 +60,7 @@ export function readOrderRecord(env: { dataRoot: string; logger: Logger }) {
       logger.trace({ path: recordPath }, 'Reading document spec file')
       return await readFile(recordPath, 'utf-8')
     } catch (err) {
+      logger.debug(input, 'Document record file could not be found')
       throw new DocumentOrderNotFound(err)
     }
   }
@@ -69,6 +70,7 @@ export function readOrderRecord(env: { dataRoot: string; logger: Logger }) {
       const record = JSON.parse(raw)
       return orderRecordSchema.parse(record)
     } catch (err) {
+      logger.debug('Document record file is invalid')
       throw new DocumentOrderInvalid(err)
     }
   }

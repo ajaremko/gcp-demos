@@ -47,6 +47,7 @@ export function readDocumentStream(env: { logger: Logger }) {
       logger.trace({ path }, 'Reading generated document file stats')
       return await stat(path)
     } catch (err) {
+      logger.debug({ path }, 'Generated document file could not be found')
       throw new GeneratedDocumentNotFound(err)
     }
   }

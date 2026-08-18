@@ -52,6 +52,10 @@ export function readPaymentRecord(env: { dataRoot: string; logger: Logger }) {
       )
       return await readFile(recordPath, 'utf-8')
     } catch (err) {
+      logger.debug(
+        { documentId, path: env.dataRoot },
+        'Payment confirmation file could not be found',
+      )
       throw new PaymentConfirmationNotFound(err)
     }
   }
@@ -61,6 +65,7 @@ export function readPaymentRecord(env: { dataRoot: string; logger: Logger }) {
       const record = JSON.parse(raw)
       return paymentRecordSchema.parse(record)
     } catch (err) {
+      logger.debug('Payment confirmation file is invalid')
       throw new PaymentConfirmationInvalid(err)
     }
   }

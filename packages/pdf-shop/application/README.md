@@ -119,6 +119,28 @@ try {
 }
 ```
 
+## Logging
+
+Every handler and internal function takes a `logger` (a `pino` `Logger`)
+via `env`. Each factory creates a child logger scoped to that operation
+(`env.logger.child({ method: 'orderDocument' })`), and follows the same
+pattern throughout:
+
+- **`trace`** — one line per operation, right before it happens (a Stripe
+  call, a file read/write), with identifying context (`documentId`, the
+  path involved, etc.).
+- **`debug`** — one line per failure, right before the corresponding
+  `ApplicationError` subclass is thrown. The message matches that error
+  class's own constructor message; the fields are whatever identifying
+  context is available at that point — never the raw error itself.
+- Nothing is logged at `info`/`warn`/`error`/`fatal` levels. Consumers can
+  determine severity.
+
+The error object is not logged directly by this package. Instead its
+preserved on the thrown `ApplicationError`'s `cause` property (see
+[Error handling](#error-handling)) for the caller to log, at whatever
+level fits their context.
+
 ## Usage examples
 
 **Order a document and confirm payment:**

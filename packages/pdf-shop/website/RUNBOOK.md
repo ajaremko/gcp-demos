@@ -26,7 +26,7 @@ at each level:
 | Level   | Events logged                                                                                                   |
 | ------- | --------------------------------------------------------------------------------------------------------------- |
 | `trace` | Application internals details                                                                                   |
-| `debug` | Failure loading payment context, checking order status, or downloading                                          |
+| `debug` | Failure loading payment context, checking order status, or downloading; `@org/pdf-shop-application` failure context, logged immediately before it throws an `ApplicationError` |
 | `info`  | _(nothing currently logs at this level)_                                                                        |
 | `warn`  | Failure creating a document or confirming a payment                                                             |
 | `error` | _(nothing currently logs at this level)_                                                                        |
@@ -34,6 +34,7 @@ at each level:
 
 Application level failures carry a `tag` (which specific error occurred —
 see below) and `cause` (the underlying error, e.g. a filesystem error).
+See `@org/pdf-shop-application`'s own README for its full logging strategy.
 
 Browser-side (client component) code may log warnings and errors directly
 to the console.

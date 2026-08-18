@@ -69,6 +69,13 @@ export function generateDocument(env: { dataRoot: string; logger: Logger }) {
       await mkdir(outputDir, { recursive: true })
       return outputDir
     } catch (err) {
+      logger.debug(
+        {
+          documentId,
+          path: env.dataRoot,
+        },
+        'Failed to prepare output directory for document',
+      )
       throw new GeneratedDocumentDirectoryFailed(err)
     }
   }
@@ -91,6 +98,13 @@ export function generateDocument(env: { dataRoot: string; logger: Logger }) {
       await writeFile(generatedPath, generatedData, 'utf-8')
       return generatedPath
     } catch (err) {
+      logger.debug(
+        {
+          documentId,
+          path: outputDir,
+        },
+        'Failed to write generated document file',
+      )
       throw new GeneratedDocumentWriteFailed(err)
     }
   }
@@ -124,6 +138,13 @@ export function generateDocument(env: { dataRoot: string; logger: Logger }) {
 
       return record
     } catch (err) {
+      logger.debug(
+        {
+          documentId,
+          path: outputDir,
+        },
+        'Failed to write generation record',
+      )
       throw new GenerationRecordWriteFailed(err)
     }
   }

@@ -24,14 +24,15 @@ at each level:
 | Level   | Events logged                                                                          |
 | ------- | -------------------------------------------------------------------------------------- |
 | `trace` | Application internals details                                                          |
-| `debug` | Resolved environment vars                                                              |
+| `debug` | Resolved environment vars; `@org/pdf-shop-application` failure context, logged immediately before it throws an `ApplicationError` |
 | `info`  | Startup message                                                                        |
 | `warn`  | Message doesn't match the expected shape (ex. wrong `eventType`)                       |
 | `error` | Application level failures                                                             |
 | `fatal` | Express server errors; missing required configuration (crashes the process at startup) |
 
 Application level failures carry a `tag` (which specific error occurred — see below) and `cause`
-(the underlying error, e.g. a filesystem error).
+(the underlying error, e.g. a filesystem error). See `@org/pdf-shop-application`'s
+own README for its full logging strategy.
 
 ## Debugging problems
 

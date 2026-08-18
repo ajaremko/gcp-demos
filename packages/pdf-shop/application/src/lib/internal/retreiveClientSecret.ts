@@ -28,16 +28,17 @@ export class PaymentIntentRetrievalFailed extends ApplicationError {
  */
 export function retreiveClientSecret(env: { stripe: Stripe; logger: Logger }) {
   return async function (intentId: string): Promise<string | null> {
+    const logger = env.logger.child({
+      method: 'retreiveClientSecret',
+      paymentIntentId: intentId,
+    })
     try {
-      const logger = env.logger.child({
-        method: 'retreiveClientSecret',
-        paymentIntentId: intentId,
-      })
       logger.trace('Retrieving payment intent from Stripe')
       const intent = await env.stripe.paymentIntents.retrieve(intentId)
       const clientSecret = intent.client_secret ?? null
       return clientSecret
     } catch (err) {
+      logger.debug('Failed to retrieve payment intent from Stripe')
       throw new PaymentIntentRetrievalFailed(err)
     }
   }

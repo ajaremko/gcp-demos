@@ -75,6 +75,10 @@ export function purchaseDocument(env: {
       logger.trace({ paymentIntentId }, 'Retrieving payment intent from Stripe')
       return await env.stripe.paymentIntents.retrieve(paymentIntentId)
     } catch (err) {
+      logger.debug(
+        { paymentIntentId },
+        'Stripe payment intent could not be retrieved',
+      )
       throw new PaymentIntentNotFound(err)
     }
   }
@@ -101,6 +105,14 @@ export function purchaseDocument(env: {
         )
       }
     } catch (err) {
+      logger.debug(
+        {
+          documentId,
+          intentStatus: paymentIntent.status,
+          intentMetadata: paymentIntent.metadata,
+        },
+        'Stripe payment intent failed validation checks',
+      )
       throw new PaymentIntentInvalid(err)
     }
   }
@@ -135,6 +147,10 @@ export function purchaseDocument(env: {
 
       return record
     } catch (err) {
+      logger.debug(
+        { documentId, path: env.dataRoot },
+        'Failed to persist payment record to file',
+      )
       throw new PaymentRecordWriteFailed(err)
     }
   }

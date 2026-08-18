@@ -80,6 +80,10 @@ export function orderDocument(env: {
         currency: intent.currency,
       }
     } catch (err) {
+      logger.debug(
+        { documentId },
+        'Failed to create payment intent with Stripe',
+      )
       throw new PaymentIntentCreationFailed(err)
     }
   }
@@ -122,6 +126,10 @@ export function orderDocument(env: {
 
       return record
     } catch (err) {
+      logger.debug(
+        { documentId, path: env.dataRoot },
+        'Failed to write document record to file',
+      )
       throw new OrderRecordWriteFailed(err)
     }
   }
