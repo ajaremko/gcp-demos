@@ -171,3 +171,7 @@ const { stream, size, filename, contentType } = await DownloadDocumentHandler(
 ## Building
 
 Run `nx build pdf-shop-application` to build the library.
+
+## Testing
+
+Run `nx test pdf-shop-application` to run unit tests for the library.
