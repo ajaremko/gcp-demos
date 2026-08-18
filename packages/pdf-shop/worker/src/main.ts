@@ -25,6 +25,8 @@ const pinoDevConfig = {
 const pinoLogger = pino({
   level: process.env.NODE_ENV === 'production' ? 'info' : 'trace',
   ...(process.env.NODE_ENV === 'production' ? {} : pinoDevConfig),
+}).child({
+  service: 'pdf-shop-worker',
 })
 
 function resolveDataRoot(): string {
@@ -38,6 +40,8 @@ function resolveDataRoot(): string {
 }
 
 const dataRoot = resolveDataRoot()
+
+pinoLogger.debug({ dataRoot }, 'Resolved data root for document generation')
 
 const generateDocument = GenerateDocumentHandler({
   dataRoot,
@@ -54,6 +58,7 @@ app.post('/', async (req, res) => {
     !objectId.endsWith('/created.json')
   ) {
     // Not 422 because we want to avoid retrying the request
+    pinoLogger.warn({ objectId, eventType }, 'Unprocessable request received')
     res.status(201).send()
     return
   }
@@ -69,6 +74,6 @@ app.post('/', async (req, res) => {
 
 const port = process.env.PORT || 3333
 const server = app.listen(port, () => {
-  console.log(`Listening at http://localhost:${port}/api`)
+  pinoLogger.info(`Listening at http://localhost:${port}/api`)
 })
 server.on('error', console.error)
