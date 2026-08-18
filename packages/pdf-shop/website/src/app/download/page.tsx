@@ -32,6 +32,8 @@ export default async function DownloadPage({
       pinoLogger.debug({ err }, 'Failed to check order status')
       status = null
     }
+  } else {
+    pinoLogger.warn({ err: parsed.error }, 'Invalid document id')
   }
   const ready = Boolean(status)
 

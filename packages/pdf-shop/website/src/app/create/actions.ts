@@ -27,6 +27,7 @@ export async function createDocumentAction(
 
   const parsed = documentSpecSchema.safeParse(raw)
   if (!parsed.success) {
+    pinoLogger.warn({ err: parsed.error }, 'Invalid document spec')
     return { errors: zodFieldErrors(parsed.error) }
   }
 
@@ -38,11 +39,12 @@ export async function createDocumentAction(
 
   try {
     const result = await handler(parsed.data)
+    pinoLogger.info({ documentId: result.id }, 'Document order created')
     redirect(`/purchase?doc=${result.id}`)
   } catch (err) {
     // Handle filesystem and stripe integration errors
     if (isApplicationError(err)) {
-      pinoLogger.warn({ err }, 'Failed to create document')
+      pinoLogger.error({ err }, 'Failed to create document')
       return {
         errors: {},
         message:

@@ -1,5 +1,7 @@
 import { Readable } from 'node:stream'
 
+import { ZodError } from 'zod'
+
 import {
   DownloadDocumentHandler,
   isApplicationError,
@@ -21,6 +23,7 @@ export async function GET(
       logger: pinoLogger,
     })
     const result = await handler(params)
+    pinoLogger.info({ documentId: params.documentId }, 'Document downloaded')
     const webStream = Readable.toWeb(result.stream) as ReadableStream
     const headers = {
       'Content-Type': result.contentType ?? 'application/pdf',
@@ -31,6 +34,10 @@ export async function GET(
   } catch (err) {
     if (isApplicationError(err)) {
       pinoLogger.debug({ err }, 'Failed to download document')
+    } else if (err instanceof ZodError) {
+      pinoLogger.warn({ err }, 'Invalid document id')
+    } else {
+      pinoLogger.error({ err }, 'Unexpected error downloading document')
     }
     return new Response('File not found', { status: 404 })
   }

@@ -26,10 +26,10 @@ at each level:
 | Level   | Events logged                                                                                                                                                                  |
 | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `trace` | Application internals details                                                                                                                                                  |
-| `debug` | Failure loading payment context, checking order status, or downloading; `@org/pdf-shop-application` failure context, logged immediately before it throws an `ApplicationError` |
-| `info`  | _(nothing currently logs at this level)_                                                                                                                                       |
-| `warn`  | Failure creating a document or confirming a payment                                                                                                                            |
-| `error` | _(nothing currently logs at this level)_                                                                                                                                       |
+| `debug` | Checking order status (`download/page.tsx`, `status/route.ts`), or a handled failure downloading a document (`download/route.ts`); `@org/pdf-shop-application` failure context, logged immediately before it throws an `ApplicationError` |
+| `info`  | Document ordered, payment confirmed, or document downloaded                                                                                                                    |
+| `warn`  | Failure loading payment context; invalid input (document spec, purchase confirmation, or document id) submitted by a client                                                   |
+| `error` | Failure creating a document or confirming a payment; an unexpected error checking order status or downloading a document                                                      |
 | `fatal` | Missing required configuration (`PDF_SHOP_DATA_DIR`, `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`)                                                                |
 
 Application level failures carry a `tag` (which specific error occurred —
@@ -44,32 +44,37 @@ to the console.
 The various page/route that call into `@org/pdf-shop-application` may each handle failure differently.
 
 - **Creating a document** (`/create`'s server action): a thrown
-  `ApplicationError` is logged at `warn` — visible in production — and the
+  `ApplicationError` is logged at `error` — visible in production — and the
   user sees a generic retry message. A validation failure returns
-  field-level errors instead and isn't logged at all (it's normal user
-  input rejection, not a system problem).
-- **Loading the purchase page** (`/purchase`): any failure fetching payment
-  context — including the order simply not existing yet, or Stripe being
-  unreachable — is logged at `debug` (**not visible in production by
-  default**) and the page redirects the visitor back to `/create` to start
-  over.
-- **Confirming a payment** (`/purchase`'s server action): failures are
-  logged at `warn` (visible in production) — this is the one call site with
-  the most diagnosable logging of the six, since the message also includes
-  the specific `ApplicationError` tag (payment not found, invalid, or the
-  confirmation record failing to write).
+  field-level errors instead and is logged at `warn` (kept one level above
+  silence — it's normal user input rejection, not a system problem, but
+  still visible for spotting a pattern like a broken client).
+- **Loading the purchase page** (`/purchase`): a malformed `documentId` in
+  the URL is logged at `warn` before redirecting back to `/create`. Any
+  failure fetching payment context — including the order simply not
+  existing yet, or Stripe being unreachable — is logged at `warn` and the
+  page redirects the visitor back to `/create` to start over.
+- **Confirming a payment** (`/purchase`'s server action): a validation
+  failure on the submitted confirmation is logged at `warn`; a thrown
+  `ApplicationError` is logged at `error` (visible in production) — this is
+  the one call site with the most diagnosable logging of the six, since the
+  message also includes the specific `ApplicationError` tag (payment not
+  found, invalid, or the confirmation record failing to write).
 - **Polling status** (`/api/documents/[documentId]/status`): an
   `ApplicationError` is logged at `debug` before folding into the same
   `{ ready: false }` response as "not ready yet" — so it's not silent, but
   it also isn't visible in production by default. A document that is
   permanently broken still looks identical, from the response alone, to one
-  that's still processing.
+  that's still processing. A malformed `documentId` is logged at `warn`
+  instead; a genuinely unexpected error (neither of the above) is logged at
+  `error` — distinguishing a real bug from routine "not ready yet" polling.
 - **Downloading** (`/api/documents/[documentId]/download`): an
-  `ApplicationError` is logged at `debug`; any other error (a validation
-  failure, something unexpected) is not logged at all. Both collapse to the
-  same generic `404 File not found` response either way. Don't take that
-  message literally; check `PDF_SHOP_DATA_DIR` directly for the document in
-  question rather than trusting the response.
+  `ApplicationError` is logged at `debug`; a malformed `documentId` is
+  logged at `warn`; any other, genuinely unexpected error is logged at
+  `error`. All three collapse to the same generic `404 File not found`
+  response either way. Don't take that message literally; check
+  `PDF_SHOP_DATA_DIR` directly for the document in question rather than
+  trusting the response.
 
 When investigating a report of a stuck or failed document, the most direct
 approach is usually to check the document's records under `PDF_SHOP_DATA_DIR`

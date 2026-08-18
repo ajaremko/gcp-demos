@@ -23,6 +23,7 @@ export default async function PurchasePage({
 
   const parsed = documentIdSchema.safeParse({ documentId })
   if (!parsed.success) {
+    pinoLogger.warn({ err: parsed.error }, 'Invalid document id')
     redirect('/create')
   }
 
@@ -36,7 +37,7 @@ export default async function PurchasePage({
   try {
     document = await handler(parsed.data)
   } catch (error) {
-    pinoLogger.debug({ err: error }, 'Failed to load payment context')
+    pinoLogger.warn({ err: error }, 'Failed to load payment context')
     redirect('/create')
   }
 

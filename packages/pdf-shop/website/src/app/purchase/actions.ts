@@ -29,6 +29,7 @@ export async function purchaseDocumentAction(
 ): Promise<PurchaseDocumentActionState> {
   const parsed = purchaseDocumentSchema.safeParse(raw)
   if (!parsed.success) {
+    pinoLogger.warn({ err: parsed.error }, 'Invalid purchase confirmation')
     return { errors: zodFieldErrors(parsed.error) }
   }
 
@@ -43,7 +44,7 @@ export async function purchaseDocumentAction(
     const result = await handler(parsed.data)
     documentId = result.documentId
   } catch (err) {
-    pinoLogger.warn(
+    pinoLogger.error(
       { err, handler: 'purchaseDocumentAction' },
       'Failed to confirm payment',
     )
@@ -83,5 +84,6 @@ export async function purchaseDocumentAction(
     }
   }
 
+  pinoLogger.info({ documentId }, 'Payment confirmed')
   redirect(`/download?doc=${documentId}`)
 }

@@ -28,6 +28,7 @@ export async function GET(
       return Response.json({ ready: false })
     }
     if (err instanceof ZodError) {
+      pinoLogger.warn({ err }, 'Invalid document id')
       const issues = err.issues.map(
         (issue) => `${issue.path.join('.')}: ${issue.message}`,
       )
@@ -36,6 +37,7 @@ export async function GET(
         { status: 400 },
       )
     }
+    pinoLogger.error({ err }, 'Unexpected error checking order status')
     return Response.json({ ready: false })
   }
 }
