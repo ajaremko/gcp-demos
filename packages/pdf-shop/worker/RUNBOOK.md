@@ -21,14 +21,14 @@ pino's level is a threshold: whatever `LOG_LEVEL` is set to (see the table
 above) shows that level and everything more severe. Here's what's emitted
 at each level:
 
-| Level   | Events logged                                                    |
-| ------- | ---------------------------------------------------------------- |
-| `trace` | Application internals details                                    |
-| `debug` | Resolved environment vars                                        |
-| `info`  | Startup message                                                  |
-| `warn`  | Message doesn't match the expected shape (ex. wrong `eventType`) |
-| `error` | Application level failures                                       |
-| `fatal` | Express server errors                                            |
+| Level   | Events logged                                                                          |
+| ------- | -------------------------------------------------------------------------------------- |
+| `trace` | Application internals details                                                          |
+| `debug` | Resolved environment vars                                                              |
+| `info`  | Startup message                                                                        |
+| `warn`  | Message doesn't match the expected shape (ex. wrong `eventType`)                       |
+| `error` | Application level failures                                                             |
+| `fatal` | Express server errors; missing required configuration (crashes the process at startup) |
 
 Application level failures carry a `tag` (which specific error occurred — see below) and `cause`
 (the underlying error, e.g. a filesystem error).
@@ -65,9 +65,10 @@ To reproduce a failure locally: serve `worker`, then send a request from
 malformed at `PDF_SHOP_DATA_DIR`, and confirm the response and log line match what
 was observed.
 
-## What's not covered
+## Notes
 
 `GET /health` is a plain liveness check — it confirms the process is up
-and listening, nothing more. It does not check `PDF_SHOP_DATA_DIR`
-accessibility or otherwise verify the generation pipeline is actually
-working, so a `200` doesn't guarantee notifications will succeed.
+and listening. Doesn't guarantee notifications will succeed.
+
+See [`known-issues.md`](./known-issues.md) for a known gap in
+`PRETTY_PRINT_LOGS`/`LOG_LEVEL` misconfiguration logging.

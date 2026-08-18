@@ -23,13 +23,14 @@ pino's level is a threshold: whatever `LOG_LEVEL` is set to (see the table
 above) shows that level and everything more severe. Here's what's emitted
 at each level:
 
-| Level   | Events logged                                                          |
-| ------- | ------------------------------------------------------------------------ |
-| `trace` | Application internals details                                            |
-| `debug` | Failure loading payment context, checking order status, or downloading   |
-| `info`  | _(nothing currently logs at this level)_                                 |
-| `warn`  | Failure creating a document or confirming a payment                      |
-| `error` | _(nothing currently logs at this level)_                                 |
+| Level   | Events logged                                                                                                   |
+| ------- | --------------------------------------------------------------------------------------------------------------- |
+| `trace` | Application internals details                                                                                   |
+| `debug` | Failure loading payment context, checking order status, or downloading                                          |
+| `info`  | _(nothing currently logs at this level)_                                                                        |
+| `warn`  | Failure creating a document or confirming a payment                                                             |
+| `error` | _(nothing currently logs at this level)_                                                                        |
+| `fatal` | Missing required configuration (`PDF_SHOP_DATA_DIR`, `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`) |
 
 Application level failures carry a `tag` (which specific error occurred —
 see below) and `cause` (the underlying error, e.g. a filesystem error).
@@ -79,5 +80,7 @@ are intentionally quiet toward the end user.
 
 There is no automated test suite (unit or end-to-end) for this package.
 Confidence in a change relies on manual verification of the flow described
-in the [README](./README.md), plus `@org/pdf-shop-application`'s own test
-suite for the underlying business logic.
+in the [README](./README.md).
+
+See [`known-issues.md`](./known-issues.md) for a known gap in
+`PRETTY_PRINT_LOGS` misconfiguration logging.

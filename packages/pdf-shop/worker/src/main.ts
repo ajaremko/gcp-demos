@@ -54,7 +54,9 @@ function resolveDataRoot(): string {
     return process.env.PDF_SHOP_DATA_DIR
   }
   if (process.env.NODE_ENV === 'production') {
-    throw new Error('PDF_SHOP_DATA_DIR is not set')
+    const err = new Error('PDF_SHOP_DATA_DIR is not set')
+    pinoLogger.fatal({ err }, 'Missing required configuration')
+    throw err
   }
   return '/tmp/pdf-shop-data'
 }

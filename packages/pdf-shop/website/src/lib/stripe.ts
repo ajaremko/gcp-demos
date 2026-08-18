@@ -1,6 +1,8 @@
 import 'server-only'
 import Stripe from 'stripe'
 
+import { pinoLogger } from './pino'
+
 let stripeClient: Stripe | undefined
 
 export function getStripeClient() {
@@ -10,7 +12,9 @@ export function getStripeClient() {
 
   const key = process.env.STRIPE_SECRET_KEY
   if (!key) {
-    throw new Error('STRIPE_SECRET_KEY is not set')
+    const err = new Error('STRIPE_SECRET_KEY is not set')
+    pinoLogger.fatal({ err }, 'Missing required configuration')
+    throw err
   }
 
   // mjs/ejs mismatch workaround
