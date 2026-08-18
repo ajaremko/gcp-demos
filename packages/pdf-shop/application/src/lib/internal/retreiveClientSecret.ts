@@ -20,7 +20,6 @@ export function retreiveClientSecret(env: { stripe: Stripe; logger: Logger }) {
       logger.trace('Retrieving payment intent from Stripe')
       const intent = await env.stripe.paymentIntents.retrieve(intentId)
       const clientSecret = intent.client_secret ?? null
-      logger.trace('Retrieved payment intent from Stripe')
       return clientSecret
     } catch (err) {
       throw new PaymentIntentRetrievalFailed(err)

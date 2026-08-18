@@ -3,8 +3,9 @@ import path from 'node:path'
 import type Stripe from 'stripe'
 import { type Logger } from 'pino'
 
-import { type PaymentRecord } from './data/PaymentRecord'
 import { ApplicationError } from '../ApplicationError'
+
+import { type PaymentRecord } from './data/PaymentRecord'
 
 export class PaymentIntentNotFound extends ApplicationError {
   readonly tag = 'PaymentIntentNotFound'

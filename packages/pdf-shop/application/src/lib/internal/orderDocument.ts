@@ -11,12 +11,6 @@ import { type OrderRecord } from './data/OrderRecord'
 const DEMO_PRICE_CENTS = 999
 const DEMO_PRICE_CURRENCY = 'usd'
 
-type OrderDocument = {
-  colorScheme: 'light' | 'dark'
-  title: string
-  body: string
-}
-
 export class PaymentIntentCreationFailed extends ApplicationError {
   readonly tag = 'PaymentIntentCreationFailed'
   constructor(cause: unknown) {
@@ -66,9 +60,13 @@ export function orderDocument(env: {
     }
   }
 
-  async function writeDocumentRecord(
+  async function writeRecord(
     documentId: string,
-    input: OrderDocument,
+    spec: {
+      colorScheme: 'light' | 'dark'
+      title: string
+      body: string
+    },
     payment: { paymentIntentId: string; amount: number; currency: string },
   ) {
     try {
@@ -79,9 +77,9 @@ export function orderDocument(env: {
         id: documentId,
         createdAt: new Date().toISOString(),
         spec: {
-          colorScheme: input.colorScheme,
-          title: input.title,
-          body: input.body,
+          colorScheme: spec.colorScheme,
+          title: spec.title,
+          body: spec.body,
         },
         payment,
       }
@@ -104,10 +102,14 @@ export function orderDocument(env: {
     }
   }
 
-  return async function (input: OrderDocument): Promise<OrderRecord> {
+  return async function (input: {
+    colorScheme: 'light' | 'dark'
+    title: string
+    body: string
+  }): Promise<OrderRecord> {
     const documentId = randomUUID()
 
     const payment = await createPaymentIntent(documentId)
-    return writeDocumentRecord(documentId, input, payment)
+    return writeRecord(documentId, input, payment)
   }
 }

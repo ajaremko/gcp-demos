@@ -7,11 +7,6 @@ import { ApplicationError } from '../ApplicationError'
 import { type GenerationRecord } from './data/GenerationRecord'
 import { type DocumentSpec } from './data/DocumentSpec'
 
-type GenerateDocument = {
-  documentId: string
-  spec: DocumentSpec
-}
-
 export class GeneratedDocumentDirectoryFailed extends ApplicationError {
   readonly tag = 'GeneratedDocumentDirectoryFailed'
   constructor(cause: unknown) {
@@ -55,13 +50,17 @@ export function generateDocument(env: { dataRoot: string; logger: Logger }) {
     }
   }
 
-  async function writeDocument(outputDir: string, input: GenerateDocument) {
+  async function writeDocument(
+    outputDir: string,
+    documentId: string,
+    spec: DocumentSpec,
+  ) {
     try {
-      const generatedData = `Generated document for spec ${input.documentId}\n\n${JSON.stringify(input.spec, null, 2)}`
+      const generatedData = `Generated document for spec ${documentId}\n\n${JSON.stringify(spec, null, 2)}`
       const generatedPath = path.join(outputDir, `generated.txt`)
       logger.trace(
         {
-          documentId: input.documentId,
+          documentId,
           path: generatedPath,
         },
         'Writing generated document file',
@@ -76,13 +75,13 @@ export function generateDocument(env: { dataRoot: string; logger: Logger }) {
   async function writeRecord(
     outputDir: string,
     generatedPath: string,
-    input: GenerateDocument,
+    documentId: string,
   ) {
     try {
       const record: GenerationRecord = {
-        documentId: input.documentId,
+        documentId: documentId,
         path: generatedPath,
-        filename: `${input.documentId}.txt`,
+        filename: `${documentId}.txt`,
         contentType: 'text/plain',
         timestamp: new Date().toISOString(),
       }
@@ -106,9 +105,16 @@ export function generateDocument(env: { dataRoot: string; logger: Logger }) {
     }
   }
 
-  return async function (input: GenerateDocument): Promise<GenerationRecord> {
+  return async function (input: {
+    documentId: string
+    spec: DocumentSpec
+  }): Promise<GenerationRecord> {
     const outputDir = await prepareOutputDirectory(input.documentId)
-    const generatedPath = await writeDocument(outputDir, input)
-    return writeRecord(outputDir, generatedPath, input)
+    const generatedPath = await writeDocument(
+      outputDir,
+      input.documentId,
+      input.spec,
+    )
+    return writeRecord(outputDir, generatedPath, input.documentId)
   }
 }

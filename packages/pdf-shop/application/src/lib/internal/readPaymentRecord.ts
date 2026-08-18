@@ -1,6 +1,5 @@
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
-
 import { type Logger } from 'pino'
 
 import { ApplicationError } from '../ApplicationError'

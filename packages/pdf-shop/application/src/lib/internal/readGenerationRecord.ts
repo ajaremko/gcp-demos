@@ -31,7 +31,7 @@ export function readGenerationRecord(env: {
     method: 'readGenerationRecord',
   })
 
-  async function readRecordFile(documentId: string) {
+  async function readRecord(documentId: string) {
     try {
       const recordPath = path.join(env.dataRoot, documentId, 'generated.json')
       logger.trace(
@@ -56,7 +56,7 @@ export function readGenerationRecord(env: {
   return async function (input: {
     documentId: string
   }): Promise<GenerationRecord> {
-    const raw = await readRecordFile(input.documentId)
+    const raw = await readRecord(input.documentId)
     return parseRecord(raw)
   }
 }
