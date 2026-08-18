@@ -13,6 +13,10 @@ import { pinoLogger } from '@/lib/pino'
 import { resolveDataRoot } from '@/lib/dataRoot'
 import { zodFieldErrors } from '@/lib/formErrors'
 
+/**
+ * State shared by client and server to represent the
+ * result (failure) of the purchaseDocumentAction.
+ */
 export type PurchaseDocumentActionState = {
   errors: FieldErrors
   message?: string
@@ -23,6 +27,10 @@ const purchaseDocumentSchema = z.object({
   paymentIntentId: z.string(),
 })
 
+/**
+ * Server action to finalize a document purchase. Confirms the payment with Stripe and
+ * redirects the user to the download page.
+ */
 export async function purchaseDocumentAction(
   _prevState: PurchaseDocumentActionState,
   raw: { documentId: string; paymentIntentId: string },

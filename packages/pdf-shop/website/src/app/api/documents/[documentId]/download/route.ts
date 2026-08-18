@@ -11,6 +11,14 @@ import { pinoLogger } from '@/lib/pino'
 import { resolveDataRoot } from '@/lib/dataRoot'
 import { documentIdSchema } from '@/lib/schemas'
 
+/**
+ * GET /api/documents/[documentId]/download
+ * Checks if the document has been generated and paid for,
+ * and if so, streams the document back to the client for
+ * download.
+ * @returns A Response object containing the document stream
+ * or an error message.
+ */
 export async function GET(
   _request: Request,
   req: { params: Promise<{ documentId: string }> },

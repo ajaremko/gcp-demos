@@ -9,6 +9,11 @@ import { pinoLogger } from '@/lib/pino'
 import { resolveDataRoot } from '@/lib/dataRoot'
 import { documentIdSchema } from '@/lib/schemas'
 
+/**
+ * GET /api/documents/[documentId]/status
+ * Checks if the document is ready for download.
+ * @returns A Response object containing the status of the document or an error message.
+ */
 export async function GET(
   _request: Request,
   req: { params: Promise<{ documentId: string }> },

@@ -14,11 +14,19 @@ import { zodFieldErrors } from '@/lib/formErrors'
 
 import { documentSpecSchema } from './documentSpecSchema'
 
+/**
+ * State shared by client and server to represent the
+ * result (failure) of the createDocumentAction.
+ */
 export type CreateDocumentActionState = {
   errors: FieldErrors
   message?: string
 }
 
+/**
+ * Server action to order a new document. Creates the new order and
+ * redirects the user to the purchase page.
+ */
 export async function createDocumentAction(
   _prevState: CreateDocumentActionState,
   formData: FormData,
