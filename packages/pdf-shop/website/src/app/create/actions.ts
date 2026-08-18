@@ -11,7 +11,7 @@ import { stripeClient } from '@/lib/stripe'
 import { pinoLogger } from '@/lib/pino'
 import { zodFieldErrors } from '@/lib/formErrors'
 
-import { documentSpecSchema } from './schema'
+import { documentSpecSchema } from './documentSpecSchema'
 
 const handler = OrderDocumentHandler({
   stripe: stripeClient,
@@ -37,11 +37,11 @@ export async function createDocumentAction(
 
   try {
     const result = await handler(parsed.data)
-    redirect(`/payment?documentId=${result.id}`)
+    redirect(`/payment?doc=${result.id}`)
   } catch (err) {
     // Handle filesystem and stripe integration errors
     if (isApplicationError(err)) {
-      console.warn(err)
+      pinoLogger.warn({ err }, 'Failed to create document')
       return {
         errors: {},
         message:

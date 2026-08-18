@@ -1,6 +1,9 @@
 import { Readable } from 'node:stream'
 
-import { DownloadDocumentHandler } from '@org/pdf-shop-application'
+import {
+  DownloadDocumentHandler,
+  isApplicationError,
+} from '@org/pdf-shop-application'
 
 import { pinoLogger } from '@/lib/pino'
 import { documentIdSchema } from '@/lib/schemas'
@@ -25,7 +28,10 @@ export async function GET(
       'Content-Disposition': `attachment; filename="${result.filename ?? `${params.documentId}.pdf`}"`,
     }
     return new Response(webStream, { headers })
-  } catch {
+  } catch (err) {
+    if (isApplicationError(err)) {
+      pinoLogger.debug({ err }, 'Failed to download document')
+    }
     return new Response('File not found', { status: 404 })
   }
 }

@@ -24,6 +24,7 @@ export async function GET(
     return Response.json({ ready })
   } catch (err) {
     if (isApplicationError(err)) {
+      pinoLogger.debug({ err }, 'Failed to check order status')
       return Response.json({ ready: false })
     }
     if (err instanceof ZodError) {

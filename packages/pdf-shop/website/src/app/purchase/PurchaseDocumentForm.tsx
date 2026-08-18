@@ -16,7 +16,10 @@ import {
 
 import { Button, ErrorText } from '@/lib/ui'
 
-import { confirmPaymentAction, type ConfirmPaymentState } from './actions'
+import {
+  purchaseDocumentAction,
+  type PurchaseDocumentActionState,
+} from './actions'
 
 const Stack = styled.div`
   margin-bottom: ${(props) => props.theme.spacing(3)};
@@ -31,9 +34,9 @@ function getStripe(publishableKey: string) {
   return stripePromise
 }
 
-const initialConfirmState: ConfirmPaymentState = { errors: {} }
+const initialState: PurchaseDocumentActionState = { errors: {} }
 
-export function PaymentForm({
+export function PurchaseDocumentForm({
   documentId,
   clientSecret,
   publishableKey,
@@ -44,19 +47,22 @@ export function PaymentForm({
 }) {
   return (
     <Elements stripe={getStripe(publishableKey)} options={{ clientSecret }}>
-      <PaymentFormInner documentId={documentId} />
+      <PurchaseDocumentFormInner documentId={documentId} />
     </Elements>
   )
 }
 
-function PaymentFormInner({ documentId }: { documentId: string }) {
+function PurchaseDocumentFormInner({ documentId }: { documentId: string }) {
   const stripe = useStripe()
   const elements = useElements()
+  // Stripe error state
   const [submitError, setSubmitError] = useState<string | null>(null)
-  const [isConfirming, setIsConfirming] = useState(false)
-  const [confirmState, dispatchConfirm, isConfirmPending] = useActionState(
-    confirmPaymentAction,
-    initialConfirmState,
+  // Stripe payment state
+  const [paymentPending, setPaymentPending] = useState(false)
+  // Server action state
+  const [actionState, dispatchAction, isActionPending] = useActionState(
+    purchaseDocumentAction,
+    initialState,
   )
 
   async function handleSubmit(event: FormEvent) {
@@ -64,7 +70,7 @@ function PaymentFormInner({ documentId }: { documentId: string }) {
     if (!stripe || !elements) return
 
     setSubmitError(null)
-    setIsConfirming(true)
+    setPaymentPending(true)
 
     const { error, paymentIntent } = await stripe.confirmPayment({
       elements,
@@ -73,7 +79,7 @@ function PaymentFormInner({ documentId }: { documentId: string }) {
 
     if (error) {
       setSubmitError(error.message ?? 'Payment failed. Please try again.')
-      setIsConfirming(false)
+      setPaymentPending(false)
       return
     }
 
@@ -84,15 +90,15 @@ function PaymentFormInner({ documentId }: { documentId: string }) {
       // handler — it must be wrapped in startTransition explicitly, or
       // isPending/error state won't update correctly.
       startTransition(() => {
-        dispatchConfirm({ documentId, paymentIntentId: paymentIntent.id })
+        dispatchAction({ documentId, paymentIntentId: paymentIntent.id })
       })
     } else {
       setSubmitError('Payment was not completed.')
-      setIsConfirming(false)
+      setPaymentPending(false)
     }
   }
 
-  const pending = isConfirming || isConfirmPending
+  const pending = paymentPending || isActionPending
 
   return (
     <form onSubmit={handleSubmit}>
@@ -104,9 +110,9 @@ function PaymentFormInner({ documentId }: { documentId: string }) {
           <ErrorText>{submitError}</ErrorText>
         </Stack>
       )}
-      {confirmState.message && (
+      {actionState.message && (
         <Stack>
-          <ErrorText>{confirmState.message}</ErrorText>
+          <ErrorText>{actionState.message}</ErrorText>
         </Stack>
       )}
       <Button type="submit" disabled={!stripe || pending}>

@@ -1,6 +1,7 @@
 'use server'
 import { redirect } from 'next/navigation'
 import { type FieldErrors } from 'react-hook-form'
+import { z } from 'zod'
 
 import {
   isApplicationError,
@@ -11,24 +12,27 @@ import { stripeClient } from '@/lib/stripe'
 import { pinoLogger } from '@/lib/pino'
 import { zodFieldErrors } from '@/lib/formErrors'
 
-import { completePaymentSchema } from './schema'
-
 const handler = PurchaseDocumentHandler({
   stripe: stripeClient,
   dataRoot: process.env.DATA_ROOT ?? '',
   logger: pinoLogger,
 })
 
-export type ConfirmPaymentState = {
+export type PurchaseDocumentActionState = {
   errors: FieldErrors
   message?: string
 }
 
-export async function confirmPaymentAction(
-  _prevState: ConfirmPaymentState,
+const purchaseDocumentSchema = z.object({
+  documentId: z.uuid(),
+  paymentIntentId: z.string(),
+})
+
+export async function purchaseDocumentAction(
+  _prevState: PurchaseDocumentActionState,
   raw: { documentId: string; paymentIntentId: string },
-): Promise<ConfirmPaymentState> {
-  const parsed = completePaymentSchema.safeParse(raw)
+): Promise<PurchaseDocumentActionState> {
+  const parsed = purchaseDocumentSchema.safeParse(raw)
   if (!parsed.success) {
     return { errors: zodFieldErrors(parsed.error) }
   }
@@ -38,10 +42,10 @@ export async function confirmPaymentAction(
     const result = await handler(parsed.data)
     documentId = result.documentId
   } catch (err) {
-    console.warn({
-      error: err,
-      handler: 'confirmPaymentAction',
-    })
+    pinoLogger.warn(
+      { err, handler: 'purchaseDocumentAction' },
+      'Failed to confirm payment',
+    )
     // Handle filesystem and stripe integration errors
     if (isApplicationError(err)) {
       switch (err.tag) {
@@ -78,5 +82,5 @@ export async function confirmPaymentAction(
     }
   }
 
-  redirect(`/download?documentId=${documentId}`)
+  redirect(`/download?doc=${documentId}`)
 }

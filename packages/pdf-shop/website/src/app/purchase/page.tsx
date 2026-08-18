@@ -7,7 +7,7 @@ import { stripeClient } from '@/lib/stripe'
 import { pinoLogger } from '@/lib/pino'
 import { documentIdSchema } from '@/lib/schemas'
 
-import { PaymentForm } from './CompletePaymentForm'
+import { PurchaseDocumentForm } from './PurchaseDocumentForm'
 import { TestCards } from './TestCards'
 
 const handler = GetPaymentContextHandler({
@@ -16,27 +16,27 @@ const handler = GetPaymentContextHandler({
   logger: pinoLogger,
 })
 
-export default async function PaymentPage({
+export default async function PurchasePage({
   searchParams,
 }: {
-  searchParams: Promise<{ documentId?: string }>
+  searchParams: Promise<{ doc?: string }>
 }) {
-  const { documentId } = await searchParams
+  const { doc: documentId } = await searchParams
   if (!documentId) {
-    redirect('/spec')
+    redirect('/create')
   }
 
   const parsed = documentIdSchema.safeParse({ documentId })
   if (!parsed.success) {
-    redirect('/spec')
+    redirect('/create')
   }
 
   let document: Awaited<ReturnType<typeof handler>>
   try {
     document = await handler(parsed.data)
   } catch (error) {
-    console.error(error)
-    redirect('/spec')
+    pinoLogger.debug({ err: error }, 'Failed to load payment context')
+    redirect('/create')
   }
 
   const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
@@ -52,7 +52,7 @@ export default async function PaymentPage({
           One-time purchase — sandbox mode, no real charge.
         </Subheading>
         {document.clientSecret && (
-          <PaymentForm
+          <PurchaseDocumentForm
             documentId={document.documentId}
             clientSecret={document.clientSecret}
             publishableKey={publishableKey}

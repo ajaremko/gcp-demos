@@ -2,7 +2,7 @@
 import { useActionState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { documentSpecSchema, type DocumentSpec } from './schema'
+import { documentSpecSchema, type DocumentSpec } from './documentSpecSchema'
 import {
   Field,
   Label,

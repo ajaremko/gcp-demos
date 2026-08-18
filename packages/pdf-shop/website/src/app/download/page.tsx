@@ -16,11 +16,11 @@ const handler = CheckOrderStatusHandler({
 export default async function DownloadPage({
   searchParams,
 }: {
-  searchParams: Promise<{ documentId?: string }>
+  searchParams: Promise<{ doc?: string }>
 }) {
-  const { documentId } = await searchParams
+  const { doc: documentId } = await searchParams
   if (!documentId) {
-    redirect('/spec')
+    redirect('/create')
   }
   const parsed = documentIdSchema.safeParse({ documentId })
 
@@ -29,7 +29,7 @@ export default async function DownloadPage({
     try {
       status = await handler(parsed.data)
     } catch (err) {
-      console.warn(err)
+      pinoLogger.debug({ err }, 'Failed to check order status')
       status = null
     }
   }
