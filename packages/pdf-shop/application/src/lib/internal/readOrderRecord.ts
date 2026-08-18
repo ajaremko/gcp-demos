@@ -6,6 +6,7 @@ import { ApplicationError } from '../ApplicationError'
 
 import { type OrderRecord, orderRecordSchema } from './data/OrderRecord'
 
+/** The order record (`created.json`) could not be found. */
 export class DocumentOrderNotFound extends ApplicationError {
   readonly tag = 'DocumentOrderNotFound'
   constructor(cause: unknown) {
@@ -13,6 +14,7 @@ export class DocumentOrderNotFound extends ApplicationError {
   }
 }
 
+/** The order record file is not valid JSON or fails schema validation. */
 export class DocumentOrderInvalid extends ApplicationError {
   readonly tag = 'DocumentOrderInvalid'
   constructor(cause: unknown) {
@@ -20,6 +22,28 @@ export class DocumentOrderInvalid extends ApplicationError {
   }
 }
 
+/**
+ * Reads and validates an order record (`created.json`), addressed either by
+ * document id or by an exact file path.
+ *
+ * @param env.dataRoot - Root directory where per-document records are stored.
+ * @param env.logger - Logger; a child logger is created once per instantiation.
+ * @returns An async function that takes either `{documentId}` (resolved to
+ *   `<dataRoot>/<documentId>/created.json`) or `{path}` (an exact file path,
+ *   e.g. as delivered by a storage-change notification), and resolves to the
+ *   parsed {@link OrderRecord}.
+ * @throws {DocumentOrderNotFound} If the record file could not be found.
+ * @throws {DocumentOrderInvalid} If the file is not valid JSON or fails schema validation.
+ *
+ * @example
+ * const record = await readOrderRecord({ dataRoot, logger })({
+ *   documentId: '11111111-1111-4111-8111-111111111111',
+ * })
+ * // record.spec.title === 'Test Contract'
+ *
+ * // Equivalently, by exact path:
+ * // readOrderRecord({ dataRoot, logger })({ path: `${dataRoot}/.../created.json` })
+ */
 export function readOrderRecord(env: { dataRoot: string; logger: Logger }) {
   const logger = env.logger.child({
     method: 'readOrderRecord',

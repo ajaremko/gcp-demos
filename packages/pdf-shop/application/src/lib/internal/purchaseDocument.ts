@@ -7,6 +7,7 @@ import { ApplicationError } from '../ApplicationError'
 
 import { type PaymentRecord } from './data/PaymentRecord'
 
+/** The Stripe payment intent for the purchase could not be retrieved. */
 export class PaymentIntentNotFound extends ApplicationError {
   readonly tag = 'PaymentIntentNotFound'
   constructor(cause: unknown) {
@@ -14,6 +15,10 @@ export class PaymentIntentNotFound extends ApplicationError {
   }
 }
 
+/**
+ * The retrieved payment intent did not succeed, or its `documentId`
+ * metadata doesn't match the document being purchased.
+ */
 export class PaymentIntentInvalid extends ApplicationError {
   readonly tag = 'PaymentIntentInvalid'
   constructor(cause: unknown) {
@@ -21,6 +26,7 @@ export class PaymentIntentInvalid extends ApplicationError {
   }
 }
 
+/** The payment confirmation record (`paid.json`) could not be written to disk. */
 export class PaymentRecordWriteFailed extends ApplicationError {
   readonly tag = 'PaymentRecordWriteFailed'
   constructor(cause: unknown) {
@@ -33,6 +39,28 @@ type PurchaseDocument = {
   paymentIntentId: string
 }
 
+/**
+ * Confirms a document purchase: retrieves the Stripe payment intent, checks
+ * that it succeeded and belongs to the given document, then writes a
+ * payment confirmation record (`paid.json`).
+ *
+ * @param env.stripe - Stripe client used to retrieve the payment intent.
+ * @param env.dataRoot - Root directory where per-document records are stored.
+ * @param env.logger - Logger; a child logger is created once per instantiation.
+ * @returns An async function that takes `{documentId, paymentIntentId}` and
+ *   resolves to the written {@link PaymentRecord}.
+ * @throws {PaymentIntentNotFound} If Stripe fails to retrieve the payment intent.
+ * @throws {PaymentIntentInvalid} If the intent did not succeed, or its
+ *   metadata `documentId` doesn't match the one being purchased.
+ * @throws {PaymentRecordWriteFailed} If the payment record cannot be written to disk.
+ *
+ * @example
+ * const record = await purchaseDocument({ stripe, dataRoot, logger })({
+ *   documentId: '11111111-1111-4111-8111-111111111111',
+ *   paymentIntentId: 'pi_1',
+ * })
+ * // record.stripePaymentIntentId === 'pi_1'
+ */
 export function purchaseDocument(env: {
   stripe: Stripe
   dataRoot: string

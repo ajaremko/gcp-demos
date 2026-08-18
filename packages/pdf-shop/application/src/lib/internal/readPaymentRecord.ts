@@ -6,6 +6,7 @@ import { ApplicationError } from '../ApplicationError'
 
 import { type PaymentRecord, paymentRecordSchema } from './data/PaymentRecord'
 
+/** The payment confirmation record (`paid.json`) could not be found. */
 export class PaymentConfirmationNotFound extends ApplicationError {
   readonly tag = 'PaymentConfirmationNotFound'
   constructor(cause: unknown) {
@@ -13,6 +14,7 @@ export class PaymentConfirmationNotFound extends ApplicationError {
   }
 }
 
+/** The payment confirmation record file is not valid JSON or fails schema validation. */
 export class PaymentConfirmationInvalid extends ApplicationError {
   readonly tag = 'PaymentConfirmationInvalid'
   constructor(cause: unknown) {
@@ -20,6 +22,22 @@ export class PaymentConfirmationInvalid extends ApplicationError {
   }
 }
 
+/**
+ * Reads and validates a document's payment confirmation record (`paid.json`).
+ *
+ * @param env.dataRoot - Root directory where per-document records are stored.
+ * @param env.logger - Logger; a child logger is created once per instantiation.
+ * @returns An async function that takes `{documentId}` and resolves to the
+ *   parsed {@link PaymentRecord}.
+ * @throws {PaymentConfirmationNotFound} If the record file could not be found.
+ * @throws {PaymentConfirmationInvalid} If the file is not valid JSON or fails schema validation.
+ *
+ * @example
+ * const record = await readPaymentRecord({ dataRoot, logger })({
+ *   documentId: '11111111-1111-4111-8111-111111111111',
+ * })
+ * // record.stripePaymentIntentId === 'pi_1'
+ */
 export function readPaymentRecord(env: { dataRoot: string; logger: Logger }) {
   const logger = env.logger.child({
     method: 'readPaymentRecord',

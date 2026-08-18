@@ -7,6 +7,7 @@ import { ApplicationError } from '../ApplicationError'
 import { type GenerationRecord } from './data/GenerationRecord'
 import { type DocumentSpec } from './data/DocumentSpec'
 
+/** The document's output directory could not be created. */
 export class GeneratedDocumentDirectoryFailed extends ApplicationError {
   readonly tag = 'GeneratedDocumentDirectoryFailed'
   constructor(cause: unknown) {
@@ -14,6 +15,7 @@ export class GeneratedDocumentDirectoryFailed extends ApplicationError {
   }
 }
 
+/** The generated document content could not be written to disk. */
 export class GeneratedDocumentWriteFailed extends ApplicationError {
   readonly tag = 'GeneratedDocumentWriteFailed'
   constructor(cause: unknown) {
@@ -21,6 +23,7 @@ export class GeneratedDocumentWriteFailed extends ApplicationError {
   }
 }
 
+/** The generation record (`generated.json`) could not be written to disk. */
 export class GenerationRecordWriteFailed extends ApplicationError {
   readonly tag = 'GenerationRecordWriteFailed'
   constructor(cause: unknown) {
@@ -28,6 +31,26 @@ export class GenerationRecordWriteFailed extends ApplicationError {
   }
 }
 
+/**
+ * Generates a document's content from its spec and writes both the
+ * generated file (`generated.txt`) and its metadata record (`generated.json`)
+ * under the document's directory.
+ *
+ * @param env.dataRoot - Root directory where per-document records are stored.
+ * @param env.logger - Logger; a child logger is created once per instantiation.
+ * @returns An async function that takes `{documentId, spec}` (`spec` is a
+ *   {@link DocumentSpec}) and resolves to the written {@link GenerationRecord}.
+ * @throws {GeneratedDocumentDirectoryFailed} If the document's output directory cannot be prepared.
+ * @throws {GeneratedDocumentWriteFailed} If the generated content cannot be written to disk.
+ * @throws {GenerationRecordWriteFailed} If the generation record cannot be written to disk.
+ *
+ * @example
+ * const record = await generateDocument({ dataRoot, logger })({
+ *   documentId: '11111111-1111-4111-8111-111111111111',
+ *   spec: { colorScheme: 'dark', title: 'Test Contract', body: 'Body text' },
+ * })
+ * // record.filename === '11111111-1111-4111-8111-111111111111.txt'
+ */
 export function generateDocument(env: { dataRoot: string; logger: Logger }) {
   const logger = env.logger.child({
     method: 'generateDocument',

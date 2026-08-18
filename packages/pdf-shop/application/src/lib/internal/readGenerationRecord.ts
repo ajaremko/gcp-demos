@@ -9,6 +9,7 @@ import {
   generationRecordSchema,
 } from './data/GenerationRecord'
 
+/** The generation record (`generated.json`) could not be found. */
 export class GeneratedDocumentRecordNotFound extends ApplicationError {
   readonly tag = 'GeneratedDocumentRecordNotFound'
   constructor(cause: unknown) {
@@ -16,6 +17,7 @@ export class GeneratedDocumentRecordNotFound extends ApplicationError {
   }
 }
 
+/** The generation record file is not valid JSON or fails schema validation. */
 export class GeneratedDocumentRecordInvalid extends ApplicationError {
   readonly tag = 'GeneratedDocumentRecordInvalid'
   constructor(cause: unknown) {
@@ -23,6 +25,22 @@ export class GeneratedDocumentRecordInvalid extends ApplicationError {
   }
 }
 
+/**
+ * Reads and validates a document's generation record (`generated.json`).
+ *
+ * @param env.dataRoot - Root directory where per-document records are stored.
+ * @param env.logger - Logger; a child logger is created once per instantiation.
+ * @returns An async function that takes `{documentId}` and resolves to the
+ *   parsed {@link GenerationRecord}.
+ * @throws {GeneratedDocumentRecordNotFound} If the record file could not be found.
+ * @throws {GeneratedDocumentRecordInvalid} If the file is not valid JSON or fails schema validation.
+ *
+ * @example
+ * const record = await readGenerationRecord({ dataRoot, logger })({
+ *   documentId: '11111111-1111-4111-8111-111111111111',
+ * })
+ * // record.contentType === 'text/plain'
+ */
 export function readGenerationRecord(env: {
   dataRoot: string
   logger: Logger
