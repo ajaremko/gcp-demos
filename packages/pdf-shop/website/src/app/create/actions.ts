@@ -7,17 +7,11 @@ import {
   OrderDocumentHandler,
 } from '@org/pdf-shop-application'
 
-import { stripeClient } from '@/lib/stripe'
+import { getStripeClient } from '@/lib/stripe'
 import { pinoLogger } from '@/lib/pino'
 import { zodFieldErrors } from '@/lib/formErrors'
 
 import { documentSpecSchema } from './documentSpecSchema'
-
-const handler = OrderDocumentHandler({
-  stripe: stripeClient,
-  dataRoot: process.env.DATA_ROOT ?? '',
-  logger: pinoLogger,
-})
 
 export type CreateDocumentActionState = {
   errors: FieldErrors
@@ -35,9 +29,15 @@ export async function createDocumentAction(
     return { errors: zodFieldErrors(parsed.error) }
   }
 
+  const handler = OrderDocumentHandler({
+    stripe: getStripeClient(),
+    dataRoot: process.env.DATA_ROOT ?? '',
+    logger: pinoLogger,
+  })
+
   try {
     const result = await handler(parsed.data)
-    redirect(`/payment?doc=${result.id}`)
+    redirect(`/purchase?doc=${result.id}`)
   } catch (err) {
     // Handle filesystem and stripe integration errors
     if (isApplicationError(err)) {

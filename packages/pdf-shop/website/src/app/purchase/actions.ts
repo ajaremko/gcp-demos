@@ -8,15 +8,9 @@ import {
   PurchaseDocumentHandler,
 } from '@org/pdf-shop-application'
 
-import { stripeClient } from '@/lib/stripe'
+import { getStripeClient } from '@/lib/stripe'
 import { pinoLogger } from '@/lib/pino'
 import { zodFieldErrors } from '@/lib/formErrors'
-
-const handler = PurchaseDocumentHandler({
-  stripe: stripeClient,
-  dataRoot: process.env.DATA_ROOT ?? '',
-  logger: pinoLogger,
-})
 
 export type PurchaseDocumentActionState = {
   errors: FieldErrors
@@ -36,6 +30,12 @@ export async function purchaseDocumentAction(
   if (!parsed.success) {
     return { errors: zodFieldErrors(parsed.error) }
   }
+
+  const handler = PurchaseDocumentHandler({
+    stripe: getStripeClient(),
+    dataRoot: process.env.DATA_ROOT ?? '',
+    logger: pinoLogger,
+  })
 
   let documentId: string
   try {

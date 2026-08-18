@@ -3,18 +3,12 @@ import { redirect } from 'next/navigation'
 import { GetPaymentContextHandler } from '@org/pdf-shop-application'
 
 import { PageShell, Card, Heading, Subheading } from '@/lib/ui'
-import { stripeClient } from '@/lib/stripe'
+import { getStripeClient } from '@/lib/stripe'
 import { pinoLogger } from '@/lib/pino'
 import { documentIdSchema } from '@/lib/schemas'
 
 import { PurchaseDocumentForm } from './PurchaseDocumentForm'
 import { TestCards } from './TestCards'
-
-const handler = GetPaymentContextHandler({
-  stripe: stripeClient,
-  dataRoot: process.env.DATA_ROOT ?? '',
-  logger: pinoLogger,
-})
 
 export default async function PurchasePage({
   searchParams,
@@ -30,6 +24,12 @@ export default async function PurchasePage({
   if (!parsed.success) {
     redirect('/create')
   }
+
+  const handler = GetPaymentContextHandler({
+    stripe: getStripeClient(),
+    dataRoot: process.env.DATA_ROOT ?? '',
+    logger: pinoLogger,
+  })
 
   let document: Awaited<ReturnType<typeof handler>>
   try {
