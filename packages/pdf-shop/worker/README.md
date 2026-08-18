@@ -1,10 +1,17 @@
 # pdf-shop-worker
 
-An Express service that receives Cloud Storage change notifications via a
-Pub/Sub push subscription and triggers document generation in response. When
-a `created.json` order record is finalized in storage, `worker` reads it and
-generates the document's content using `@org/pdf-shop-application`'s
-`GenerateDocumentHandler`.
+An Express service that generates ordered pdf documents asynchronously. The server is
+designed to receive Cloud Storage change notifications via a Pub/Sub push subscription.
+
+When an order record is finalized in storage, `worker` reads it, generates the
+document's content and writes a record containing metadata about the generated file.
+
+## Routes
+
+| Path          | Purpose                                                      |
+| ------------- | ------------------------------------------------------------ |
+| `POST /`      | Receives Cloud Storage change notifications via Pub/Sub push |
+| `GET /health` | Health check                                                 |
 
 ## Local setup
 

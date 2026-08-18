@@ -1,5 +1,4 @@
 import express from 'express'
-import * as path from 'path'
 
 import { GenerateDocumentHandler } from '@org/pdf-shop-application'
 
@@ -9,7 +8,9 @@ const app = express()
 
 app.use(express.json())
 
-app.use('/assets', express.static(path.join(__dirname, 'assets')))
+app.get('/health', (_req, res) => {
+  res.status(200).json({ status: 'ok' })
+})
 
 const prettyPrintConfig = {
   transport: {

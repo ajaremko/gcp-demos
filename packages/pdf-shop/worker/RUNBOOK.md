@@ -67,6 +67,7 @@ was observed.
 
 ## What's not covered
 
-There is no dedicated health or readiness endpoint today — only `POST /` and
-a static `GET /assets`. Liveness currently has to be inferred from whether
-the process is running and listening, not from a request/response check.
+`GET /health` is a plain liveness check — it confirms the process is up
+and listening, nothing more. It does not check `PDF_SHOP_DATA_DIR`
+accessibility or otherwise verify the generation pipeline is actually
+working, so a `200` doesn't guarantee notifications will succeed.

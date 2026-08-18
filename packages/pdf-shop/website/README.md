@@ -1,10 +1,9 @@
 # pdf-shop-website
 
-A Next.js app implementing the pdf-shop demo flow: describe a document, pay
-for it with a Stripe sandbox account, and download the generated PDF once
-it's ready. It's a thin UI/routing layer over `@org/pdf-shop-application` —
-every page and API route constructs a handler from that package and calls
-it; documents and payments are persisted to the filesystem under `PDF_SHOP_DATA_DIR`.
+A Next.js app that allows users to order, pay for and download customized documents.
+Users can provide customization options (for demonstration) for the document and then
+checkout with Stripe while their document is waiting for creation. Once the user has
+paid and their document is ready, they can download their file.
 
 Document _generation_ itself happens outside this app, asynchronously, once
 an order is placed — this app only polls for and serves the result once it
@@ -20,6 +19,7 @@ exists.
 | `/download?doc=`                       | Polls readiness, then offers the download      |
 | `/api/documents/[documentId]/status`   | Polled by the download page                    |
 | `/api/documents/[documentId]/download` | Streams the generated file                     |
+| `/api/health`                          | Health check                                   |
 
 ## Local setup
 
