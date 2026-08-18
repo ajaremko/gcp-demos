@@ -5,15 +5,15 @@ configuration, reading its logs, and debugging problems.
 
 ## Configuring the environment
 
-| Variable                             | Purpose                                                | Type                           | Visibility | Notes                                                                        |
-| ------------------------------------ | ------------------------------------------------------ | ------------------------------ | ---------- | ---------------------------------------------------------------------------- |
-| `DATA_ROOT`                          | Filesystem location of document/payment records        | `string` (path)                | private    | Should point at the same storage the rest of the system reads and writes to. |
-| `STRIPE_SECRET_KEY`                  | Stripe secret key, server-side                         | `string`                       | secret     | Throws if unset at runtime                                                   |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe publishable key, client-side                    | `string`                       | public     | Required for Stripe Elements integration                                     |
-| `NODE_ENV`                           | Controls log format/verbosity, and Next's runtime mode | `string`                       | private    |                                                                              |
-| `PORT`                               | Port the server listens on                             | `number`                       | private    |                                                                              |
-| `LOG_LEVEL`                          | Overrides the default pino level                       | `enum`                         | private    | Defaults to `true` outside production                                        |
-| `PRETTY_PRINT_LOGS`                  | Whether logs are pretty-printed vs. JSON               | `boolean` (`"true"`/`"false"`) | private    | Defaults to `true` outside production                                        |
+| Variable                             | Type                            | Purpose                                                | Visibility | Notes                                                                        |
+| ------------------------------------ | -------------------------------- | ------------------------------------------------------ | ---------- | ---------------------------------------------------------------------------- |
+| `DATA_ROOT`                          | `string` (path)                 | Filesystem location of document/payment records        | private    | Should point at the same storage the rest of the system reads and writes to. |
+| `STRIPE_SECRET_KEY`                  | `string`                        | Stripe secret key, server-side                         | secret     | Throws if unset at runtime                                                   |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | `string`                        | Stripe publishable key, client-side                    | public     | Required for Stripe Elements integration                                     |
+| `NODE_ENV`                           | `string`                        | Controls log format/verbosity, and Next's runtime mode | private    |                                                                              |
+| `PORT`                               | `number`                        | Port the server listens on                             | private    |                                                                              |
+| `LOG_LEVEL`                          | `enum`                          | Overrides the default pino level                       | private    | Defaults to `true` outside production                                        |
+| `PRETTY_PRINT_LOGS`                  | `boolean` (`"true"`/`"false"`)  | Whether logs are pretty-printed vs. JSON               | private    | Defaults to `true` outside production                                        |
 
 There is no other application-level configuration surface.
 

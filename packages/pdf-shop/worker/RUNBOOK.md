@@ -5,13 +5,13 @@ configuration, reading its logs, and debugging problems.
 
 ## Configuring the environment
 
-| Variable            | Purpose                                  | Type      | Visibility | Notes                                                                        |
-| ------------------- | ---------------------------------------- | --------- | ---------- | ---------------------------------------------------------------------------- |
-| `DATA_ROOT`         | Filesystem location of document records  | `string`  | private    | Should point at the same storage the rest of the system reads and writes to. |
-| `PORT`              | Port the server listens on               | `number`  | private    | Defaults to `3333`                                                           |
-| `NODE_ENV`          | Controls log format and verbosity        | `string`  | private    |                                                                              |
-| `LOG_LEVEL`         | Overrides the default pino level         | `enum`    | private    | Defaults to `true` outside production                                        |
-| `PRETTY_PRINT_LOGS` | Whether logs are pretty-printed vs. JSON | `boolean` | private    | Defaults to `true` outside production                                        |
+| Variable            | Type      | Purpose                                  | Visibility | Notes                                                                        |
+| ------------------- | --------- | ----------------------------------------- | ---------- | ---------------------------------------------------------------------------- |
+| `DATA_ROOT`         | `string`  | Filesystem location of document records  | private    | Should point at the same storage the rest of the system reads and writes to. |
+| `PORT`              | `number`  | Port the server listens on               | private    | Defaults to `3333`                                                           |
+| `NODE_ENV`          | `string`  | Controls log format and verbosity        | private    |                                                                              |
+| `LOG_LEVEL`         | `enum`    | Overrides the default pino level         | private    | Defaults to `true` outside production                                        |
+| `PRETTY_PRINT_LOGS` | `boolean` | Whether logs are pretty-printed vs. JSON | private    | Defaults to `true` outside production                                        |
 
 There is no other configuration surface — no config file, no CLI flags.
 
