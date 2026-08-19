@@ -1,6 +1,6 @@
 config:
-  core:project: gcp-demos-505417
-  core:region: us-central1
-  core:githubOrg: ajaremko
-  core:githubRepo: gcp-demos
-  core:workloadIdentityPoolId: shared-identity-pool-01
+  project: gcp-demos-505417
+  region: us-central1
+  githubOrg: ajaremko
+  githubRepo: gcp-demos
+  workloadIdentityPoolId: shared-identity-pool-01
