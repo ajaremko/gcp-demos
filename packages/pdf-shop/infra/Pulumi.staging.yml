@@ -2,5 +2,5 @@ config:
   project: gcp-demos-505417
   region: us-central1
   sharedStackName: alfredsyoung/gcp-demos-shared-infra
-  websiteImageTag: pdf-shop-website
-  workerImageTag: pdf-shop-worker
+  websiteImageTag: 2608.19.973c3ee-hotfix
+  workerImageTag: 2608.19.973c3ee-hotfix

@@ -5,7 +5,7 @@ import { provider } from '../project'
 import { secretManagerService } from '../services'
 
 export const stripeSecretKeySecret = new gcp.secretmanager.Secret(
-  `${tag}-stripe-secret-key`,
+  `${tag}-stripe-secret-key-secret`,
   {
     secretId: 'website-stripe-secret-key',
     labels,
