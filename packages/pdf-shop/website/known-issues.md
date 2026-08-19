@@ -29,3 +29,21 @@ This is a known, dev-only artifact of the Stripe.js + React StrictMode interacti
 **Decision:** Leave as-is. The uncaught exception already names the bad value clearly; a workaround (a temporary bootstrap logger constructed before validation) would add complexity for a startup-only, immediately-visible failure.
 
 **If this ever needs to be fixed:** Validate `PRETTY_PRINT_LOGS` (and construct a minimal fallback logger to log the failure with) before constructing `pinoLogger` proper.
+
+## The Docker image crashes if `PRETTY_PRINT_LOGS=true` (or `NODE_ENV` isn't `production`)
+
+**Error:**
+
+```
+Error: unable to determine transport target for "pino-pretty"
+```
+
+**Where:** Startup, inside the built Docker image specifically (confirmed by running `dist/main.js` in a directory with no reachable `node_modules`, matching what the container actually provides).
+
+**Root cause:** `webpack.config.js` sets `externalDependencies: 'none'` so `nx build` produces a fully self-contained `dist/main.js` (required — see the Dockerfile's own comment for why). That bundles `pino` itself, but `pino-pretty` is a `devDependency`, never bundled or installed in the image. pino loads its `pino-pretty` transport dynamically at runtime (not a static `require` webpack can bundle), so if `resolvePrettyPrintLogs()` ever resolves to `true` inside the container, pino tries to load a module that genuinely isn't there and crashes immediately. Outside the image (`nx serve`, or `node dist/main.js` run somewhere with a real `node_modules` alongside it), this doesn't happen — `pino-pretty` is actually installed and resolvable there.
+
+The Dockerfile sets `ENV NODE_ENV=production`, which makes `resolvePrettyPrintLogs()` default to `false` — so this doesn't happen in normal use. It only bites if something overrides that: `docker run -e NODE_ENV=development ...`, or explicitly `-e PRETTY_PRINT_LOGS=true`.
+
+**Decision:** Leave as-is. Pretty-printed logs were never meant for a production container regardless (see `RUNBOOK.md`'s "Logging" section) — this just means an attempt to force them here fails loudly instead of silently doing nothing.
+
+**If this ever needs to be fixed:** Bundle `pino-pretty` as a real (non-dev) dependency so it's included in the self-contained build too, accepting the extra bundle size purely for this dynamic-load path to resolve. Not worth it today for a code path the image is never meant to use.
