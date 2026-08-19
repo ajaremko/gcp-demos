@@ -38,12 +38,26 @@ This is a known, dev-only artifact of the Stripe.js + React StrictMode interacti
 Error: unable to determine transport target for "pino-pretty"
 ```
 
-**Where:** Startup, inside the built Docker image specifically (confirmed by running `dist/main.js` in a directory with no reachable `node_modules`, matching what the container actually provides).
+**Where:** Startup, inside the built Docker image specifically — confirmed by inspecting the actual image (`docker run --rm <image> ls .../node_modules`), which has no `pino-pretty` present, matching what the standalone container actually provides.
 
-**Root cause:** `webpack.config.js` sets `externalDependencies: 'none'` so `nx build` produces a fully self-contained `dist/main.js` (required — see the Dockerfile's own comment for why). That bundles `pino` itself, but `pino-pretty` is a `devDependency`, never bundled or installed in the image. pino loads its `pino-pretty` transport dynamically at runtime (not a static `require` webpack can bundle), so if `resolvePrettyPrintLogs()` ever resolves to `true` inside the container, pino tries to load a module that genuinely isn't there and crashes immediately. Outside the image (`nx serve`, or `node dist/main.js` run somewhere with a real `node_modules` alongside it), this doesn't happen — `pino-pretty` is actually installed and resolvable there.
+**Root cause:** `next.config.js` sets `output: 'standalone'`, and Next's standalone build only bundles/installs the _production_ dependencies actually needed to run — `pino-pretty` is a `devDependency`, so it's never installed there. pino loads its `pino-pretty` transport dynamically at runtime (not a static `require` the build can trace/bundle), so if `resolvePrettyPrintLogs()` ever resolves to `true` inside the container, pino tries to load a module that genuinely isn't there and crashes immediately. Outside the image (`nx dev`, or `node .next/standalone/.../server.js` run somewhere with a real `node_modules` alongside it), this doesn't happen — `pino-pretty` is actually installed and resolvable there.
 
-The Dockerfile sets `ENV NODE_ENV=production`, which makes `resolvePrettyPrintLogs()` default to `false` — so this doesn't happen in normal use. It only bites if something overrides that: `docker run -e NODE_ENV=development ...`, or explicitly `-e PRETTY_PRINT_LOGS=true`.
+The Dockerfile sets `ENV NODE_ENV=production`, and `.next/standalone/.../server.js` also unconditionally sets `process.env.NODE_ENV = 'production'` itself at startup — so `resolvePrettyPrintLogs()` defaults to `false` in normal use. It only bites if something overrides that: `docker run -e PRETTY_PRINT_LOGS=true ...`, or — a real incident, not just a hypothetical — the standalone build's own `.env`-copying behavior setting it implicitly; see the next entry.
 
 **Decision:** Leave as-is. Pretty-printed logs were never meant for a production container regardless (see `RUNBOOK.md`'s "Logging" section) — this just means an attempt to force them here fails loudly instead of silently doing nothing.
 
-**If this ever needs to be fixed:** Bundle `pino-pretty` as a real (non-dev) dependency so it's included in the self-contained build too, accepting the extra bundle size purely for this dynamic-load path to resolve. Not worth it today for a code path the image is never meant to use.
+**If this ever needs to be fixed:** Bundle `pino-pretty` as a real (non-dev) dependency so it's included in the standalone build too, accepting the extra bundle size purely for this dynamic-load path to resolve. Not worth it today for a code path the image is never meant to use.
+
+## Next.js's `output: 'standalone'` build silently copies `.env` files into the build output
+
+**Error:** None directly — this is the _mechanism_ behind the entry above actually firing in production, and (more seriously) a secrets-leak vector: any secret present in a local `.env` ends up copied into `.next/standalone/packages/pdf-shop/website/.env`, and from there into any Docker image whose `COPY`/`.dockerignore` isn't specifically written to exclude it. This means the `.env` file can end up inside the deployed Cloud Run image.
+
+**Where:** `next build`'s `output: 'standalone'` mode (`next.config.js`).
+
+**Root cause:** Undocumented (or at least not prominently documented) Next.js behavior — the standalone output tracer copies `.env*` files it finds alongside the traced entry point into the output directory, apparently on the assumption a deployer might want them available at runtime. It doesn't distinguish a _local-dev-only_ `.env` (this project's convention, per `README.md`/`RUNBOOK.md`) from one genuinely meant for the deployed target.
+
+`website/.dockerignore`'s `.env*` entry does **not** guard against this — confirmed empirically (built the image, inspected it, the file was present). A bare pattern like `.env*` only matches at the build-context _root_, unlike `.gitignore`'s default recursive-by-basename matching; it has no effect on this nested, build-generated copy several directories deep.
+
+**Decision:** `website/Dockerfile`'s standalone copy step uses BuildKit's `COPY --exclude=**/.env*` (requires the `# syntax=docker/dockerfile:1` directive at the top of the file) instead of relying on `.dockerignore` or a copy-then-`rm` — this prevents `.env` from ever entering an image layer at all.
+
+**If this ever needs to be fixed differently:** if a future Next.js version adds a supported config option to disable this auto-copy behavior, prefer that over the Dockerfile-level `--exclude` workaround. Worth re-checking on any Next.js major/minor upgrade.

@@ -17,6 +17,9 @@
     },
     {
       "path": "./packages/shared/infra"
+    },
+    {
+      "path": "./packages/pdf-shop/infra"
     }
   ],
   "compilerOptions": {}
