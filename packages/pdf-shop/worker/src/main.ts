@@ -94,7 +94,7 @@ app.post('/', async (req, res) => {
 
 const port = process.env.PORT || 3333
 const server = app.listen(port, () => {
-  pinoLogger.info(`Listening at http://localhost:${port}/api`)
+  pinoLogger.info(`Listening at http://localhost:${port}`)
 })
 
 server.on('error', (err) => {
