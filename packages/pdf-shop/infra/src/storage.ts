@@ -6,7 +6,7 @@ import { storageService } from './services'
 import { provider } from './project'
 
 export const dataBucket = new gcp.storage.Bucket(
-  `${tag}-bucket`,
+  `${tag}-data-bucket`,
   {
     location: gcpRegion,
     uniformBucketLevelAccess: true,

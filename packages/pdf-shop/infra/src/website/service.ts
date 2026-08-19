@@ -1,7 +1,6 @@
 import * as gcp from '@pulumi/gcp'
 
 import {
-  gcpProject,
   gcpRegion,
   websiteImageTag,
   tag,
@@ -12,6 +11,7 @@ import { cloudRunService } from '../services'
 import { provider } from '../project'
 import { getImageUrl } from '../getImageUrl'
 import { cloudRunArtifactRegistryReader } from '../iam'
+import { dataBucket } from '../storage'
 
 import { iamBindings, websiteServiceAccount } from './service-account'
 import { stripeSecretKeySecret } from './stripe'
@@ -36,7 +36,16 @@ export const websiteService = new gcp.cloudrunv2.Service(
     location: gcpRegion,
     deletionProtection,
     template: {
+      executionEnvironment: 'EXECUTION_ENVIRONMENT_GEN2',
       serviceAccount: websiteServiceAccount.email,
+      volumes: [
+        {
+          name: 'data',
+          gcs: {
+            bucket: dataBucket.name,
+          },
+        },
+      ],
       containers: [
         {
           image: getImageUrl('pdf-shop-website', websiteImageTag),
@@ -59,6 +68,12 @@ export const websiteService = new gcp.cloudrunv2.Service(
               value: 'trace',
             },
             ...stripeSecretKeySecretMount,
+          ],
+          volumeMounts: [
+            {
+              name: 'data',
+              mountPath: '/tmp/data',
+            },
           ],
         },
       ],

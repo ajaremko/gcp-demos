@@ -1,11 +1,11 @@
 import * as gcp from '@pulumi/gcp'
 import * as pulumi from '@pulumi/pulumi'
 
-import { provider, gcsAccount } from '../project'
-import { tag, labels } from '../config'
-import { pubsubService } from '../services'
+import { provider, gcsAccount } from './project'
+import { tag, labels } from './config'
+import { pubsubService } from './services'
 
-import { dataBucket } from '../storage'
+import { dataBucket } from './storage'
 
 export const documentOrdersTopic = new gcp.pubsub.Topic(
   `${tag}-document-orders-topic`,

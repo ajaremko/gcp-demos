@@ -1,11 +1,11 @@
 import {
-  workerSubmissionSubscription,
+  workerOrdersSubscription,
   workerDeadletterTopic,
   workerDeadletterTopicArchiveSubscription,
   workerInvokerServiceAccount,
 } from './subscription'
 
-export const workerSubscriptionName = workerSubmissionSubscription.name
+export const workerSubscriptionName = workerOrdersSubscription.name
 export const workerDeadletterTopicName = workerDeadletterTopic.name
 export const workerDeadletterTopicArchiveSubscriptionName =
   workerDeadletterTopicArchiveSubscription.name

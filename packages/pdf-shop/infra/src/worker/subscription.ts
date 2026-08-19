@@ -8,7 +8,7 @@ import {
 import { labels, gcpRegion, tag } from '../config'
 import { provider, pubsubServiceAccountEmail } from '../project'
 import { pubsubService } from '../services'
-import { documentOrdersTopicName } from '../website'
+import { documentOrdersTopic } from '../topic'
 
 import { workerService } from './service'
 
@@ -64,10 +64,10 @@ const pubsubServiceAccountPublisher = new gcp.pubsub.TopicIAMMember(
 
 // create the subscription with a deadletter policy that
 // sends failed messages to the deadletter topic
-export const workerSubmissionSubscription = new gcp.pubsub.Subscription(
-  `${tag}-submission-subscription`,
+export const workerOrdersSubscription = new gcp.pubsub.Subscription(
+  `${tag}-orders-subscription`,
   {
-    topic: documentOrdersTopicName,
+    topic: documentOrdersTopic.name,
     deadLetterPolicy: {
       deadLetterTopic: workerDeadletterTopic.id,
       maxDeliveryAttempts: 5,
@@ -77,7 +77,7 @@ export const workerSubmissionSubscription = new gcp.pubsub.Subscription(
       maximumBackoff: '600s',
     },
     pushConfig: {
-      pushEndpoint: pulumi.interpolate`${workerService.uri}/submissions`,
+      pushEndpoint: pulumi.interpolate`${workerService.uri}`,
       oidcToken: {
         serviceAccountEmail: workerInvokerServiceAccount.email,
       },
@@ -99,11 +99,11 @@ export const workerSubmissionSubscription = new gcp.pubsub.Subscription(
 )
 
 // grant the pubsub service account permissions to access the subscription
-const pubsubServiceAccountSubmissionSubscriber =
+const pubsubServiceAccountOrdersSubscriber =
   new gcp.pubsub.SubscriptionIAMMember(
-    `${tag}-pubsub-sa-worker-submission-subscriber`,
+    `${tag}-pubsub-sa-worker-orders-subscriber`,
     {
-      subscription: workerSubmissionSubscription.name,
+      subscription: workerOrdersSubscription.name,
       role: 'roles/pubsub.subscriber',
       member: pulumi.interpolate`serviceAccount:${pubsubServiceAccountEmail}`,
     },
@@ -130,7 +130,7 @@ export const workerDeadletterTopicArchiveSubscription =
     {
       dependsOn: [
         pubsubServiceAccountPublisher,
-        pubsubServiceAccountSubmissionSubscriber,
+        pubsubServiceAccountOrdersSubscriber,
         ...pubsubServiceAccountIamRoles,
       ],
       provider,

@@ -6,7 +6,3 @@ import { stripeSecretKeySecret } from './stripe'
 
 export const stripeSecretKeySecretId = stripeSecretKeySecret.secretId
 export const stripeSecretKeySecretName = stripeSecretKeySecret.name
-
-import { documentOrdersTopic } from './topic'
-
-export const documentOrdersTopicName = documentOrdersTopic.name
