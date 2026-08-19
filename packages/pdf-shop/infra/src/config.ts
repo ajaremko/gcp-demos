@@ -10,6 +10,9 @@ export const gcpProject = config.require('project')
 export const gcpRegion = config.require('region')
 export const websiteImageTag = config.require('websiteImageTag')
 export const workerImageTag = config.require('workerImageTag')
+export const stripeSecretKeySecretVersion = config.get(
+  'stripeSecretKeySecretVersion',
+)
 
 export const labels: Record<string, string> = {
   env: stackName,

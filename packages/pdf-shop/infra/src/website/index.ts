@@ -3,10 +3,10 @@ import { websiteService } from './service'
 export const websiteServiceUrl = websiteService.statuses[0].url
 export const websiteServiceName = websiteService.name
 
-import { stripeSecretKey } from './stripe'
+import { stripeSecretKeySecret } from './stripe'
 
-export const stripeSecretKeySecretId = stripeSecretKey.secretId
-export const stripeSecretKeyName = stripeSecretKey.name
+export const stripeSecretKeySecretId = stripeSecretKeySecret.secretId
+export const stripeSecretKeySecretName = stripeSecretKeySecret.name
 
 import { documentOrdersTopic } from './topic'
 

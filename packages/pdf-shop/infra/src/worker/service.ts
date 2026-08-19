@@ -18,7 +18,25 @@ export const workerService = new gcp.cloudrunv2.Service(
       containers: [
         {
           image: getImageUrl('pdf-shop-worker', workerImageTag),
-          envs: [],
+          startupProbe: {
+            initialDelaySeconds: 10,
+            periodSeconds: 5,
+            failureThreshold: 3,
+            timeoutSeconds: 3,
+            httpGet: {
+              path: '/health',
+            },
+          },
+          envs: [
+            {
+              name: 'PDF_SHOP_DATA_DIR',
+              value: '/tmp/data',
+            },
+            {
+              name: 'LOG_LEVEL',
+              value: 'trace',
+            },
+          ],
         },
       ],
     },

@@ -4,7 +4,7 @@ import { tag, labels } from '../config'
 import { provider } from '../project'
 import { secretManagerService } from '../services'
 
-export const stripeSecretKey = new gcp.secretmanager.Secret(
+export const stripeSecretKeySecret = new gcp.secretmanager.Secret(
   `${tag}-stripe-secret-key`,
   {
     secretId: 'website-stripe-secret-key',
