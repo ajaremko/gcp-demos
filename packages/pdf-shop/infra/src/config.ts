@@ -10,6 +10,7 @@ export const gcpProject = config.require('project')
 export const gcpRegion = config.require('region')
 export const websiteImageTag = config.require('websiteImageTag')
 export const workerImageTag = config.require('workerImageTag')
+export const deletionProtection = config.requireBoolean('deletionProtection')
 export const stripeSecretKeySecretVersion = config.get(
   'stripeSecretKeySecretVersion',
 )

@@ -1,6 +1,5 @@
 import { websiteService } from './service'
 
-export const websiteServiceUrl = websiteService.statuses[0].url
 export const websiteServiceName = websiteService.name
 
 import { stripeSecretKeySecret } from './stripe'

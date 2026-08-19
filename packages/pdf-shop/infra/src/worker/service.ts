@@ -1,6 +1,6 @@
 import * as gcp from '@pulumi/gcp'
 
-import { gcpRegion, tag, workerImageTag } from '../config'
+import { deletionProtection, gcpRegion, tag, workerImageTag } from '../config'
 import { cloudRunArtifactRegistryReader } from '../iam'
 import { cloudRunService } from '../services'
 import { getImageUrl } from '../getImageUrl'
@@ -12,7 +12,7 @@ export const workerService = new gcp.cloudrunv2.Service(
   `${tag}-worker-service`,
   {
     location: gcpRegion,
-    deletionProtection: false,
+    deletionProtection,
     template: {
       serviceAccount: workerServiceAccount.email,
       containers: [

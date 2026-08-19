@@ -6,6 +6,7 @@ import {
   websiteImageTag,
   tag,
   stripeSecretKeySecretVersion,
+  deletionProtection,
 } from '../config'
 import { cloudRunService } from '../services'
 import { provider } from '../project'
@@ -29,44 +30,38 @@ const stripeSecretKeySecretMount = stripeSecretKeySecretVersion
     ]
   : []
 
-export const websiteService = new gcp.cloudrun.Service(
+export const websiteService = new gcp.cloudrunv2.Service(
   `${tag}-website-service`,
   {
     location: gcpRegion,
-    metadata: {
-      namespace: gcpProject,
-      annotations: {},
-    },
+    deletionProtection,
     template: {
-      spec: {
-        serviceAccountName: websiteServiceAccount.email,
-        volumes: [],
-        containers: [
-          {
-            image: getImageUrl('pdf-shop-website', websiteImageTag),
-            startupProbe: {
-              initialDelaySeconds: 10,
-              periodSeconds: 5,
-              failureThreshold: 3,
-              timeoutSeconds: 3,
-              httpGet: {
-                path: '/api/health',
-              },
+      serviceAccount: websiteServiceAccount.email,
+      containers: [
+        {
+          image: getImageUrl('pdf-shop-website', websiteImageTag),
+          startupProbe: {
+            initialDelaySeconds: 10,
+            periodSeconds: 5,
+            failureThreshold: 3,
+            timeoutSeconds: 3,
+            httpGet: {
+              path: '/api/health',
             },
-            envs: [
-              {
-                name: 'PDF_SHOP_DATA_DIR',
-                value: '/tmp/data',
-              },
-              {
-                name: 'LOG_LEVEL',
-                value: 'trace',
-              },
-              ...stripeSecretKeySecretMount,
-            ],
           },
-        ],
-      },
+          envs: [
+            {
+              name: 'PDF_SHOP_DATA_DIR',
+              value: '/tmp/data',
+            },
+            {
+              name: 'LOG_LEVEL',
+              value: 'trace',
+            },
+            ...stripeSecretKeySecretMount,
+          ],
+        },
+      ],
     },
   },
   {

@@ -4,3 +4,5 @@ config:
   sharedStackName: alfredsyoung/gcp-demos-shared-infra
   websiteImageTag: 2608.19.9a9a34d-hotfix
   workerImageTag: 2608.19.9a9a34d-hotfix
+  deletionProtection: false
+  stripeSecretKeySecretVersion: 1

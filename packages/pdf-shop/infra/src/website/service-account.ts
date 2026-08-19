@@ -1,10 +1,11 @@
 import * as gcp from '@pulumi/gcp'
 import * as pulumi from '@pulumi/pulumi'
 
+import { dataBucket } from '../storage'
 import { tag } from '../config'
 import { provider } from '../project'
 
-import { dataBucket } from '../storage'
+import { stripeSecretKeySecret } from './stripe'
 
 export const websiteServiceAccount = new gcp.serviceaccount.Account(
   `${tag}-website-sa`,
@@ -35,7 +36,19 @@ export const bucketObjectViewerBinding = new gcp.storage.BucketIAMMember(
   { provider },
 )
 
+export const stripeSecretKeySecretAccessorBinding =
+  new gcp.secretmanager.SecretIamMember(
+    `${tag}-website-stripe-secret-key-accessor`,
+    {
+      secretId: stripeSecretKeySecret.secretId,
+      role: 'roles/secretmanager.secretAccessor',
+      member: pulumi.interpolate`serviceAccount:${websiteServiceAccount.email}`,
+    },
+    { provider },
+  )
+
 export const iamBindings = [
   bucketObjectCreatorBinding,
   bucketObjectViewerBinding,
+  stripeSecretKeySecretAccessorBinding,
 ]
