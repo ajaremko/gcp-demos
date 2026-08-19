@@ -101,6 +101,32 @@
       }
     }
   ],
+
+  "release": {
+    "releaseTag": {
+      "pattern": "release/{projectName}/{version}"
+    },
+    "changelog": {
+      "automaticFromRef": true
+    },
+    "docker": {
+      "versionSchemes": {
+        "staging": "{currentDate|YYMM.DD}.{shortCommitSha}",
+        "hotfix": "{currentDate|YYMM.DD}.{shortCommitSha}-hotfix"
+      },
+      "preVersionCommand": "npx nx run-many --target=docker:build"
+    },
+    "groups": {
+      "pdf-shop": {
+        "projects": ["pdf-shop-*"],
+        "projectsRelationship": "independent",
+        "docker": {
+          "registryUrl": "${DOCKER_REGISTRY}",
+          "skipVersionActions": true
+        }
+      }
+    }
+  },
   "analytics": true,
   "generators": {
     "@nx/next": {

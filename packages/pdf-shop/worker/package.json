@@ -59,6 +59,11 @@
           }
         }
       }
+    },
+    "release": {
+      "docker": {
+        "repositoryName": "pdf-shop-worker"
+      }
     }
   },
   "dependencies": {

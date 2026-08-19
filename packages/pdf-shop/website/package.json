@@ -3,7 +3,12 @@
   "version": "0.0.1",
   "private": true,
   "nx": {
-    "name": "pdf-shop-website"
+    "name": "pdf-shop-website",
+    "release": {
+      "docker": {
+        "repositoryName": "pdf-shop-website"
+      }
+    }
   },
   "dependencies": {
     "@hookform/resolvers": "^5.7.1",
