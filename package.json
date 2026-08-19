@@ -2,7 +2,9 @@
   "name": "@org/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "release": ". ./scripts/release-setup.sh && npx ts-node ./scripts/release-group.ts"
+  },
   "private": true,
   "devDependencies": {
     "@eslint/js": "^9.8.0",

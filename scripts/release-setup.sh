@@ -4,7 +4,12 @@
 # It retrieves necessary configuration from Pulumi, sets environment variables, and configures 
 # Docker authentication for GCP.
 
-# Usage: source ./release-hotfix.sh 
+# Usage: source ./release-setup.sh
+#
+# Meant to be sourced (not executed) so its exports land in the caller's
+# shell. The `cd` needed to read the Pulumi stack is scoped to a subshell
+# below rather than done as a top-level `cd`, so sourcing this script never
+# changes the caller's working directory.
 
 STACK_NAME=staging
 
@@ -12,9 +17,7 @@ STACK_NAME=staging
 
 echo "Preparing to release $STACK_NAME images..."
 
-cd packages/shared/infra
-
-OUT="$(pulumi stack output --json --stack=$STACK_NAME)"
+OUT="$(cd packages/shared/infra && pulumi stack output --json --stack=$STACK_NAME)"
 
 RELEASE_PROJECT="$(echo "$OUT" | jq -r '.gcpProject')"
 DOCKER_REGISTRY="$(echo "$OUT" | jq -r '.artifactRegistryUri')"

@@ -2,56 +2,27 @@
 
 A workspace for small demo applications deployed to GCP via IaC.
 
-## Generate a library
+## Releasing Docker images
+
+Docker images are released via [Nx release](https://nx.dev/docs/features/manage-releases), configured under `release` in `nx.json`. Each app to be released belongs to a release *group* (e.g. `pdf-shop`, covering `pdf-shop-website` and `pdf-shop-worker`), and each release picks a *version scheme* (`staging` or `hotfix`, both defined under `release.docker.versionSchemes` in `nx.json`) that determines how the image tag is computed from the current date and commit sha.
+
+The Docker registry to push to is resolved dynamically from the `packages/shared/infra` Pulumi stack, rather than hardcoded in `nx.json` — this is deliberate, so the registry can move (e.g. if the Pulumi stack is torn down and recreated) without editing committed config. `nx.json`'s own `release.groups.<name>.docker.registryUrl` value is just an inert placeholder; the release script always overwrites it in memory before running. See [`known-issues.md`](./known-issues.md) for why this can't just be a `${VAR}`-style placeholder directly in `nx.json`.
+
+The release process has two steps, both wired together behind a single npm script:
+
+1. **`scripts/release-setup.sh`** — reads the current registry URL and GCP project from the `packages/shared/infra` Pulumi stack's outputs, exports them (`RELEASE_PROJECT`, `DOCKER_REGISTRY`, `DOCKER_REGISTRY_BASE`) into the shell, and configures `gcloud`'s Docker credential helper for that registry. Must be *sourced*, not executed, so those exports land in the calling shell rather than a subprocess.
+2. **`scripts/release-group.ts`** — reads `nx.json`'s release config, patches the requested group's `docker.registryUrl` with `process.env.DOCKER_REGISTRY`, and runs the release through Nx's programmatic `nx/release` API (`ReleaseClient`) rather than the `nx release` CLI, since that's what makes overriding `registryUrl` with an already-resolved value possible. Requires `--group=<name>` and `--dockerVersionScheme=<scheme>`, both validated against what's actually defined in `nx.json` (fails fast with the available options listed if either name doesn't match). Accepts `--dry-run`/`-d` to preview without tagging images or committing/tagging in git.
+
+Both steps run via the root `release` npm script, which sources step 1 and runs step 2 in the same shell:
 
 ```sh
-npx nx g @nx/js:lib packages/pkg1 --publishable --importPath=@my-org/pkg1
+npm run release -- --group=pdf-shop --dockerVersionScheme=staging
 ```
 
-## Run tasks
-
-To build the library use:
+For a hotfix release:
 
 ```sh
-npx nx run pkg1:build
+npm run release -- --group=pdf-shop --dockerVersionScheme=hotfix
 ```
 
-To run any task with Nx use:
-
-```sh
-npx nx run <project-name>:<target>
-```
-
-These targets are either [inferred automatically](https://nx.dev/docs/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
-
-[More about running tasks in the docs &raquo;](https://nx.dev/docs/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Versioning and releasing
-
-To version and release the library use
-
-```
-npx nx release
-```
-
-Pass `--dry-run` to see what would happen without actually releasing the library.
-
-[Learn more about Nx release &raquo;](https://nx.dev/docs/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Keep TypeScript project references up to date
-
-Nx automatically updates TypeScript [project references](https://www.typescriptlang.org/docs/handbook/project-references.html) in `tsconfig.json` files to ensure they remain accurate based on your project dependencies (`import` or `require` statements). This sync is automatically done when running tasks such as `build` or `typecheck`, which require updated references to function correctly.
-
-To manually trigger the process to sync the project graph dependencies information to the TypeScript project references, run the following command:
-
-```sh
-npx nx sync
-```
-
-You can enforce that the TypeScript project references are always in the correct state when running in CI by adding a step to your CI job configuration that runs the following command:
-
-```sh
-npx nx sync:check
-```
-
-[Learn more about nx sync](https://nx.dev/reference/nx-commands#sync)
+Add `--dry-run` to preview either command first. Requires `pulumi` and `gcloud` already authenticated against the target GCP project.
