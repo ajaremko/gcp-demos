@@ -45,7 +45,7 @@ export function readPaymentRecord(env: { dataRoot: string; logger: Logger }) {
 
   async function readRecord(documentId: string) {
     try {
-      const recordPath = path.join(env.dataRoot, documentId, 'paid.json')
+      const recordPath = path.join(env.dataRoot, 'paid', `${documentId}.json`)
       logger.trace(
         { documentId, path: recordPath },
         'Reading payment confirmation file',

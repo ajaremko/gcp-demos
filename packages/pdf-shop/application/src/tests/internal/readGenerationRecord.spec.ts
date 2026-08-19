@@ -23,11 +23,11 @@ describe('readGenerationRecord', () => {
   })
 
   it('reads and parses an existing generated document file', async () => {
-    await mkdir(`${dataRoot}/11111111-1111-4111-8111-111111111111`, {
+    await mkdir(`${dataRoot}/generated`, {
       recursive: true,
     })
     await writeFile(
-      `${dataRoot}/11111111-1111-4111-8111-111111111111/generated.json`,
+      `${dataRoot}/generated/11111111-1111-4111-8111-111111111111.json`,
       '{' +
         '"documentId":"11111111-1111-4111-8111-111111111111",' +
         '"path":"11111111-1111-4111-8111-111111111111",' +
@@ -59,11 +59,11 @@ describe('readGenerationRecord', () => {
   })
 
   it('throws GeneratedDocumentRecordInvalid when the file contains invalid JSON', async () => {
-    await mkdir(`${dataRoot}/11111111-1111-4111-8111-111111111111`, {
+    await mkdir(`${dataRoot}/generated`, {
       recursive: true,
     })
     await writeFile(
-      `${dataRoot}/11111111-1111-4111-8111-111111111111/generated.json`,
+      `${dataRoot}/generated/11111111-1111-4111-8111-111111111111.json`,
       'not json',
       'utf-8',
     )
@@ -75,11 +75,11 @@ describe('readGenerationRecord', () => {
   })
 
   it('throws GeneratedDocumentRecordInvalid when the file content fails schema validation', async () => {
-    await mkdir(`${dataRoot}/11111111-1111-4111-8111-111111111111`, {
+    await mkdir(`${dataRoot}/generated`, {
       recursive: true,
     })
     await writeFile(
-      `${dataRoot}/11111111-1111-4111-8111-111111111111/generated.json`,
+      `${dataRoot}/generated/11111111-1111-4111-8111-111111111111.json`,
       '{"foo":"bar"}',
       'utf-8',
     )

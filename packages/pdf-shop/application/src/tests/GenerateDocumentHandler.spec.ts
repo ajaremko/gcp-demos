@@ -24,11 +24,11 @@ describe('GenerateDocumentHandler', () => {
   })
 
   it('reads the document record and generates the document content and record by path', async () => {
-    await mkdir(`${dataRoot}/11111111-1111-4111-8111-111111111111`, {
+    await mkdir(`${dataRoot}/created`, {
       recursive: true,
     })
     await writeFile(
-      `${dataRoot}/11111111-1111-4111-8111-111111111111/created.json`,
+      `${dataRoot}/created/11111111-1111-4111-8111-111111111111.json`,
       '{' +
         '"id":"11111111-1111-4111-8111-111111111111",' +
         '"createdAt":"2024-01-01T00:00:00.000Z",' +
@@ -39,19 +39,19 @@ describe('GenerateDocumentHandler', () => {
     )
 
     const record = await GenerateDocumentHandler({ dataRoot, logger })({
-      path: `${dataRoot}/11111111-1111-4111-8111-111111111111/created.json`,
+      path: `${dataRoot}/created/11111111-1111-4111-8111-111111111111.json`,
     })
 
     expect(record).toEqual({
       documentId: '11111111-1111-4111-8111-111111111111',
-      path: `${dataRoot}/11111111-1111-4111-8111-111111111111/generated.txt`,
+      path: `${dataRoot}/generated/11111111-1111-4111-8111-111111111111.txt`,
       filename: '11111111-1111-4111-8111-111111111111.txt',
       contentType: 'text/plain',
       timestamp: '2024-01-01T00:00:00.000Z',
     })
 
     const generatedText = await readFile(
-      `${dataRoot}/11111111-1111-4111-8111-111111111111/generated.txt`,
+      `${dataRoot}/generated/11111111-1111-4111-8111-111111111111.txt`,
       'utf-8',
     )
     expect(generatedText).toBe(
@@ -59,13 +59,13 @@ describe('GenerateDocumentHandler', () => {
     )
 
     const generatedRecord = await readFile(
-      `${dataRoot}/11111111-1111-4111-8111-111111111111/generated.json`,
+      `${dataRoot}/generated/11111111-1111-4111-8111-111111111111.json`,
       'utf-8',
     )
     expect(generatedRecord).toBe(
       '{' +
         '"documentId":"11111111-1111-4111-8111-111111111111",' +
-        `"path":"${dataRoot}/11111111-1111-4111-8111-111111111111/generated.txt",` +
+        `"path":"${dataRoot}/generated/11111111-1111-4111-8111-111111111111.txt",` +
         '"filename":"11111111-1111-4111-8111-111111111111.txt",' +
         '"contentType":"text/plain",' +
         '"timestamp":"2024-01-01T00:00:00.000Z"' +
@@ -75,18 +75,18 @@ describe('GenerateDocumentHandler', () => {
 
   it('propagates DocumentOrderNotFound from readOrderRecord', async () => {
     const result = GenerateDocumentHandler({ dataRoot, logger })({
-      path: `${dataRoot}/11111111-1111-4111-8111-111111111111/created.json`,
+      path: `${dataRoot}/created/11111111-1111-4111-8111-111111111111.json`,
     })
 
     await expect(result).rejects.toBeInstanceOf(DocumentOrderNotFound)
   })
 
   it('propagates GeneratedDocumentWriteFailed from generateDocument', async () => {
-    await mkdir(`${dataRoot}/11111111-1111-4111-8111-111111111111`, {
+    await mkdir(`${dataRoot}/created`, {
       recursive: true,
     })
     await writeFile(
-      `${dataRoot}/11111111-1111-4111-8111-111111111111/created.json`,
+      `${dataRoot}/created/11111111-1111-4111-8111-111111111111.json`,
       '{' +
         '"id":"11111111-1111-4111-8111-111111111111",' +
         '"createdAt":"2024-01-01T00:00:00.000Z",' +
@@ -95,15 +95,16 @@ describe('GenerateDocumentHandler', () => {
         '}',
       'utf-8',
     )
-    // Pre-create generated.txt as a directory instead of a file so writeFile
-    // fails with EISDIR — deterministic regardless of user/root.
+    // Pre-create the generated .txt output as a directory instead of a
+    // file so writeFile fails with EISDIR — deterministic regardless of
+    // user/root.
     await mkdir(
-      `${dataRoot}/11111111-1111-4111-8111-111111111111/generated.txt`,
+      `${dataRoot}/generated/11111111-1111-4111-8111-111111111111.txt`,
       { recursive: true },
     )
 
     const result = GenerateDocumentHandler({ dataRoot, logger })({
-      path: `${dataRoot}/11111111-1111-4111-8111-111111111111/created.json`,
+      path: `${dataRoot}/created/11111111-1111-4111-8111-111111111111.json`,
     })
 
     await expect(result).rejects.toBeInstanceOf(GeneratedDocumentWriteFailed)

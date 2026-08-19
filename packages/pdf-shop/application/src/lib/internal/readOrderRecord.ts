@@ -56,7 +56,7 @@ export function readOrderRecord(env: { dataRoot: string; logger: Logger }) {
       const recordPath =
         'path' in input
           ? input.path
-          : path.join(env.dataRoot, input.documentId, 'created.json')
+          : path.join(env.dataRoot, 'created', `${input.documentId}.json`)
       logger.trace({ path: recordPath }, 'Reading document spec file')
       return await readFile(recordPath, 'utf-8')
     } catch (err) {

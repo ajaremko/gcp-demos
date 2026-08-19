@@ -58,7 +58,7 @@ export function generateDocument(env: { dataRoot: string; logger: Logger }) {
 
   async function prepareOutputDirectory(documentId: string) {
     try {
-      const outputDir = path.join(env.dataRoot, documentId)
+      const outputDir = path.join(env.dataRoot, 'generated')
       logger.trace(
         {
           documentId,
@@ -87,7 +87,7 @@ export function generateDocument(env: { dataRoot: string; logger: Logger }) {
   ) {
     try {
       const generatedData = `Generated document for spec ${documentId}\n\n${JSON.stringify(spec, null, 2)}`
-      const generatedPath = path.join(outputDir, `generated.txt`)
+      const generatedPath = path.join(outputDir, `${documentId}.txt`)
       logger.trace(
         {
           documentId,
@@ -124,7 +124,7 @@ export function generateDocument(env: { dataRoot: string; logger: Logger }) {
       }
 
       const recordData = JSON.stringify(record)
-      const recordPath = path.join(outputDir, 'generated.json')
+      const recordPath = path.join(outputDir, `${documentId}.json`)
       logger.trace(
         {
           documentId: record.documentId,

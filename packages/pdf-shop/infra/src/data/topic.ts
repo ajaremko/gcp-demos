@@ -31,7 +31,7 @@ export const documentOrdersStorageUploadNotification =
       payloadFormat: 'JSON_API_V1',
       topic: documentOrdersTopic.id,
       eventTypes: ['OBJECT_FINALIZE'],
-      objectNamePrefix: '**/created.json',
+      objectNamePrefix: 'created/',
     },
     {
       provider,

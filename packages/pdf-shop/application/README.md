@@ -6,7 +6,12 @@ download lifecycle. Every exported function is a factory that takes an explicit
 an async function that does the work.
 
 Documents are stored as JSON records on disk under a single `dataRoot`
-directory, one subdirectory per document id.
+directory, one subdirectory per record type (`created/`, `paid/`,
+`generated/`), with one file per document id inside it — e.g.
+`<dataRoot>/created/<documentId>.json`. This lets a storage-change
+notification's prefix filter (`created/`) distinguish an order being
+placed from a payment being confirmed or a document being generated,
+which isn't possible when all three share a per-document directory.
 
 ## Lifecycle
 

@@ -122,7 +122,7 @@ export function purchaseDocument(env: {
     paymentIntent: Stripe.PaymentIntent,
   ) {
     try {
-      const outputDir = path.join(env.dataRoot, documentId)
+      const outputDir = path.join(env.dataRoot, 'paid')
       await mkdir(outputDir, { recursive: true })
 
       const record: PaymentRecord = {
@@ -134,7 +134,7 @@ export function purchaseDocument(env: {
       }
 
       const recordData = JSON.stringify(record)
-      const recordPath = path.join(outputDir, 'paid.json')
+      const recordPath = path.join(outputDir, `${documentId}.json`)
       logger.trace(
         {
           documentId,

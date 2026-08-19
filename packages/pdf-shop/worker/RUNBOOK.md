@@ -44,9 +44,9 @@ real problem.
 
 To investigate a specific failure:
 
-1. Find the `error`-level failure log line and read its `objectId` — this
-   identifies the document (and, from the Cloud Storage object path, the
-   document id).
+1. Find the `error`-level failure log line and read its `objectId` — a
+   Cloud Storage object name of the form `created/<documentId>.json`, so
+   the document id is the filename portion (without the `.json` suffix).
 2. Check `err.tag` to narrow down what went wrong:
    - `DocumentOrderNotFound` / `DocumentOrderInvalid` — the referenced order
      record isn't present or isn't readable yet at `PDF_SHOP_DATA_DIR`. This can

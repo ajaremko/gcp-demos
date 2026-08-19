@@ -21,11 +21,10 @@ describe('CheckOrderStatusHandler', () => {
   })
 
   it('validates input and returns true when the document is generated and paid for', async () => {
-    await mkdir(`${dataRoot}/11111111-1111-4111-8111-111111111111`, {
-      recursive: true,
-    })
+    await mkdir(`${dataRoot}/generated`, { recursive: true })
+    await mkdir(`${dataRoot}/paid`, { recursive: true })
     await writeFile(
-      `${dataRoot}/11111111-1111-4111-8111-111111111111/generated.json`,
+      `${dataRoot}/generated/11111111-1111-4111-8111-111111111111.json`,
       '{' +
         '"documentId":"11111111-1111-4111-8111-111111111111",' +
         '"path":"11111111-1111-4111-8111-111111111111",' +
@@ -36,7 +35,7 @@ describe('CheckOrderStatusHandler', () => {
       'utf-8',
     )
     await writeFile(
-      `${dataRoot}/11111111-1111-4111-8111-111111111111/paid.json`,
+      `${dataRoot}/paid/11111111-1111-4111-8111-111111111111.json`,
       '{' +
         '"documentId":"11111111-1111-4111-8111-111111111111",' +
         '"stripePaymentIntentId":"pi_1",' +
@@ -66,11 +65,9 @@ describe('CheckOrderStatusHandler', () => {
   })
 
   it('propagates PaymentConfirmationNotFound from getPayment', async () => {
-    await mkdir(`${dataRoot}/11111111-1111-4111-8111-111111111111`, {
-      recursive: true,
-    })
+    await mkdir(`${dataRoot}/generated`, { recursive: true })
     await writeFile(
-      `${dataRoot}/11111111-1111-4111-8111-111111111111/generated.json`,
+      `${dataRoot}/generated/11111111-1111-4111-8111-111111111111.json`,
       '{' +
         '"documentId":"11111111-1111-4111-8111-111111111111",' +
         '"path":"11111111-1111-4111-8111-111111111111",' +

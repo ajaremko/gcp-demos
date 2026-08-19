@@ -23,11 +23,11 @@ describe('readOrderRecord', () => {
   })
 
   it('reads and parses an existing document spec file', async () => {
-    await mkdir(`${dataRoot}/11111111-1111-4111-8111-111111111111`, {
+    await mkdir(`${dataRoot}/created`, {
       recursive: true,
     })
     await writeFile(
-      `${dataRoot}/11111111-1111-4111-8111-111111111111/created.json`,
+      `${dataRoot}/created/11111111-1111-4111-8111-111111111111.json`,
       '{' +
         '"id":"11111111-1111-4111-8111-111111111111",' +
         '"createdAt":"2024-01-01T00:00:00.000Z",' +
@@ -50,11 +50,11 @@ describe('readOrderRecord', () => {
   })
 
   it('reads and parses an existing document spec file by path', async () => {
-    await mkdir(`${dataRoot}/11111111-1111-4111-8111-111111111111`, {
+    await mkdir(`${dataRoot}/created`, {
       recursive: true,
     })
     await writeFile(
-      `${dataRoot}/11111111-1111-4111-8111-111111111111/created.json`,
+      `${dataRoot}/created/11111111-1111-4111-8111-111111111111.json`,
       '{' +
         '"id":"11111111-1111-4111-8111-111111111111",' +
         '"createdAt":"2024-01-01T00:00:00.000Z",' +
@@ -65,7 +65,7 @@ describe('readOrderRecord', () => {
     )
 
     const result = await readOrderRecord({ dataRoot, logger })({
-      path: `${dataRoot}/11111111-1111-4111-8111-111111111111/created.json`,
+      path: `${dataRoot}/created/11111111-1111-4111-8111-111111111111.json`,
     })
 
     expect(result).toEqual({
@@ -84,11 +84,11 @@ describe('readOrderRecord', () => {
   })
 
   it('throws DocumentOrderInvalid when the file contains invalid JSON', async () => {
-    await mkdir(`${dataRoot}/11111111-1111-4111-8111-111111111111`, {
+    await mkdir(`${dataRoot}/created`, {
       recursive: true,
     })
     await writeFile(
-      `${dataRoot}/11111111-1111-4111-8111-111111111111/created.json`,
+      `${dataRoot}/created/11111111-1111-4111-8111-111111111111.json`,
       'not json',
       'utf-8',
     )
@@ -100,11 +100,11 @@ describe('readOrderRecord', () => {
   })
 
   it('throws DocumentOrderInvalid when the file content fails schema validation', async () => {
-    await mkdir(`${dataRoot}/11111111-1111-4111-8111-111111111111`, {
+    await mkdir(`${dataRoot}/created`, {
       recursive: true,
     })
     await writeFile(
-      `${dataRoot}/11111111-1111-4111-8111-111111111111/created.json`,
+      `${dataRoot}/created/11111111-1111-4111-8111-111111111111.json`,
       '{"foo":"bar"}',
       'utf-8',
     )

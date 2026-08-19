@@ -51,7 +51,11 @@ export function readGenerationRecord(env: {
 
   async function readRecord(documentId: string) {
     try {
-      const recordPath = path.join(env.dataRoot, documentId, 'generated.json')
+      const recordPath = path.join(
+        env.dataRoot,
+        'generated',
+        `${documentId}.json`,
+      )
       logger.trace(
         { documentId, path: recordPath },
         'Reading generated document file',

@@ -43,11 +43,11 @@ To use it:
 
 1. Start the server (`nx serve pdf-shop-worker`).
 2. Create a document elsewhere in the system to get a real document id, so
-   there's a `created.json` for the worker to read.
+   there's a `created/<documentId>.json` for the worker to read.
 3. Set the collection's `documentId` variable to that id.
 4. Send the request. A `201` response means the notification was accepted;
-   check `PDF_SHOP_DATA_DIR` for the newly written `generated.txt`/`generated.json`
-   under that document's directory.
+   check `PDF_SHOP_DATA_DIR/generated/` for the newly written
+   `<documentId>.txt`/`<documentId>.json`.
 
 If importing the collection into the Postman VS Code extension fails, see
 [`known-issues.md`](./known-issues.md) for a workaround.

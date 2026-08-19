@@ -1,3 +1,5 @@
+import * as path from 'node:path'
+
 import express from 'express'
 
 import { GenerateDocumentHandler } from '@org/pdf-shop-application'
@@ -75,7 +77,8 @@ app.post('/', async (req, res) => {
   if (
     eventType !== 'OBJECT_FINALIZE' ||
     typeof objectId !== 'string' ||
-    !objectId.endsWith('/created.json')
+    !objectId.startsWith('created/') ||
+    !objectId.endsWith('.json')
   ) {
     // Not 422 because we want to avoid retrying the request
     pinoLogger.warn({ objectId, eventType }, 'Unprocessable request received')
@@ -84,7 +87,10 @@ app.post('/', async (req, res) => {
   }
 
   try {
-    await generateDocument({ path: objectId })
+    // objectId is the GCS object name, relative to the bucket — it isn't
+    // a filesystem path on its own, so it has to be joined with the
+    // FUSE-mounted dataRoot before being handed off.
+    await generateDocument({ path: path.join(dataRoot, objectId) })
     res.status(201).send()
   } catch (err) {
     pinoLogger.error({ err, objectId }, 'Failed to generate document')

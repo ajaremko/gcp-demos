@@ -78,9 +78,10 @@ The various page/route that call into `@org/pdf-shop-application` may each handl
 
 When investigating a report of a stuck or failed document, the most direct
 approach is usually to check the document's records under `PDF_SHOP_DATA_DIR`
-directly (does `created.json` exist? `generated.json`? `paid.json`?) rather
-than relying on this app's logs alone, since several of its failure paths
-are intentionally quiet toward the end user.
+directly (does `created/<documentId>.json` exist? `generated/<documentId>.json`?
+`paid/<documentId>.json`?) rather than relying on this app's logs alone,
+since several of its failure paths are intentionally quiet toward the end
+user.
 
 ## What's not covered
 

@@ -98,7 +98,7 @@ export function orderDocument(env: {
     payment: { paymentIntentId: string; amount: number; currency: string },
   ) {
     try {
-      const outputDir = path.join(env.dataRoot, documentId)
+      const outputDir = path.join(env.dataRoot, 'created')
       await mkdir(outputDir, { recursive: true })
 
       const record: OrderRecord = {
@@ -112,7 +112,7 @@ export function orderDocument(env: {
         payment,
       }
 
-      const recordPath = path.join(outputDir, 'created.json')
+      const recordPath = path.join(outputDir, `${documentId}.json`)
       const recordData = JSON.stringify(record)
       logger.trace(
         {
