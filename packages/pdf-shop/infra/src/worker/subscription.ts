@@ -8,7 +8,7 @@ import {
 import { labels, gcpRegion, tag } from '../config'
 import { provider, pubsubServiceAccountEmail } from '../project'
 import { pubsubService } from '../services'
-import { documentOrdersTopic } from '../topic'
+import { documentOrdersTopicName } from '../data'
 
 import { workerService } from './service'
 
@@ -67,7 +67,7 @@ const pubsubServiceAccountPublisher = new gcp.pubsub.TopicIAMMember(
 export const workerOrdersSubscription = new gcp.pubsub.Subscription(
   `${tag}-orders-subscription`,
   {
-    topic: documentOrdersTopic.name,
+    topic: documentOrdersTopicName,
     deadLetterPolicy: {
       deadLetterTopic: workerDeadletterTopic.id,
       maxDeliveryAttempts: 5,

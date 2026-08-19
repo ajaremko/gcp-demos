@@ -1,9 +1,9 @@
 import * as gcp from '@pulumi/gcp'
 
-import { gcpRegion } from './config'
-import { labels, tag } from './config'
-import { storageService } from './services'
-import { provider } from './project'
+import { gcpRegion } from '../config'
+import { labels, tag } from '../config'
+import { storageService } from '../services'
+import { provider } from '../project'
 
 export const dataBucket = new gcp.storage.Bucket(
   `${tag}-data-bucket`,

@@ -2,7 +2,7 @@ import * as gcp from '@pulumi/gcp'
 import * as pulumi from '@pulumi/pulumi'
 
 import { tag } from '../config'
-import { dataBucket } from '../storage'
+import { dataBucket } from '../data/storage'
 import { provider } from '../project'
 
 export const workerServiceAccount = new gcp.serviceaccount.Account(

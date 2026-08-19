@@ -5,7 +5,7 @@ import { cloudRunArtifactRegistryReader } from '../iam'
 import { cloudRunService } from '../services'
 import { getImageUrl } from '../getImageUrl'
 import { provider } from '../project'
-import { dataBucket } from '../storage'
+import { dataBucketName } from '../data'
 
 import { workerServiceAccount, iamMembers } from './service-account'
 
@@ -21,7 +21,7 @@ export const workerService = new gcp.cloudrunv2.Service(
         {
           name: 'data',
           gcs: {
-            bucket: dataBucket.name,
+            bucket: dataBucketName,
           },
         },
       ],

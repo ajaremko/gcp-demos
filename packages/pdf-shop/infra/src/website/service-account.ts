@@ -1,7 +1,7 @@
 import * as gcp from '@pulumi/gcp'
 import * as pulumi from '@pulumi/pulumi'
 
-import { dataBucket } from '../storage'
+import { dataBucket } from '../data/storage'
 import { tag } from '../config'
 import { provider } from '../project'
 
