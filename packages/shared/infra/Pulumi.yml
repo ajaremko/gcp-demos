@@ -1,0 +1,4 @@
+name: gcp-demos-shared-infra
+runtime: nodejs
+description: Core infrastructure for demo projects
+main: src/index.ts

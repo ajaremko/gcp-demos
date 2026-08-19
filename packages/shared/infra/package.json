@@ -1,0 +1,100 @@
+{
+  "name": "@org/shared-infra",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "name": "shared-infra",
+    "targets": {
+      "deploy": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "pulumi up --stack={args.stack} --cwd={projectRoot}",
+          "options": {
+            "cwd": "{projectRoot}"
+          }
+        },
+        "configurations": {
+          "dev": {
+            "command": "pulumi up --stack=dev --cwd={projectRoot}"
+          },
+          "prod": {
+            "command": "pulumi up --stack=prod --cwd={projectRoot}"
+          }
+        }
+      },
+      "refresh": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "pulumi refresh --stack={args.stack} --cwd={projectRoot}",
+          "options": {
+            "cwd": "{projectRoot}"
+          }
+        },
+        "configurations": {
+          "dev": {
+            "command": "pulumi refresh --stack=dev --cwd={projectRoot}"
+          },
+          "prod": {
+            "command": "pulumi refresh --stack=prod --cwd={projectRoot}"
+          }
+        }
+      },
+      "preview": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "pulumi preview --stack={args.stack} --cwd={projectRoot}",
+          "options": {
+            "cwd": "{projectRoot}"
+          }
+        },
+        "configurations": {
+          "dev": {
+            "command": "pulumi preview --stack=dev --cwd={projectRoot}"
+          },
+          "prod": {
+            "command": "pulumi preview --stack=prod --cwd={projectRoot}"
+          }
+        }
+      },
+      "destroy": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "pulumi destroy --stack={args.stack} --cwd={projectRoot}",
+          "options": {
+            "cwd": "{projectRoot}"
+          }
+        },
+        "configurations": {
+          "dev": {
+            "command": "pulumi destroy --stack=dev --cwd={projectRoot}"
+          },
+          "prod": {
+            "command": "pulumi destroy --stack=prod --cwd={projectRoot}"
+          }
+        }
+      },
+      "output": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "pulumi stack output --stack={args.stack} --cwd={projectRoot} --json={args.json}",
+          "json": false,
+          "options": {
+            "cwd": "{projectRoot}"
+          }
+        },
+        "configurations": {
+          "dev": {
+            "command": "pulumi stack output --stack=dev --cwd={projectRoot}"
+          },
+          "prod": {
+            "command": "pulumi stack output --stack=prod --cwd={projectRoot}"
+          }
+        }
+      }
+    }
+  },
+  "devDependencies": {
+    "@pulumi/gcp": "^9.34.1",
+    "@pulumi/pulumi": "^3.248.0"
+  }
+}
