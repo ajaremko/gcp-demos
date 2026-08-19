@@ -1,0 +1,4 @@
+name: gcp-demos-pdf-shop-infra
+runtime: nodejs
+description: Infrastructure for PDF Shop project
+main: src/index.ts
