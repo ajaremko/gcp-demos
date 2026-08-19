@@ -1,11 +1,11 @@
 import { mkdir, writeFile } from 'node:fs/promises'
-import path from 'node:path'
 import { type Logger } from 'pino'
 
 import { ApplicationError } from '../ApplicationError'
 
 import { type GenerationRecord } from './data/GenerationRecord'
 import { type DocumentSpec } from './data/DocumentSpec'
+import { recordDir, buildRecordPath } from './recordPath'
 
 /** The document's output directory could not be created. */
 export class GeneratedDocumentDirectoryFailed extends ApplicationError {
@@ -58,7 +58,7 @@ export function generateDocument(env: { dataRoot: string; logger: Logger }) {
 
   async function prepareOutputDirectory(documentId: string) {
     try {
-      const outputDir = path.join(env.dataRoot, 'generated')
+      const outputDir = recordDir(env.dataRoot, 'generated')
       logger.trace(
         {
           documentId,
@@ -87,7 +87,12 @@ export function generateDocument(env: { dataRoot: string; logger: Logger }) {
   ) {
     try {
       const generatedData = `Generated document for spec ${documentId}\n\n${JSON.stringify(spec, null, 2)}`
-      const generatedPath = path.join(outputDir, `${documentId}.txt`)
+      const generatedPath = buildRecordPath(
+        env.dataRoot,
+        'generated',
+        documentId,
+        'txt',
+      )
       logger.trace(
         {
           documentId,
@@ -124,7 +129,7 @@ export function generateDocument(env: { dataRoot: string; logger: Logger }) {
       }
 
       const recordData = JSON.stringify(record)
-      const recordPath = path.join(outputDir, `${documentId}.json`)
+      const recordPath = buildRecordPath(env.dataRoot, 'generated', documentId)
       logger.trace(
         {
           documentId: record.documentId,

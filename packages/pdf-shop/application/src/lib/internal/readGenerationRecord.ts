@@ -1,5 +1,4 @@
 import { readFile } from 'node:fs/promises'
-import path from 'node:path'
 import { type Logger } from 'pino'
 
 import { ApplicationError } from '../ApplicationError'
@@ -8,6 +7,7 @@ import {
   type GenerationRecord,
   generationRecordSchema,
 } from './data/GenerationRecord'
+import { buildRecordPath } from './recordPath'
 
 /** The generation record (`generated.json`) could not be found. */
 export class GeneratedDocumentRecordNotFound extends ApplicationError {
@@ -51,11 +51,7 @@ export function readGenerationRecord(env: {
 
   async function readRecord(documentId: string) {
     try {
-      const recordPath = path.join(
-        env.dataRoot,
-        'generated',
-        `${documentId}.json`,
-      )
+      const recordPath = buildRecordPath(env.dataRoot, 'generated', documentId)
       logger.trace(
         { documentId, path: recordPath },
         'Reading generated document file',

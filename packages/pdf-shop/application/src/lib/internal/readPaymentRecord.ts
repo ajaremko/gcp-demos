@@ -1,10 +1,10 @@
 import { readFile } from 'node:fs/promises'
-import path from 'node:path'
 import { type Logger } from 'pino'
 
 import { ApplicationError } from '../ApplicationError'
 
 import { type PaymentRecord, paymentRecordSchema } from './data/PaymentRecord'
+import { buildRecordPath } from './recordPath'
 
 /** The payment confirmation record (`paid.json`) could not be found. */
 export class PaymentConfirmationNotFound extends ApplicationError {
@@ -45,7 +45,7 @@ export function readPaymentRecord(env: { dataRoot: string; logger: Logger }) {
 
   async function readRecord(documentId: string) {
     try {
-      const recordPath = path.join(env.dataRoot, 'paid', `${documentId}.json`)
+      const recordPath = buildRecordPath(env.dataRoot, 'paid', documentId)
       logger.trace(
         { documentId, path: recordPath },
         'Reading payment confirmation file',

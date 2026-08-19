@@ -1,10 +1,10 @@
-import path from 'node:path'
 import { readFile } from 'node:fs/promises'
 import { type Logger } from 'pino'
 
 import { ApplicationError } from '../ApplicationError'
 
 import { type OrderRecord, orderRecordSchema } from './data/OrderRecord'
+import { buildRecordPath } from './recordPath'
 
 /** The order record (`created.json`) could not be found. */
 export class DocumentOrderNotFound extends ApplicationError {
@@ -56,7 +56,7 @@ export function readOrderRecord(env: { dataRoot: string; logger: Logger }) {
       const recordPath =
         'path' in input
           ? input.path
-          : path.join(env.dataRoot, 'created', `${input.documentId}.json`)
+          : buildRecordPath(env.dataRoot, 'created', input.documentId)
       logger.trace({ path: recordPath }, 'Reading document spec file')
       return await readFile(recordPath, 'utf-8')
     } catch (err) {

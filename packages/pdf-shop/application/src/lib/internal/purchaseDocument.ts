@@ -1,11 +1,11 @@
 import { mkdir, writeFile } from 'node:fs/promises'
-import path from 'node:path'
 import type Stripe from 'stripe'
 import { type Logger } from 'pino'
 
 import { ApplicationError } from '../ApplicationError'
 
 import { type PaymentRecord } from './data/PaymentRecord'
+import { recordDir, buildRecordPath } from './recordPath'
 
 /** The Stripe payment intent for the purchase could not be retrieved. */
 export class PaymentIntentNotFound extends ApplicationError {
@@ -122,7 +122,7 @@ export function purchaseDocument(env: {
     paymentIntent: Stripe.PaymentIntent,
   ) {
     try {
-      const outputDir = path.join(env.dataRoot, 'paid')
+      const outputDir = recordDir(env.dataRoot, 'paid')
       await mkdir(outputDir, { recursive: true })
 
       const record: PaymentRecord = {
@@ -134,7 +134,7 @@ export function purchaseDocument(env: {
       }
 
       const recordData = JSON.stringify(record)
-      const recordPath = path.join(outputDir, `${documentId}.json`)
+      const recordPath = buildRecordPath(env.dataRoot, 'paid', documentId)
       logger.trace(
         {
           documentId,

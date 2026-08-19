@@ -1,4 +1,3 @@
-import path from 'node:path'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { randomUUID } from 'node:crypto'
 import { type Stripe } from 'stripe'
@@ -7,6 +6,7 @@ import { type Logger } from 'pino'
 import { ApplicationError } from '../ApplicationError'
 
 import { type OrderRecord } from './data/OrderRecord'
+import { recordDir, buildRecordPath } from './recordPath'
 
 const DEMO_PRICE_CENTS = 999
 const DEMO_PRICE_CURRENCY = 'usd'
@@ -98,7 +98,7 @@ export function orderDocument(env: {
     payment: { paymentIntentId: string; amount: number; currency: string },
   ) {
     try {
-      const outputDir = path.join(env.dataRoot, 'created')
+      const outputDir = recordDir(env.dataRoot, 'created')
       await mkdir(outputDir, { recursive: true })
 
       const record: OrderRecord = {
@@ -112,7 +112,7 @@ export function orderDocument(env: {
         payment,
       }
 
-      const recordPath = path.join(outputDir, `${documentId}.json`)
+      const recordPath = buildRecordPath(env.dataRoot, 'created', documentId)
       const recordData = JSON.stringify(record)
       logger.trace(
         {
