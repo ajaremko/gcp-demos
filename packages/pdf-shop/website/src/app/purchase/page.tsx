@@ -6,6 +6,7 @@ import {
 } from '@org/pdf-shop-application'
 
 import { PageShell, Card, Heading, Subheading } from '@/lib/ui'
+import { StepIndicator } from '@/lib/StepIndicator'
 import { getStripeClient } from '@/lib/stripe'
 import { pinoLogger } from '@/lib/pino'
 import { resolveDataRoot } from '@/lib/dataRoot'
@@ -65,6 +66,7 @@ export default async function PurchasePage({
 
   return (
     <PageShell>
+      <StepIndicator currentStep="purchase" />
       <Card>
         <Heading>Pay for &quot;{document.spec.title}&quot;</Heading>
         <Subheading>
