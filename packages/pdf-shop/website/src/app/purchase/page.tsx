@@ -11,10 +11,10 @@ import { getStripeClient } from '@/lib/stripe'
 import { pinoLogger } from '@/lib/pino'
 import { resolveDataRoot } from '@/lib/dataRoot'
 import { documentIdSchema } from '@/lib/schemas'
+import { GenerationStatusPoller } from '@/lib/generation-status-poller'
 
 import { PurchaseDocumentForm } from './PurchaseDocumentForm'
 import { TestCards } from './TestCards'
-import { GenerationStatusPoller } from './generation-status-poller'
 
 export default async function PurchasePage({
   searchParams,
@@ -67,15 +67,15 @@ export default async function PurchasePage({
   return (
     <PageShell>
       <StepIndicator currentStep="purchase" />
+      <GenerationStatusPoller
+        documentId={document.documentId}
+        initialGenerated={status?.generated ?? false}
+      />
       <Card>
         <Heading>Pay for &quot;{document.spec.title}&quot;</Heading>
         <Subheading>
           One-time purchase — sandbox mode, no real charge.
         </Subheading>
-        <GenerationStatusPoller
-          documentId={document.documentId}
-          initialGenerated={status?.generated ?? false}
-        />
         {document.clientSecret && (
           <PurchaseDocumentForm
             documentId={document.documentId}

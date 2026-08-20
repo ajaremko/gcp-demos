@@ -1,5 +1,6 @@
 import { StyledComponentsRegistry } from '@/lib/styled-components-registry'
 import { GlobalStyles } from '@/lib/global-styles'
+import { ReactQueryProvider } from '@/lib/react-query-provider'
 
 export const metadata = {
   title: 'PDF Shop',
@@ -15,8 +16,10 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <StyledComponentsRegistry>
-          <GlobalStyles />
-          {children}
+          <ReactQueryProvider>
+            <GlobalStyles />
+            {children}
+          </ReactQueryProvider>
         </StyledComponentsRegistry>
       </body>
     </html>

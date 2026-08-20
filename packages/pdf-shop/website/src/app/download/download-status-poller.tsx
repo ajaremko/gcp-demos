@@ -1,6 +1,7 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { HelperText, LinkButton } from '@/lib/ui'
+import { fetchOrderStatus } from '@/lib/orderStatus'
 
 const POLL_INTERVAL_MS = 3000
 
@@ -11,30 +12,17 @@ export function DownloadStatusPoller({
   documentId: string
   initialReady: boolean
 }) {
-  const [ready, setReady] = useState(initialReady)
+  const { data } = useQuery({
+    queryKey: ['order-status', documentId],
+    queryFn: () => fetchOrderStatus(documentId),
+    initialData: initialReady
+      ? { ready: true, paid: true, generated: true }
+      : undefined,
+    refetchInterval: (query) =>
+      query.state.data?.ready ? false : POLL_INTERVAL_MS,
+  })
 
-  useEffect(() => {
-    if (ready) return
-
-    let cancelled = false
-    const interval = setInterval(async () => {
-      const response = await fetch(`/api/documents/${documentId}/status`, {
-        cache: 'no-store',
-      })
-      if (!response.ok) return
-      const data = await response.json()
-      if (!cancelled && data.ready) {
-        setReady(true)
-      }
-    }, POLL_INTERVAL_MS)
-
-    return () => {
-      cancelled = true
-      clearInterval(interval)
-    }
-  }, [ready, documentId])
-
-  if (ready) {
+  if (data?.ready) {
     return (
       <LinkButton
         href={`/api/documents/${documentId}/download`}
