@@ -9,17 +9,35 @@ Document _generation_ itself happens outside this app, asynchronously, once
 an order is placed — this app only polls for and serves the result once it
 exists.
 
+## Building
+
+```
+nx build pdf-shop-website
+```
+
+## Dev (Hot reload)
+
+```
+nx dev pdf-shop-website
+```
+
+## Containerize
+
+```
+nx docker:build pdf-shop-website
+```
+
 ## Pages and routes
 
-| Path                                   | Purpose                                        |
-| -------------------------------------- | ---------------------------------------------- |
-| `/`                                    | Landing page                                   |
-| `/create`                              | Document spec form (color scheme, title, body) |
+| Path                                   | Purpose                                                  |
+| -------------------------------------- | -------------------------------------------------------- |
+| `/`                                    | Landing page                                             |
+| `/create`                              | Document spec form (color scheme, title, body)           |
 | `/purchase?doc=`                       | Stripe payment form; shows a generation-status indicator |
-| `/download?doc=`                       | Polls readiness, then offers the download      |
-| `/api/documents/[documentId]/status`   | Polled by both the purchase and download pages |
-| `/api/documents/[documentId]/download` | Streams the generated file                     |
-| `/api/health`                          | Health check                                   |
+| `/download?doc=`                       | Polls readiness, then offers the download                |
+| `/api/documents/[documentId]/status`   | Polled by both the purchase and download pages           |
+| `/api/documents/[documentId]/download` | Streams the generated file                               |
+| `/api/health`                          | Health check                                             |
 
 ## Local setup
 
@@ -72,15 +90,3 @@ end-to-end:
 
 For known dev-only quirks (e.g. a harmless console error on the purchase
 page), see [`known-issues.md`](./known-issues.md).
-
-## Building
-
-```
-nx build pdf-shop-website
-```
-
-Container image (used for deployment):
-
-```
-nx docker:build pdf-shop-website
-```

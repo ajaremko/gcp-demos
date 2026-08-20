@@ -6,6 +6,24 @@ designed to receive Cloud Storage change notifications via a Pub/Sub push subscr
 When an order record is finalized in storage, `worker` reads it, generates the
 document's content and writes a record containing metadata about the generated file.
 
+## Building
+
+```
+nx build pdf-shop-worker
+```
+
+## Serve (Hot reload)
+
+```
+nx serve pdf-shop-worker
+```
+
+## Containerize
+
+```
+nx docker:build pdf-shop-worker
+```
+
 ## Routes
 
 | Path          | Purpose                                                      |
@@ -66,9 +84,3 @@ nx test pdf-shop-worker-e2e
 This builds and serves `worker`, then exercises `POST /` for three cases: a
 full happy-path generation, a notification for an object the route should
 ignore, and a notification referencing a document that doesn't exist.
-
-## Building
-
-```
-nx build pdf-shop-worker
-```

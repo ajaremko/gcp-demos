@@ -8,7 +8,15 @@ an async function that does the work.
 Documents are stored as JSON records on disk — see
 [Persistence](#persistence) for the record shapes and path scheme.
 
-## Lifecycle
+## Building
+
+Run `nx build pdf-shop-application` to build the library.
+
+## Testing
+
+Run `nx test pdf-shop-application` to run unit tests for the library.
+
+## Document Lifecycle
 
 A document moves through four stages, each driven by one or more handlers:
 
@@ -26,92 +34,6 @@ document id and opens payment, but doesn't itself produce content. Generation
 is triggered once an order record becomes durably stored, not by whoever
 placed the order. Only once both generation and payment have completed
 can a document be downloaded.
-
-## Persistence
-
-Every stage of a document's lifecycle durably records its outcome as a
-JSON file on disk under a single `dataRoot` directory — there's no
-database; the filesystem is the record store, and each record's presence
-is what the rest of the system uses to determine a document's state.
-
-### Path scheme
-
-Records are organized one subdirectory per record type, with one file per
-document id inside it:
-
-```
-<dataRoot>/created/<documentId>.json
-<dataRoot>/paid/<documentId>.json
-<dataRoot>/generated/<documentId>.json
-<dataRoot>/generated/<documentId>.txt
-```
-
-This groups by record type rather than by document
-(`<dataRoot>/<documentId>/<recordType>.json`) specifically so a
-storage-change notification's `objectNamePrefix` filter (`created/`) can
-distinguish an order being placed from a payment being confirmed or a
-document being generated — impossible if all three shared a per-document
-directory, since GCS notification prefix filters are literal string
-matches, not globs. `internal/recordPath.ts`'s `recordDir`/`buildRecordPath`
-are the shared helpers every read/write function routes through to
-construct these paths.
-
-### Records
-
-**Order record** (`created/<documentId>.json`) — written by
-`orderDocument` when a document is ordered.
-```ts
-{
-  id: string           // uuid — the canonical documentId, threading
-                        // through the rest of the lifecycle
-  createdAt: string     // ISO datetime
-  spec: {
-    colorScheme: 'light' | 'dark'
-    title: string        // max 120 chars
-    body: string          // max 20,000 chars
-  }
-  payment: {
-    paymentIntentId: string
-    amount: number         // integer, positive
-    currency: string
-  }
-}
-```
-Writing this file is the event that triggers async generation, via a
-storage-change notification to `worker`.
-
-**Payment record** (`paid/<documentId>.json`) — written by
-`purchaseDocument` once a document's Stripe payment intent has succeeded.
-```ts
-{
-  documentId: string          // uuid
-  stripePaymentIntentId: string
-  amount: number                // integer, positive
-  currency: string
-  confirmedAt: string           // ISO datetime
-}
-```
-Its presence is what gates access to the generated document.
-
-**Generation record** (`generated/<documentId>.json`) — written by
-`generateDocument` after a document's content has been generated.
-```ts
-{
-  documentId: string    // uuid
-  path: string             // absolute path to the sibling .txt content file
-  filename?: string
-  contentType?: string
-  timestamp: string        // ISO datetime
-}
-```
-
-**Generated content** (`generated/<documentId>.txt`) — the document's
-actual rendered content, written alongside its generation record in the
-same call to `generateDocument`, and referenced by that record's own
-`path` field.
-
-No record is ever mutated after it's written — each stage writes a new
-file rather than updating an earlier one.
 
 ## API surface
 
@@ -229,6 +151,97 @@ preserved on the thrown `ApplicationError`'s `cause` property (see
 [Error handling](#error-handling)) for the caller to log, at whatever
 level fits their context.
 
+## Persistence
+
+Every stage of a document's lifecycle durably records its outcome as a
+JSON file on disk under a single `dataRoot` directory — there's no
+database; the filesystem is the record store, and each record's presence
+is what the rest of the system uses to determine a document's state.
+
+### Path scheme
+
+Records are organized one subdirectory per record type, with one file per
+document id inside it:
+
+```
+<dataRoot>/created/<documentId>.json
+<dataRoot>/paid/<documentId>.json
+<dataRoot>/generated/<documentId>.json
+<dataRoot>/generated/<documentId>.txt
+```
+
+This groups by record type rather than by document
+(`<dataRoot>/<documentId>/<recordType>.json`) specifically so a
+storage-change notification's `objectNamePrefix` filter (`created/`) can
+distinguish an order being placed from a payment being confirmed or a
+document being generated — impossible if all three shared a per-document
+directory, since GCS notification prefix filters are literal string
+matches, not globs. `internal/recordPath.ts`'s `recordDir`/`buildRecordPath`
+are the shared helpers every read/write function routes through to
+construct these paths.
+
+### Records
+
+**Order record** (`created/<documentId>.json`) — written by
+`orderDocument` when a document is ordered.
+
+```ts
+{
+  id: string // uuid — the canonical documentId, threading
+  // through the rest of the lifecycle
+  createdAt: string // ISO datetime
+  spec: {
+    colorScheme: 'light' | 'dark'
+    title: string // max 120 chars
+    body: string // max 20,000 chars
+  }
+  payment: {
+    paymentIntentId: string
+    amount: number // integer, positive
+    currency: string
+  }
+}
+```
+
+Writing this file is the event that triggers async generation, via a
+storage-change notification to `worker`.
+
+**Payment record** (`paid/<documentId>.json`) — written by
+`purchaseDocument` once a document's Stripe payment intent has succeeded.
+
+```ts
+{
+  documentId: string // uuid
+  stripePaymentIntentId: string
+  amount: number // integer, positive
+  currency: string
+  confirmedAt: string // ISO datetime
+}
+```
+
+Its presence is what gates access to the generated document.
+
+**Generation record** (`generated/<documentId>.json`) — written by
+`generateDocument` after a document's content has been generated.
+
+```ts
+{
+  documentId: string    // uuid
+  path: string             // absolute path to the sibling .txt content file
+  filename?: string
+  contentType?: string
+  timestamp: string        // ISO datetime
+}
+```
+
+**Generated content** (`generated/<documentId>.txt`) — the document's
+actual rendered content, written alongside its generation record in the
+same call to `generateDocument`, and referenced by that record's own
+`path` field.
+
+No record is ever mutated after it's written — each stage writes a new
+file rather than updating an earlier one.
+
 ## Usage examples
 
 **Order a document and confirm payment:**
@@ -280,11 +293,3 @@ const { stream, size, filename, contentType } = await DownloadDocumentHandler(
   documentId,
 })
 ```
-
-## Building
-
-Run `nx build pdf-shop-application` to build the library.
-
-## Testing
-
-Run `nx test pdf-shop-application` to run unit tests for the library.
