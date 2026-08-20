@@ -23,14 +23,14 @@ pino's level is a threshold: whatever `LOG_LEVEL` is set to (see the table
 above) shows that level and everything more severe. Here's what's emitted
 at each level:
 
-| Level   | Events logged                                                                                                                                                                  |
-| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `trace` | Application internals details                                                                                                                                                  |
+| Level   | Events logged                                                                                                                                                                                                                             |
+| ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `trace` | Application internals details                                                                                                                                                                                                             |
 | `debug` | Checking order status (`download/page.tsx`, `status/route.ts`), or a handled failure downloading a document (`download/route.ts`); `@org/pdf-shop-application` failure context, logged immediately before it throws an `ApplicationError` |
-| `info`  | Document ordered, payment confirmed, or document downloaded                                                                                                                    |
-| `warn`  | Failure loading payment context; invalid input (document spec, purchase confirmation, or document id) submitted by a client                                                   |
-| `error` | Failure creating a document or confirming a payment; an unexpected error checking order status or downloading a document                                                      |
-| `fatal` | Missing required configuration (`PDF_SHOP_DATA_DIR`, `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`)                                                                |
+| `info`  | Document ordered, payment confirmed, or document downloaded                                                                                                                                                                               |
+| `warn`  | Failure loading payment context; invalid input (document spec, purchase confirmation, or document id) submitted by a client                                                                                                               |
+| `error` | Failure creating a document or confirming a payment; an unexpected error checking order status or downloading a document                                                                                                                  |
+| `fatal` | Missing required configuration (`PDF_SHOP_DATA_DIR`, `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`)                                                                                                                           |
 
 Application level failures carry a `tag` (which specific error occurred —
 see below) and `cause` (the underlying error, e.g. a filesystem error).
@@ -64,22 +64,18 @@ The various page/route that call into `@org/pdf-shop-application` may each handl
   is now `{ ready, paid, generated }` — "not paid yet" and "not generated
   yet" are distinguishable from the response itself (both booleans false
   means neither has happened; `paid: true, generated: false` means payment
-  succeeded but generation is still in progress), no longer conflated the
-  way a bare `{ ready: false }` used to. A genuinely broken record (fails
-  schema validation) is a real, different case: it's logged at `debug` and
+  succeeded but generation is still in progress). A genuinely broken record (fails
+  schema validation) is a different case: it's logged at `debug` and
   reported as `{ ready: false, paid: false, generated: false }`, same as
   "not ready yet" from the response alone, but distinguishable in the logs.
-  A malformed `documentId` is logged at `warn`; a genuinely unexpected
-  error is logged at `error`. Polled by both `/purchase` (informational —
-  generation status only, doesn't gate anything) and `/download`
-  (`ready = paid && generated` drives that page's download link).
+  A malformed `documentId` is logged at `warn`; an unexpected
+  error is logged at `error`. Polled by both `/purchase` and `/download`.
 - **Downloading** (`/api/documents/[documentId]/download`): an
   `ApplicationError` is logged at `debug`; a malformed `documentId` is
   logged at `warn`; any other, genuinely unexpected error is logged at
   `error`. All three collapse to the same generic `404 File not found`
-  response either way. Don't take that message literally; check
-  `PDF_SHOP_DATA_DIR` directly for the document in question rather than
-  trusting the response.
+  response either way. Check `PDF_SHOP_DATA_DIR` directly for the document
+  in question rather than trusting the response.
 
 When investigating a report of a stuck or failed document, the most direct
 approach is usually to check the document's records under `PDF_SHOP_DATA_DIR`

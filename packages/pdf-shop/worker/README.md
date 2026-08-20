@@ -24,6 +24,8 @@ nx serve pdf-shop-worker
 nx docker:build pdf-shop-worker
 ```
 
+See the full [runbook](./RUNBOOK.md) for more details about operation.
+
 ## Routes
 
 | Path          | Purpose                                                      |

@@ -27,6 +27,8 @@ nx dev pdf-shop-website
 nx docker:build pdf-shop-website
 ```
 
+See the full [runbook](./RUNBOOK.md) for more details about operation.
+
 ## Pages and routes
 
 | Path                                   | Purpose                                                  |
