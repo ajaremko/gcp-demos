@@ -14,7 +14,7 @@ export const GlobalStyles = createGlobalStyle`
   body {
     background: ${(props) => props.theme.colors.background};
     color: ${(props) => props.theme.colors.text};
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
 
   a {

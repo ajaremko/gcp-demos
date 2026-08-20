@@ -7,7 +7,7 @@ export const PageShell = styled.main`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: ${(props) => props.theme.spacing(6)} ${(props) => props.theme.spacing(3)};
+  padding: ${(props) => props.theme.spacing(8)} ${(props) => props.theme.spacing(3)};
 `
 
 export const Card = styled.div`
@@ -16,11 +16,13 @@ export const Card = styled.div`
   background: ${(props) => props.theme.colors.surface};
   border: 1px solid ${(props) => props.theme.colors.border};
   border-radius: ${(props) => props.theme.radii.lg};
-  padding: ${(props) => props.theme.spacing(4)};
+  padding: ${(props) => props.theme.spacing(5)};
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 8px 24px rgba(16, 24, 40, 0.06);
 `
 
 export const Heading = styled.h1`
-  font-size: 1.75rem;
+  font-size: 2rem;
+  font-weight: 700;
   margin: 0 0 ${(props) => props.theme.spacing(1)};
 `
 
@@ -42,7 +44,7 @@ export const Label = styled.label`
 `
 
 const inputStyles = `
-  background: transparent;
+  background: white;
   border-radius: 8px;
   padding: 10px 12px;
   font: inherit;
@@ -90,16 +92,19 @@ const buttonStyles = css`
   background: ${(props) => props.theme.colors.primary};
   color: white;
   border: none;
-  border-radius: ${(props) => props.theme.radii.md};
-  padding: 12px 20px;
+  border-radius: ${(props) => props.theme.radii.pill};
+  padding: 12px 24px;
   font: inherit;
   font-weight: 600;
   cursor: pointer;
   text-decoration: none;
   display: inline-block;
+  transition: background-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
 
   &:hover:not(:disabled) {
     background: ${(props) => props.theme.colors.primaryHover};
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
   }
 
   &:disabled {
