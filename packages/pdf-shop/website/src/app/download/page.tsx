@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { CheckOrderStatusHandler } from '@org/pdf-shop-application'
 
 import { PageShell, Card, Heading, Subheading } from '@/lib/ui'
-import { StepIndicator } from '@/lib/StepIndicator'
+import { StepHeader } from '@/lib/StepHeader'
 import { pinoLogger } from '@/lib/pino'
 import { resolveDataRoot } from '@/lib/dataRoot'
 import { documentIdSchema } from '@/lib/schemas'
@@ -40,7 +40,9 @@ export default async function DownloadPage({
 
   return (
     <PageShell>
-      <StepIndicator currentStep="download" />
+      <StepHeader currentStep="download">
+        Once your document is ready, you&apos;ll be able to download it below.
+      </StepHeader>
       <Card>
         <Heading>Your document</Heading>
         <Subheading>

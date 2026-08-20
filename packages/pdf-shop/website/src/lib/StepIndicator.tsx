@@ -7,7 +7,7 @@ const steps = [
   { key: 'download', label: 'Download' },
 ] as const
 
-type StepKey = (typeof steps)[number]['key']
+export type StepKey = (typeof steps)[number]['key']
 
 const Row = styled.ol`
   display: flex;
@@ -15,7 +15,7 @@ const Row = styled.ol`
   list-style: none;
   width: 100%;
   max-width: 560px;
-  margin: 0 0 ${(props) => props.theme.spacing(4)} 0;
+  margin: 0 0 ${(props) => props.theme.spacing(2)} 0;
   padding: 0;
 `
 

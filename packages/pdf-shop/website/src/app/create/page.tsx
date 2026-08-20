@@ -1,12 +1,14 @@
 import { PageShell, Card, Heading, Subheading } from '@/lib/ui'
-import { StepIndicator } from '@/lib/StepIndicator'
+import { StepHeader } from '@/lib/StepHeader'
 
 import { CreateDocumentSpecForm } from './CreateDocumentForm'
 
 export default function DocumentSpecPage() {
   return (
     <PageShell>
-      <StepIndicator currentStep="create" />
+      <StepHeader currentStep="create">
+        Describe the document you&apos;d like, then continue to payment.
+      </StepHeader>
       <Card>
         <Heading>Describe your document</Heading>
         <Subheading>

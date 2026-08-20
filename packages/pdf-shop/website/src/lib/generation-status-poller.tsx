@@ -1,6 +1,5 @@
 'use client'
 import { useQuery } from '@tanstack/react-query'
-import { HelperText } from '@/lib/ui'
 import { fetchOrderStatus } from '@/lib/orderStatus'
 
 const POLL_INTERVAL_MS = 3000
@@ -22,11 +21,7 @@ export function GenerationStatusPoller({
       query.state.data?.generated ? false : POLL_INTERVAL_MS,
   })
 
-  return (
-    <HelperText>
-      {data?.generated
-        ? 'Your document has been generated and is ready.'
-        : 'Your document is being generated in the background.'}
-    </HelperText>
-  )
+  return data?.generated
+    ? 'Your document is ready for download! Complete payment to access it.'
+    : 'Your document is being generated. Complete payment to access it.'
 }
