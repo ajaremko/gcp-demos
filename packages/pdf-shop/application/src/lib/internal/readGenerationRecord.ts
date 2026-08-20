@@ -7,7 +7,7 @@ import {
   type GenerationRecord,
   generationRecordSchema,
 } from './data/GenerationRecord'
-import { buildRecordPath } from './recordPath'
+import { buildRecordPath } from './data/recordPath'
 
 /** The generation record (`generated.json`) could not be found. */
 export class GeneratedDocumentRecordNotFound extends ApplicationError {

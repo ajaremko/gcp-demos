@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 
-import { recordDir, buildRecordPath } from '../../lib/internal/recordPath'
+import { recordDir, buildRecordPath } from '../../lib/internal/data/recordPath'
 
 describe('recordPath', () => {
   describe('recordDir', () => {
@@ -22,9 +22,7 @@ describe('recordPath', () => {
             recordType,
             '11111111-1111-4111-8111-111111111111',
           ),
-        ).toBe(
-          `/data/${recordType}/11111111-1111-4111-8111-111111111111.json`,
-        )
+        ).toBe(`/data/${recordType}/11111111-1111-4111-8111-111111111111.json`)
       },
     )
 

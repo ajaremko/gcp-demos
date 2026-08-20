@@ -4,7 +4,7 @@ import { type Logger } from 'pino'
 import { ApplicationError } from '../ApplicationError'
 
 import { type OrderRecord, orderRecordSchema } from './data/OrderRecord'
-import { buildRecordPath } from './recordPath'
+import { buildRecordPath } from './data/recordPath'
 
 /** The order record (`created.json`) could not be found. */
 export class DocumentOrderNotFound extends ApplicationError {

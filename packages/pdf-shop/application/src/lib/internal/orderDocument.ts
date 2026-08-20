@@ -6,7 +6,7 @@ import { type Logger } from 'pino'
 import { ApplicationError } from '../ApplicationError'
 
 import { type OrderRecord } from './data/OrderRecord'
-import { recordDir, buildRecordPath } from './recordPath'
+import { recordDir, buildRecordPath } from './data/recordPath'
 
 const DEMO_PRICE_CENTS = 999
 const DEMO_PRICE_CURRENCY = 'usd'

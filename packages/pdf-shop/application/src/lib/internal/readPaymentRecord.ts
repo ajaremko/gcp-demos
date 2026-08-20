@@ -4,7 +4,7 @@ import { type Logger } from 'pino'
 import { ApplicationError } from '../ApplicationError'
 
 import { type PaymentRecord, paymentRecordSchema } from './data/PaymentRecord'
-import { buildRecordPath } from './recordPath'
+import { buildRecordPath } from './data/recordPath'
 
 /** The payment confirmation record (`paid.json`) could not be found. */
 export class PaymentConfirmationNotFound extends ApplicationError {

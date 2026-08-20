@@ -5,7 +5,7 @@ import { type Logger } from 'pino'
 import { ApplicationError } from '../ApplicationError'
 
 import { type PaymentRecord } from './data/PaymentRecord'
-import { recordDir, buildRecordPath } from './recordPath'
+import { recordDir, buildRecordPath } from './data/recordPath'
 
 /** The Stripe payment intent for the purchase could not be retrieved. */
 export class PaymentIntentNotFound extends ApplicationError {

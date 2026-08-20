@@ -5,7 +5,7 @@ import { ApplicationError } from '../ApplicationError'
 
 import { type GenerationRecord } from './data/GenerationRecord'
 import { type DocumentSpec } from './data/DocumentSpec'
-import { recordDir, buildRecordPath } from './recordPath'
+import { recordDir, buildRecordPath } from './data/recordPath'
 
 /** The document's output directory could not be created. */
 export class GeneratedDocumentDirectoryFailed extends ApplicationError {
