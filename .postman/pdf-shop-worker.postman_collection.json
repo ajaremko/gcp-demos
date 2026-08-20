@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "5f3f5e2a-9b1a-4c9e-8f3a-2f8b1e9c4d21",
     "name": "pdf-shop-worker",
-    "description": "Simulates a GCP Pub/Sub push notification for a Cloud Storage document-created event, so worker's POST / can be triggered manually during local testing without real GCP infrastructure.\n\nBefore sending: run `nx serve pdf-shop-worker`, create a document via the website's /create page, and set the `documentId` variable below to the id from that document's created.json (visible in the /payment URL after creating a spec). The request's `message.data` field is included only for structural realism — worker's current handler reads just `message.attributes.eventType` and `message.attributes.objectId`, so `data` does not need to stay in sync with `documentId`.",
+    "description": "Simulates a GCP Pub/Sub push notification for a Cloud Storage document-created event, so worker's POST / can be triggered manually during local testing without real GCP infrastructure.\n\nBefore sending the first request: run `nx serve pdf-shop-worker`, create a document via the website's /create page, and set the `documentId` variable below to the id from that document's created record (visible in the /purchase URL after creating a spec). The request's `message.data` field is included only for structural realism — worker's current handler reads just `message.attributes.eventType` and `message.attributes.objectId`, so `data` does not need to stay in sync with `documentId`.\n\nThe other two requests need no setup — they exercise worker's two failure paths directly and use fixed, self-contained ids.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -19,14 +19,63 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"message\": {\n    \"attributes\": {\n      \"eventType\": \"OBJECT_FINALIZE\",\n      \"bucketId\": \"pdf-shop-documents\",\n      \"objectId\": \"{{documentId}}/created.json\",\n      \"objectGeneration\": \"1700000000000000\",\n      \"payloadFormat\": \"JSON_API_V1\"\n    },\n    \"data\": \"eyJraW5kIjoic3RvcmFnZSNvYmplY3QiLCJuYW1lIjoiPGRvY3VtZW50SWQ+L2NyZWF0ZWQuanNvbiIsImJ1Y2tldCI6InBkZi1zaG9wLWRvY3VtZW50cyJ9\",\n    \"messageId\": \"2070443601311540\",\n    \"publishTime\": \"2024-01-01T00:00:00.000Z\"\n  },\n  \"subscription\": \"projects/pdf-shop/subscriptions/pdf-shop-worker-push\"\n}",
+          "raw": "{\n  \"message\": {\n    \"attributes\": {\n      \"eventType\": \"OBJECT_FINALIZE\",\n      \"bucketId\": \"pdf-shop-documents\",\n      \"objectId\": \"created/{{documentId}}.json\",\n      \"objectGeneration\": \"1700000000000000\",\n      \"payloadFormat\": \"JSON_API_V1\"\n    },\n    \"data\": \"eyJraW5kIjoic3RvcmFnZSNvYmplY3QiLCJuYW1lIjoiY3JlYXRlZC88ZG9jdW1lbnRJZD4uanNvbiIsImJ1Y2tldCI6InBkZi1zaG9wLWRvY3VtZW50cyJ9\",\n    \"messageId\": \"2070443601311540\",\n    \"publishTime\": \"2024-01-01T00:00:00.000Z\"\n  },\n  \"subscription\": \"projects/pdf-shop/subscriptions/pdf-shop-worker-push\"\n}",
           "options": {
             "raw": {
               "language": "json"
             }
           }
         },
-        "url": "{{workerBaseUrl}}/"
+        "url": "{{workerBaseUrl}}/",
+        "description": "Expected: 201, and a real created/{{documentId}}.json must already exist at PDF_SHOP_DATA_DIR for generation to actually succeed (check for generated/{{documentId}}.txt and .json afterward)."
+      }
+    },
+    {
+      "name": "Simulate a notification for a non-created object (ignored)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": {\n    \"attributes\": {\n      \"eventType\": \"OBJECT_FINALIZE\",\n      \"bucketId\": \"pdf-shop-documents\",\n      \"objectId\": \"generated/22222222-2222-4222-8222-222222222222.json\",\n      \"objectGeneration\": \"1700000000000001\",\n      \"payloadFormat\": \"JSON_API_V1\"\n    },\n    \"data\": \"eyJraW5kIjoic3RvcmFnZSNvYmplY3QiLCJuYW1lIjoiZ2VuZXJhdGVkLzIyMjIyMjIyLTIyMjItNDIyMi04MjIyLTIyMjIyMjIyMjIyMi5qc29uIiwiYnVja2V0IjoicGRmLXNob3AtZG9jdW1lbnRzIn0=\",\n    \"messageId\": \"2070443601311541\",\n    \"publishTime\": \"2024-01-01T00:00:00.000Z\"\n  },\n  \"subscription\": \"projects/pdf-shop/subscriptions/pdf-shop-worker-push\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{workerBaseUrl}}/",
+        "description": "objectId doesn't match the created/*.json prefix worker filters on, so this is acknowledged but ignored — no setup required. Expected: 201, with a 'Unprocessable request received' warn log on the worker side."
+      }
+    },
+    {
+      "name": "Simulate a notification for a document with no order record (bad input)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": {\n    \"attributes\": {\n      \"eventType\": \"OBJECT_FINALIZE\",\n      \"bucketId\": \"pdf-shop-documents\",\n      \"objectId\": \"created/33333333-3333-4333-8333-333333333333.json\",\n      \"objectGeneration\": \"1700000000000002\",\n      \"payloadFormat\": \"JSON_API_V1\"\n    },\n    \"data\": \"eyJraW5kIjoic3RvcmFnZSNvYmplY3QiLCJuYW1lIjoiY3JlYXRlZC8zMzMzMzMzMy0zMzMzLTQzMzMtODMzMy0zMzMzMzMzMzMzMzMuanNvbiIsImJ1Y2tldCI6InBkZi1zaG9wLWRvY3VtZW50cyJ9\",\n    \"messageId\": \"2070443601311542\",\n    \"publishTime\": \"2024-01-01T00:00:00.000Z\"\n  },\n  \"subscription\": \"projects/pdf-shop/subscriptions/pdf-shop-worker-push\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{workerBaseUrl}}/",
+        "description": "objectId matches the created/*.json shape worker expects, but no such record exists on disk (no setup required — this id is intentionally never created), so generateDocument fails to find it. Expected: 500, with a 'Failed to generate document' error log on the worker side."
       }
     }
   ],

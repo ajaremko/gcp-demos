@@ -20,7 +20,7 @@ export default async function DownloadPage({
   }
   const parsed = documentIdSchema.safeParse({ documentId })
 
-  let status: boolean | null = null
+  let status: { paid: boolean; generated: boolean } | null = null
   if (parsed.success) {
     const handler = CheckOrderStatusHandler({
       dataRoot: resolveDataRoot(),
@@ -35,7 +35,7 @@ export default async function DownloadPage({
   } else {
     pinoLogger.warn({ err: parsed.error }, 'Invalid document id')
   }
-  const ready = Boolean(status)
+  const ready = Boolean(status?.paid && status?.generated)
 
   return (
     <PageShell>

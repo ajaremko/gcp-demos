@@ -3,9 +3,11 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 
 import { CheckOrderStatusHandler } from '../lib/CheckOrderStatusHandler'
-import { GeneratedDocumentRecordNotFound } from '../lib/internal/readGenerationRecord'
-import { PaymentConfirmationNotFound } from '../lib/internal/readPaymentRecord'
+import { GeneratedDocumentRecordInvalid } from '../lib/internal/readGenerationRecord'
+import { PaymentConfirmationInvalid } from '../lib/internal/readPaymentRecord'
 import { createTempDataRoot, createTestLogger } from './testEnv'
+
+const documentId = '11111111-1111-4111-8111-111111111111'
 
 describe('CheckOrderStatusHandler', () => {
   let dataRoot: string
@@ -20,24 +22,27 @@ describe('CheckOrderStatusHandler', () => {
     await cleanup()
   })
 
-  it('validates input and returns true when the document is generated and paid for', async () => {
+  async function writeGeneratedRecord() {
     await mkdir(`${dataRoot}/generated`, { recursive: true })
-    await mkdir(`${dataRoot}/paid`, { recursive: true })
     await writeFile(
-      `${dataRoot}/generated/11111111-1111-4111-8111-111111111111.json`,
+      `${dataRoot}/generated/${documentId}.json`,
       '{' +
-        '"documentId":"11111111-1111-4111-8111-111111111111",' +
-        '"path":"11111111-1111-4111-8111-111111111111",' +
+        `"documentId":"${documentId}",` +
+        `"path":"${documentId}",` +
         '"filename":"contract.txt",' +
         '"contentType":"text/plain",' +
         '"timestamp":"2024-01-01T00:00:00.000Z"' +
         '}',
       'utf-8',
     )
+  }
+
+  async function writePaidRecord() {
+    await mkdir(`${dataRoot}/paid`, { recursive: true })
     await writeFile(
-      `${dataRoot}/paid/11111111-1111-4111-8111-111111111111.json`,
+      `${dataRoot}/paid/${documentId}.json`,
       '{' +
-        '"documentId":"11111111-1111-4111-8111-111111111111",' +
+        `"documentId":"${documentId}",` +
         '"stripePaymentIntentId":"pi_1",' +
         '"amount":999,' +
         '"currency":"usd",' +
@@ -45,43 +50,66 @@ describe('CheckOrderStatusHandler', () => {
         '}',
       'utf-8',
     )
+  }
 
-    const result = await CheckOrderStatusHandler({
-      dataRoot,
-      logger,
-    })({
-      documentId: '11111111-1111-4111-8111-111111111111',
+  it('resolves { paid: true, generated: true } when both records exist', async () => {
+    await writeGeneratedRecord()
+    await writePaidRecord()
+
+    const result = await CheckOrderStatusHandler({ dataRoot, logger })({
+      documentId,
     })
 
-    expect(result).toBe(true)
+    expect(result).toEqual({ paid: true, generated: true })
   })
 
-  it('propagates GeneratedDocumentRecordNotFound from readGenerationRecord', async () => {
-    const result = CheckOrderStatusHandler({ dataRoot, logger })({
-      documentId: '11111111-1111-4111-8111-111111111111',
+  it('resolves { paid: false, generated: true } when only generation is done', async () => {
+    await writeGeneratedRecord()
+
+    const result = await CheckOrderStatusHandler({ dataRoot, logger })({
+      documentId,
     })
 
-    await expect(result).rejects.toBeInstanceOf(GeneratedDocumentRecordNotFound)
+    expect(result).toEqual({ paid: false, generated: true })
   })
 
-  it('propagates PaymentConfirmationNotFound from getPayment', async () => {
+  it('resolves { paid: true, generated: false } when only payment is confirmed', async () => {
+    await writePaidRecord()
+
+    const result = await CheckOrderStatusHandler({ dataRoot, logger })({
+      documentId,
+    })
+
+    expect(result).toEqual({ paid: true, generated: false })
+  })
+
+  it('resolves { paid: false, generated: false } when neither record exists', async () => {
+    const result = await CheckOrderStatusHandler({ dataRoot, logger })({
+      documentId,
+    })
+
+    expect(result).toEqual({ paid: false, generated: false })
+  })
+
+  it('propagates GeneratedDocumentRecordInvalid from readGenerationRecord', async () => {
     await mkdir(`${dataRoot}/generated`, { recursive: true })
-    await writeFile(
-      `${dataRoot}/generated/11111111-1111-4111-8111-111111111111.json`,
-      '{' +
-        '"documentId":"11111111-1111-4111-8111-111111111111",' +
-        '"path":"11111111-1111-4111-8111-111111111111",' +
-        '"filename":"contract.txt",' +
-        '"contentType":"text/plain",' +
-        '"timestamp":"2024-01-01T00:00:00.000Z"' +
-        '}',
-      'utf-8',
-    )
+    await writeFile(`${dataRoot}/generated/${documentId}.json`, 'not json', 'utf-8')
 
     const result = CheckOrderStatusHandler({ dataRoot, logger })({
-      documentId: '11111111-1111-4111-8111-111111111111',
+      documentId,
     })
 
-    await expect(result).rejects.toBeInstanceOf(PaymentConfirmationNotFound)
+    await expect(result).rejects.toBeInstanceOf(GeneratedDocumentRecordInvalid)
+  })
+
+  it('propagates PaymentConfirmationInvalid from readPaymentRecord', async () => {
+    await mkdir(`${dataRoot}/paid`, { recursive: true })
+    await writeFile(`${dataRoot}/paid/${documentId}.json`, 'not json', 'utf-8')
+
+    const result = CheckOrderStatusHandler({ dataRoot, logger })({
+      documentId,
+    })
+
+    await expect(result).rejects.toBeInstanceOf(PaymentConfirmationInvalid)
   })
 })

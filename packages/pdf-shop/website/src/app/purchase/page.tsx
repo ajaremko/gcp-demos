@@ -1,6 +1,9 @@
 import { redirect } from 'next/navigation'
 
-import { GetPaymentContextHandler } from '@org/pdf-shop-application'
+import {
+  GetPaymentContextHandler,
+  CheckOrderStatusHandler,
+} from '@org/pdf-shop-application'
 
 import { PageShell, Card, Heading, Subheading } from '@/lib/ui'
 import { getStripeClient } from '@/lib/stripe'
@@ -10,6 +13,7 @@ import { documentIdSchema } from '@/lib/schemas'
 
 import { PurchaseDocumentForm } from './PurchaseDocumentForm'
 import { TestCards } from './TestCards'
+import { GenerationStatusPoller } from './generation-status-poller'
 
 export default async function PurchasePage({
   searchParams,
@@ -48,6 +52,17 @@ export default async function PurchasePage({
     throw err
   }
 
+  const statusHandler = CheckOrderStatusHandler({
+    dataRoot: resolveDataRoot(),
+    logger: pinoLogger,
+  })
+  let status: { paid: boolean; generated: boolean } | null = null
+  try {
+    status = await statusHandler(parsed.data)
+  } catch (err) {
+    pinoLogger.debug({ err }, 'Failed to check order status')
+  }
+
   return (
     <PageShell>
       <Card>
@@ -55,6 +70,10 @@ export default async function PurchasePage({
         <Subheading>
           One-time purchase — sandbox mode, no real charge.
         </Subheading>
+        <GenerationStatusPoller
+          documentId={document.documentId}
+          initialGenerated={status?.generated ?? false}
+        />
         {document.clientSecret && (
           <PurchaseDocumentForm
             documentId={document.documentId}

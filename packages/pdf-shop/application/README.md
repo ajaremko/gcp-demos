@@ -156,12 +156,14 @@ storage rather than by a direct request.
 
 ### `CheckOrderStatusHandler(env)`
 
-Reports whether a document's order has reached "ready": its content has been
-generated and its payment confirmed.
+Reports whether a document has been paid for and whether its content has
+been generated — the two are independent, since generation is triggered
+by the order becoming durable in storage, not by payment.
 
 - **env**: `{ dataRoot, logger }`
 - **input**: `{ documentId: string }`
-- **resolves to**: `true` (rejects otherwise — see [Error handling](#error-handling))
+- **resolves to**: `{ paid: boolean, generated: boolean }` (rejects only on
+  a corrupt record — see [Error handling](#error-handling))
 
 ### `DownloadDocumentHandler(env)`
 
@@ -267,7 +269,10 @@ const env = { dataRoot, logger }
 await GenerateDocumentHandler(env)({ path: orderRecordPath })
 
 // poll until both generation and payment have completed
-await CheckOrderStatusHandler(env)({ documentId })
+let status: { paid: boolean; generated: boolean }
+do {
+  status = await CheckOrderStatusHandler(env)({ documentId })
+} while (!status.paid || !status.generated)
 
 const { stream, size, filename, contentType } = await DownloadDocumentHandler(
   env,

@@ -25,21 +25,15 @@ export async function GET(
   })
   try {
     const params = documentIdSchema.parse(rawParams)
-    const ready = await handler(params)
-    return Response.json({ ready })
+    const status = await handler(params)
+    return Response.json({ ready: status.paid && status.generated, ...status })
   } catch (err) {
     if (isApplicationError(err)) {
-      if (err.tag === 'GeneratedDocumentRecordNotFound') {
-        // Document has not been generated yet
-        return Response.json({ ready: false })
-      } else if (err.tag === 'PaymentConfirmationNotFound') {
-        // Document has not been paid for yet
-        return Response.json({ ready: false })
-      } else {
-        // Unexpected application error
-        pinoLogger.debug({ err }, 'Failed to check order status')
-      }
-      return Response.json({ ready: false })
+      // Both PaymentConfirmationNotFound and GeneratedDocumentRecordNotFound
+      // are handled inside CheckOrderStatusHandler and never reach here —
+      // any ApplicationError that does is a genuine, unexpected failure.
+      pinoLogger.debug({ err }, 'Failed to check order status')
+      return Response.json({ ready: false, paid: false, generated: false })
     }
     if (err instanceof ZodError) {
       pinoLogger.warn({ err }, 'Invalid document id')
@@ -52,6 +46,6 @@ export async function GET(
       )
     }
     pinoLogger.error({ err }, 'Unexpected error checking order status')
-    return Response.json({ ready: false })
+    return Response.json({ ready: false, paid: false, generated: false })
   }
 }

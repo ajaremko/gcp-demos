@@ -15,9 +15,9 @@ exists.
 | -------------------------------------- | ---------------------------------------------- |
 | `/`                                    | Landing page                                   |
 | `/create`                              | Document spec form (color scheme, title, body) |
-| `/purchase?doc=`                       | Stripe payment form for a specific document    |
+| `/purchase?doc=`                       | Stripe payment form; shows a generation-status indicator |
 | `/download?doc=`                       | Polls readiness, then offers the download      |
-| `/api/documents/[documentId]/status`   | Polled by the download page                    |
+| `/api/documents/[documentId]/status`   | Polled by both the purchase and download pages |
 | `/api/documents/[documentId]/download` | Streams the generated file                     |
 | `/api/health`                          | Health check                                   |
 

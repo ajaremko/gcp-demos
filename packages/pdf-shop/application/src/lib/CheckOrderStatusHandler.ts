@@ -1,47 +1,69 @@
 import { type Logger } from 'pino'
 
-import { readGenerationRecord } from './internal/readGenerationRecord'
-import { readPaymentRecord } from './internal/readPaymentRecord'
+import {
+  readGenerationRecord,
+  GeneratedDocumentRecordNotFound,
+} from './internal/readGenerationRecord'
+import {
+  readPaymentRecord,
+  PaymentConfirmationNotFound,
+} from './internal/readPaymentRecord'
 
 export interface CheckOrderStatus {
   documentId: string
 }
 
+export interface OrderStatus {
+  paid: boolean
+  generated: boolean
+}
+
 /**
- * Reports whether a document's order has reached "ready": its content has
- * been generated and its payment confirmed.
+ * Reports whether a document's order has been paid for and whether its
+ * content has been generated — the two are independent, since generation
+ * is triggered by the order becoming durable in storage, not by payment.
  *
  * @param env.dataRoot - Root directory where per-document records are stored.
  * @param env.logger - Logger; a child logger scoped to this handler (including
  *   `documentId`) is created per call.
  * @returns An async function that takes a {@link CheckOrderStatus}
- *   (`documentId`) and resolves to `true` once both records exist — otherwise
- *   it rejects, which callers typically treat as "not ready yet" rather than
- *   a hard failure.
- * @throws {GeneratedDocumentRecordNotFound} If the document has not been generated yet.
- * @throws {GeneratedDocumentRecordInvalid} If the generation record is invalid.
- * @throws {PaymentConfirmationNotFound} If the document has not been paid for yet.
- * @throws {PaymentConfirmationInvalid} If the payment confirmation record is invalid.
+ *   (`documentId`) and resolves to an {@link OrderStatus}.
+ * @throws {GeneratedDocumentRecordInvalid} If the generation record exists but is invalid.
+ * @throws {PaymentConfirmationInvalid} If the payment confirmation record exists but is invalid.
  *
  * @example
- * const ready = await CheckOrderStatusHandler({ dataRoot, logger })({
+ * const status = await CheckOrderStatusHandler({ dataRoot, logger })({
  *   documentId: '11111111-1111-4111-8111-111111111111',
  * })
- * // ready === true
+ * // status === { paid: true, generated: false }
  */
 export function CheckOrderStatusHandler(env: {
   dataRoot: string
   logger: Logger
 }) {
-  return async function (input: CheckOrderStatus) {
+  return async function (input: CheckOrderStatus): Promise<OrderStatus> {
     const { documentId } = input
     const logger = env.logger.child({
       handler: 'CheckOrderStatusHandler',
       documentId,
     })
     const localEnv = { ...env, logger }
-    await readGenerationRecord(localEnv)({ documentId })
-    await readPaymentRecord(localEnv)({ documentId })
-    return true
+
+    const [generated, paid] = await Promise.all([
+      readGenerationRecord(localEnv)({ documentId })
+        .then(() => true)
+        .catch((err) => {
+          if (err instanceof GeneratedDocumentRecordNotFound) return false
+          throw err
+        }),
+      readPaymentRecord(localEnv)({ documentId })
+        .then(() => true)
+        .catch((err) => {
+          if (err instanceof PaymentConfirmationNotFound) return false
+          throw err
+        }),
+    ])
+
+    return { paid, generated }
   }
 }

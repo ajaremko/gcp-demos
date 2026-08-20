@@ -60,14 +60,19 @@ The various page/route that call into `@org/pdf-shop-application` may each handl
   the one call site with the most diagnosable logging of the six, since the
   message also includes the specific `ApplicationError` tag (payment not
   found, invalid, or the confirmation record failing to write).
-- **Polling status** (`/api/documents/[documentId]/status`): an
-  `ApplicationError` is logged at `debug` before folding into the same
-  `{ ready: false }` response as "not ready yet" — so it's not silent, but
-  it also isn't visible in production by default. A document that is
-  permanently broken still looks identical, from the response alone, to one
-  that's still processing. A malformed `documentId` is logged at `warn`
-  instead; a genuinely unexpected error (neither of the above) is logged at
-  `error` — distinguishing a real bug from routine "not ready yet" polling.
+- **Polling status** (`/api/documents/[documentId]/status`): the response
+  is now `{ ready, paid, generated }` — "not paid yet" and "not generated
+  yet" are distinguishable from the response itself (both booleans false
+  means neither has happened; `paid: true, generated: false` means payment
+  succeeded but generation is still in progress), no longer conflated the
+  way a bare `{ ready: false }` used to. A genuinely broken record (fails
+  schema validation) is a real, different case: it's logged at `debug` and
+  reported as `{ ready: false, paid: false, generated: false }`, same as
+  "not ready yet" from the response alone, but distinguishable in the logs.
+  A malformed `documentId` is logged at `warn`; a genuinely unexpected
+  error is logged at `error`. Polled by both `/purchase` (informational —
+  generation status only, doesn't gate anything) and `/download`
+  (`ready = paid && generated` drives that page's download link).
 - **Downloading** (`/api/documents/[documentId]/download`): an
   `ApplicationError` is logged at `debug`; a malformed `documentId` is
   logged at `warn`; any other, genuinely unexpected error is logged at
