@@ -19,6 +19,12 @@ export function SiteFooter() {
       <span>PDF Shop - Sample application</span>
       <Link href="/terms">Terms</Link>
       <Link href="/privacy">Privacy</Link>
+      <Link
+        href="https://github.com/ajaremko/gcp-demos/tree/main/packages/pdf-shop"
+        target="_blank"
+      >
+        Github
+      </Link>
     </Bar>
   )
 }
