@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { CheckOrderStatusHandler } from '@org/pdf-shop-application'
 
 import { PageShell, Card } from '@/lib/ui'
+import { ReturnHomeLink } from '@/lib/ui/ReturnHomeLink'
 import { pinoLogger } from '@/lib/server/pino'
 import { resolveDataRoot } from '@/lib/server/dataRoot'
 import { documentIdSchema } from '@/lib/validation/schemas'
@@ -42,6 +43,7 @@ export default async function DownloadPage({
       <Card>
         <DownloadStatusPoller documentId={documentId} initialReady={ready} />
       </Card>
+      <ReturnHomeLink />
     </PageShell>
   )
 }

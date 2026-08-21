@@ -7,6 +7,7 @@ import {
 
 import { PageShell } from '@/lib/ui'
 import { FlowGrid } from '@/lib/ui/FlowGrid'
+import { ReturnHomeLink } from '@/lib/ui/ReturnHomeLink'
 import { getStripeClient } from '@/lib/server/stripe'
 import { pinoLogger } from '@/lib/server/pino'
 import { resolveDataRoot } from '@/lib/server/dataRoot'
@@ -66,12 +67,15 @@ export default async function PurchasePage({
   return (
     <PageShell>
       <FlowGrid>
-        <StripePaymentPanel
-          title={document.spec.title}
-          documentId={document.documentId}
-          clientSecret={document.clientSecret}
-          publishableKey={publishableKey}
-        />
+        <div>
+          <StripePaymentPanel
+            title={document.spec.title}
+            documentId={document.documentId}
+            clientSecret={document.clientSecret}
+            publishableKey={publishableKey}
+          />
+          <ReturnHomeLink />
+        </div>
         <OrderSummaryPanel
           title={document.spec.title}
           documentId={document.documentId}

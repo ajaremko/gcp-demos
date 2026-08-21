@@ -7,6 +7,13 @@ import { fetchOrderStatus } from '@/lib/query/orderStatus'
 
 const POLL_INTERVAL_MS = 3000
 
+const ButtonsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${(props) => props.theme.spacing(2)};
+  margin-top: ${(props) => props.theme.spacing(2)};
+`
+
 const DownloadButton = styled(LinkButton)`
   width: 100%;
   text-align: center;
@@ -15,7 +22,6 @@ const DownloadButton = styled(LinkButton)`
 const GithubButton = styled(LinkButton)`
   width: 100%;
   text-align: center;
-  margin-top: ${(props) => props.theme.spacing(2)};
   background: #24292e;
 
   &:hover:not(:disabled) {
@@ -54,20 +60,20 @@ export function DownloadStatusPoller({
       </Subheading>
       {!ready && <StatusBadge state="processing">Processing</StatusBadge>}
       {ready && (
-        <DownloadButton
-          href={`/api/documents/${documentId}/download`}
-          target="_blank"
-        >
-          Download PDF
-        </DownloadButton>
-      )}
-      {ready && (
-        <GithubButton
-          href="https://github.com/ajaremko/gcp-demos/tree/main/packages/pdf-shop"
-          target="_blank"
-        >
-          View Source on GitHub
-        </GithubButton>
+        <ButtonsContainer>
+          <DownloadButton
+            href={`/api/documents/${documentId}/download`}
+            target="_blank"
+          >
+            Download PDF
+          </DownloadButton>
+          <GithubButton
+            href="https://github.com/ajaremko/gcp-demos/tree/main/packages/pdf-shop"
+            target="_blank"
+          >
+            View Source on GitHub
+          </GithubButton>
+        </ButtonsContainer>
       )}
     </>
   )
