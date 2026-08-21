@@ -1,7 +1,7 @@
 'use client'
 import styled from 'styled-components'
 import { HelperText } from '@/lib/ui'
-import { HoverPopup } from '@/lib/HoverPopup'
+import { HoverPopup } from '@/lib/ui/HoverPopup'
 
 const List = styled.ul`
   margin: 0;

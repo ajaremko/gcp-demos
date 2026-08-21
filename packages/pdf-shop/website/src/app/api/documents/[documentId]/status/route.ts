@@ -5,9 +5,9 @@ import {
   CheckOrderStatusHandler,
 } from '@org/pdf-shop-application'
 
-import { pinoLogger } from '@/lib/pino'
-import { resolveDataRoot } from '@/lib/dataRoot'
-import { documentIdSchema } from '@/lib/schemas'
+import { pinoLogger } from '@/lib/server/pino'
+import { resolveDataRoot } from '@/lib/server/dataRoot'
+import { documentIdSchema } from '@/lib/validation/schemas'
 
 /**
  * GET /api/documents/[documentId]/status

@@ -6,11 +6,11 @@ import {
 } from '@org/pdf-shop-application'
 
 import { PageShell } from '@/lib/ui'
-import { FlowGrid } from '@/lib/FlowGrid'
-import { getStripeClient } from '@/lib/stripe'
-import { pinoLogger } from '@/lib/pino'
-import { resolveDataRoot } from '@/lib/dataRoot'
-import { documentIdSchema } from '@/lib/schemas'
+import { FlowGrid } from '@/lib/ui/FlowGrid'
+import { getStripeClient } from '@/lib/server/stripe'
+import { pinoLogger } from '@/lib/server/pino'
+import { resolveDataRoot } from '@/lib/server/dataRoot'
+import { documentIdSchema } from '@/lib/validation/schemas'
 
 import { StripePaymentPanel } from './StripePaymentPanel'
 import { OrderSummaryPanel } from './OrderSummaryPanel'

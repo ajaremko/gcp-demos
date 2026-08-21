@@ -1,8 +1,8 @@
 'use client'
 import { useQuery } from '@tanstack/react-query'
 import { Card, Heading, Subheading, HelperText } from '@/lib/ui'
-import { StatusBadge } from '@/lib/StatusBadge'
-import { fetchOrderStatus } from '@/lib/orderStatus'
+import { StatusBadge } from '@/lib/ui/StatusBadge'
+import { fetchOrderStatus } from '@/lib/query/orderStatus'
 
 const POLL_INTERVAL_MS = 3000
 

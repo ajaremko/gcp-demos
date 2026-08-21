@@ -1,5 +1,5 @@
 import { PageShell } from '@/lib/ui'
-import { FlowGrid } from '@/lib/FlowGrid'
+import { FlowGrid } from '@/lib/ui/FlowGrid'
 
 import { OrderDocumentPanel } from './OrderDocumentPanel'
 import { WhatYouGetPanel } from './WhatYouGetPanel'

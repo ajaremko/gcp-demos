@@ -7,10 +7,10 @@ import {
   OrderDocumentHandler,
 } from '@org/pdf-shop-application'
 
-import { getStripeClient } from '@/lib/stripe'
-import { pinoLogger } from '@/lib/pino'
-import { resolveDataRoot } from '@/lib/dataRoot'
-import { zodFieldErrors } from '@/lib/formErrors'
+import { getStripeClient } from '@/lib/server/stripe'
+import { pinoLogger } from '@/lib/server/pino'
+import { resolveDataRoot } from '@/lib/server/dataRoot'
+import { zodFieldErrors } from '@/lib/validation/formErrors'
 
 import { documentSpecSchema } from './documentSpecSchema'
 

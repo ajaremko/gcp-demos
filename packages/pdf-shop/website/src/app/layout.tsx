@@ -1,10 +1,10 @@
 import { Inter } from 'next/font/google'
 
-import { StyledComponentsRegistry } from '@/lib/styled-components-registry'
-import { GlobalStyles } from '@/lib/global-styles'
-import { ReactQueryProvider } from '@/lib/react-query-provider'
-import { SiteHeader } from '@/lib/SiteHeader'
-import { SiteFooter } from '@/lib/SiteFooter'
+import { StyledComponentsRegistry } from '@/lib/layout/styled-components-registry'
+import { GlobalStyles } from '@/lib/ui/global-styles'
+import { ReactQueryProvider } from '@/lib/query/react-query-provider'
+import { SiteHeader } from '@/lib/layout/SiteHeader'
+import { SiteFooter } from '@/lib/layout/SiteFooter'
 
 const inter = Inter({
   subsets: ['latin'],

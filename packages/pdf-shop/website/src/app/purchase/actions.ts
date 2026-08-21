@@ -8,10 +8,10 @@ import {
   PurchaseDocumentHandler,
 } from '@org/pdf-shop-application'
 
-import { getStripeClient } from '@/lib/stripe'
-import { pinoLogger } from '@/lib/pino'
-import { resolveDataRoot } from '@/lib/dataRoot'
-import { zodFieldErrors } from '@/lib/formErrors'
+import { getStripeClient } from '@/lib/server/stripe'
+import { pinoLogger } from '@/lib/server/pino'
+import { resolveDataRoot } from '@/lib/server/dataRoot'
+import { zodFieldErrors } from '@/lib/validation/formErrors'
 
 /**
  * State shared by client and server to represent the
