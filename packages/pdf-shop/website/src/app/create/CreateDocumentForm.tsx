@@ -17,9 +17,29 @@ import {
 
 import { createDocumentAction, type CreateDocumentActionState } from './actions'
 import { documentSpecSchema, type DocumentSpec } from './documentSpecSchema'
+import { randomTitle, randomBody, randomColorScheme } from './sampleData'
 
 const SubmitButton = styled(Button)`
   width: 100%;
+`
+
+const RandomizeButton = styled.button`
+  display: inline-block;
+  background: none;
+  border: none;
+  padding: 0;
+  margin-bottom: ${(props) => props.theme.spacing(3)};
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: ${(props) => props.theme.colors.primary};
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+
+  &:hover {
+    color: ${(props) => props.theme.colors.primaryHover};
+  }
 `
 
 const initialState: CreateDocumentActionState = { errors: {} }
@@ -32,6 +52,7 @@ export function CreateDocumentSpecForm() {
 
   const {
     register,
+    setValue,
     formState: { errors },
   } = useForm<DocumentSpec>({
     resolver: zodResolver(documentSpecSchema),
@@ -44,8 +65,23 @@ export function CreateDocumentSpecForm() {
     },
   })
 
+  function handleRandomize() {
+    setValue('title', randomTitle(), {
+      shouldValidate: true,
+      shouldDirty: true,
+    })
+    setValue('body', randomBody(), { shouldValidate: true, shouldDirty: true })
+    setValue('colorScheme', randomColorScheme(), {
+      shouldValidate: true,
+      shouldDirty: true,
+    })
+  }
+
   return (
     <form action={formAction}>
+      <RandomizeButton type="button" onClick={handleRandomize}>
+        Randomize
+      </RandomizeButton>
       <Field>
         <Label htmlFor="title">Title</Label>
         <Input
