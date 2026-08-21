@@ -16,6 +16,7 @@ const RandomizeButton = styled.button`
   border: none;
   padding: 0;
   font: inherit;
+  text-align: left;
   color: ${(props) => props.theme.colors.primary};
   text-decoration: underline dotted;
   text-underline-offset: 2px;
