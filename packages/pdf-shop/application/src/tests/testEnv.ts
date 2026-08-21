@@ -6,6 +6,8 @@ import { pino, type Logger } from 'pino'
 import { vi } from 'vitest'
 import { type Stripe } from 'stripe'
 
+import { type PdfGenerator } from '../lib/PdfGenerator'
+
 export async function createTempDataRoot(): Promise<{
   dataRoot: string
   cleanup: () => Promise<void>
@@ -28,4 +30,12 @@ export function createFakeStripe() {
       retrieve: vi.fn(),
     },
   } as unknown as Stripe
+}
+
+export function createFakePdfGenerator(
+  bytes: Uint8Array = new TextEncoder().encode('fake-pdf-content'),
+): PdfGenerator {
+  return {
+    generate: vi.fn().mockResolvedValue(bytes),
+  }
 }

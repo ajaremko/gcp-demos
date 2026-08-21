@@ -2,6 +2,7 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import { type Logger } from 'pino'
 
 import { ApplicationError } from '../ApplicationError'
+import { PdfGenerator } from '../PdfGenerator'
 
 import { type GenerationRecord } from './data/GenerationRecord'
 import { type DocumentSpec } from './data/DocumentSpec'
@@ -33,11 +34,12 @@ export class GenerationRecordWriteFailed extends ApplicationError {
 
 /**
  * Generates a document's content from its spec and writes both the
- * generated file (`generated.txt`) and its metadata record (`generated.json`)
+ * generated file (`generated.pdf`) and its metadata record (`generated.json`)
  * under the document's directory.
  *
  * @param env.dataRoot - Root directory where per-document records are stored.
  * @param env.logger - Logger; a child logger is created once per instantiation.
+ * @param env.pdfGenerator - PDF generator to use for generating the document content.
  * @returns An async function that takes `{documentId, spec}` (`spec` is a
  *   {@link DocumentSpec}) and resolves to the written {@link GenerationRecord}.
  * @throws {GeneratedDocumentDirectoryFailed} If the document's output directory cannot be prepared.
@@ -49,9 +51,13 @@ export class GenerationRecordWriteFailed extends ApplicationError {
  *   documentId: '11111111-1111-4111-8111-111111111111',
  *   spec: { colorScheme: 'dark', title: 'Test Contract', body: 'Body text' },
  * })
- * // record.filename === '11111111-1111-4111-8111-111111111111.txt'
+ * // record.filename === '11111111-1111-4111-8111-111111111111.pdf'
  */
-export function generateDocument(env: { dataRoot: string; logger: Logger }) {
+export function generateDocument(env: {
+  dataRoot: string
+  logger: Logger
+  pdfGenerator: PdfGenerator
+}) {
   const logger = env.logger.child({
     method: 'generateDocument',
   })
@@ -86,12 +92,12 @@ export function generateDocument(env: { dataRoot: string; logger: Logger }) {
     spec: DocumentSpec,
   ) {
     try {
-      const generatedData = `Generated document for spec ${documentId}\n\n${JSON.stringify(spec, null, 2)}`
+      const generatedData = await env.pdfGenerator.generate(spec)
       const generatedPath = buildRecordPath(
         env.dataRoot,
         'generated',
         documentId,
-        'txt',
+        'pdf',
       )
       logger.trace(
         {
@@ -100,7 +106,7 @@ export function generateDocument(env: { dataRoot: string; logger: Logger }) {
         },
         'Writing generated document file',
       )
-      await writeFile(generatedPath, generatedData, 'utf-8')
+      await writeFile(generatedPath, generatedData)
       return generatedPath
     } catch (err) {
       logger.debug(
@@ -123,8 +129,8 @@ export function generateDocument(env: { dataRoot: string; logger: Logger }) {
       const record: GenerationRecord = {
         documentId: documentId,
         path: generatedPath,
-        filename: `${documentId}.txt`,
-        contentType: 'text/plain',
+        filename: `${documentId}.pdf`,
+        contentType: 'application/pdf',
         timestamp: new Date().toISOString(),
       }
 

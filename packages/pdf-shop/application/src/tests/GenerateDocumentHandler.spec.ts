@@ -5,7 +5,11 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { GenerateDocumentHandler } from '../lib/GenerateDocumentHandler'
 import { DocumentOrderNotFound } from '../lib/internal/readOrderRecord'
 import { GeneratedDocumentWriteFailed } from '../lib/internal/generateDocument'
-import { createTempDataRoot, createTestLogger } from './testEnv'
+import {
+  createTempDataRoot,
+  createTestLogger,
+  createFakePdfGenerator,
+} from './testEnv'
 
 describe('GenerateDocumentHandler', () => {
   let dataRoot: string
@@ -38,24 +42,28 @@ describe('GenerateDocumentHandler', () => {
       'utf-8',
     )
 
-    const record = await GenerateDocumentHandler({ dataRoot, logger })({
+    const pdfGenerator = createFakePdfGenerator()
+    const record = await GenerateDocumentHandler({
+      dataRoot,
+      logger,
+      pdfGenerator,
+    })({
       path: `${dataRoot}/created/11111111-1111-4111-8111-111111111111.json`,
     })
 
     expect(record).toEqual({
       documentId: '11111111-1111-4111-8111-111111111111',
-      path: `${dataRoot}/generated/11111111-1111-4111-8111-111111111111.txt`,
-      filename: '11111111-1111-4111-8111-111111111111.txt',
-      contentType: 'text/plain',
+      path: `${dataRoot}/generated/11111111-1111-4111-8111-111111111111.pdf`,
+      filename: '11111111-1111-4111-8111-111111111111.pdf',
+      contentType: 'application/pdf',
       timestamp: '2024-01-01T00:00:00.000Z',
     })
 
-    const generatedText = await readFile(
-      `${dataRoot}/generated/11111111-1111-4111-8111-111111111111.txt`,
-      'utf-8',
+    const generatedBytes = await readFile(
+      `${dataRoot}/generated/11111111-1111-4111-8111-111111111111.pdf`,
     )
-    expect(generatedText).toBe(
-      'Generated document for spec 11111111-1111-4111-8111-111111111111\n\n{\n  "colorScheme": "dark",\n  "title": "Test Contract",\n  "body": "Body text"\n}',
+    expect(generatedBytes).toEqual(
+      Buffer.from(new TextEncoder().encode('fake-pdf-content')),
     )
 
     const generatedRecord = await readFile(
@@ -65,16 +73,20 @@ describe('GenerateDocumentHandler', () => {
     expect(generatedRecord).toBe(
       '{' +
         '"documentId":"11111111-1111-4111-8111-111111111111",' +
-        `"path":"${dataRoot}/generated/11111111-1111-4111-8111-111111111111.txt",` +
-        '"filename":"11111111-1111-4111-8111-111111111111.txt",' +
-        '"contentType":"text/plain",' +
+        `"path":"${dataRoot}/generated/11111111-1111-4111-8111-111111111111.pdf",` +
+        '"filename":"11111111-1111-4111-8111-111111111111.pdf",' +
+        '"contentType":"application/pdf",' +
         '"timestamp":"2024-01-01T00:00:00.000Z"' +
         '}',
     )
   })
 
   it('propagates DocumentOrderNotFound from readOrderRecord', async () => {
-    const result = GenerateDocumentHandler({ dataRoot, logger })({
+    const result = GenerateDocumentHandler({
+      dataRoot,
+      logger,
+      pdfGenerator: createFakePdfGenerator(),
+    })({
       path: `${dataRoot}/created/11111111-1111-4111-8111-111111111111.json`,
     })
 
@@ -95,15 +107,19 @@ describe('GenerateDocumentHandler', () => {
         '}',
       'utf-8',
     )
-    // Pre-create the generated .txt output as a directory instead of a
+    // Pre-create the generated .pdf output as a directory instead of a
     // file so writeFile fails with EISDIR - deterministic regardless of
     // user/root.
     await mkdir(
-      `${dataRoot}/generated/11111111-1111-4111-8111-111111111111.txt`,
+      `${dataRoot}/generated/11111111-1111-4111-8111-111111111111.pdf`,
       { recursive: true },
     )
 
-    const result = GenerateDocumentHandler({ dataRoot, logger })({
+    const result = GenerateDocumentHandler({
+      dataRoot,
+      logger,
+      pdfGenerator: createFakePdfGenerator(),
+    })({
       path: `${dataRoot}/created/11111111-1111-4111-8111-111111111111.json`,
     })
 

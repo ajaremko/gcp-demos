@@ -2,6 +2,7 @@ import { type Logger } from 'pino'
 
 import { readOrderRecord } from './internal/readOrderRecord'
 import { generateDocument } from './internal/generateDocument'
+import { PdfGenerator } from './PdfGenerator'
 
 export interface GenerateDocument {
   path: string
@@ -14,6 +15,7 @@ export interface GenerateDocument {
  *
  * @param env.dataRoot - Root directory where per-document records are stored.
  * @param env.logger - Logger; a child logger scoped to this handler is created once per instantiation.
+ * @param env.pdfGenerator - An implementation of the {@link PdfGenerator} interface.
  * @returns An async function that takes a {@link GenerateDocument} (`path`,
  *   the storage object path of the order record, e.g. `<documentId>/created.json`)
  *   and resolves to the written generation record.
@@ -27,11 +29,12 @@ export interface GenerateDocument {
  * const record = await GenerateDocumentHandler({ dataRoot, logger })({
  *   path: `${dataRoot}/11111111-1111-4111-8111-111111111111/created.json`,
  * })
- * // record.filename === '11111111-1111-4111-8111-111111111111.txt'
+ * // record.filename === '11111111-1111-4111-8111-111111111111.pdf'
  */
 export function GenerateDocumentHandler(env: {
   dataRoot: string
   logger: Logger
+  pdfGenerator: PdfGenerator
 }) {
   const logger = env.logger.child({ handler: 'GenerateDocumentHandler' })
   return async function (input: GenerateDocument) {
