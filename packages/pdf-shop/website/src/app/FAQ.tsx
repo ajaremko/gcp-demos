@@ -20,12 +20,15 @@ const faqs = [
 
 export function FAQ() {
   return (
-    <Card style={{ maxWidth: '900px' }}>
+    <Card style={{ maxWidth: '1000px' }}>
       <Heading as="h2" style={{ fontSize: '1.5rem' }}>
         Frequently asked questions
       </Heading>
       {faqs.map((faq) => (
-        <div key={faq.question} style={{ marginBottom: '20px' }}>
+        <div
+          key={faq.question}
+          style={{ marginBottom: '1.25rem', marginTop: '1.5rem' }}
+        >
           <Heading as="h3" style={{ fontSize: '1rem', margin: '0 0 4px' }}>
             {faq.question}
           </Heading>

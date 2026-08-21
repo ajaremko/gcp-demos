@@ -9,6 +9,7 @@ import {
   NavLinkButton,
 } from '@/lib/ui'
 import { HowItWorks } from './HowItWorks'
+import { TechStack } from './TechStack'
 import { FAQ } from './FAQ'
 
 const Hero = styled.div`
@@ -32,7 +33,7 @@ const HeroSubheading = styled(Subheading)`
 
 const Sections = styled.div`
   width: 100%;
-  max-width: 900px;
+  max-width: 1000px;
   display: flex;
   flex-direction: column;
   gap: ${(props) => props.theme.spacing(4)};
@@ -46,7 +47,7 @@ export default function LandingPage() {
         <HeroHeading>Turn your ideas into a polished PDF</HeroHeading>
         <HeroSubheading>
           Describe what you need, pay securely with Stripe, and download your
-          generated document in minutes.
+          generated document in minutes. This is a sample application.
         </HeroSubheading>
         <HelperText style={{ marginBottom: '24px' }}>
           $9.99 per document - one-time payment, no subscription.
@@ -55,6 +56,7 @@ export default function LandingPage() {
       </Hero>
       <Sections>
         <HowItWorks />
+        <TechStack />
         <FAQ />
       </Sections>
     </PageShell>

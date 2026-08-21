@@ -6,7 +6,7 @@ export const FlowGrid = styled.div`
   flex-wrap: wrap;
   gap: ${(props) => props.theme.spacing(3)};
   width: 100%;
-  max-width: 900px;
+  max-width: 1000px;
   align-items: flex-start;
 
   > * {

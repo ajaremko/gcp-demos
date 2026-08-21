@@ -21,7 +21,7 @@ const steps = [
 
 export function HowItWorks() {
   return (
-    <Card style={{ maxWidth: '900px' }}>
+    <Card style={{ maxWidth: '1000px' }}>
       <Heading as="h2" style={{ fontSize: '1.5rem' }}>
         How it works
       </Heading>
