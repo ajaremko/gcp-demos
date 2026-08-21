@@ -2,7 +2,7 @@ config:
   project: gcp-demos-505417
   region: us-central1
   sharedStackName: alfredsyoung/gcp-demos-shared-infra
-  websiteImageTag: 2608.21.658839a-hotfix
+  websiteImageTag: 2608.21.efcd778-hotfix
   workerImageTag: 2608.21.658839a-hotfix
   deletionProtection: false
   stripeSecretKeySecretVersion: 1
