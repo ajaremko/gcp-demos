@@ -8,6 +8,7 @@ import {
   HelperText,
   NavLinkButton,
 } from '@/lib/ui'
+import { SiteHeader } from '@/lib/layout/SiteHeader'
 import { HowItWorks } from './HowItWorks'
 import { TechStack } from './TechStack'
 import { FAQ } from './FAQ'
@@ -42,23 +43,26 @@ const Sections = styled.div`
 
 export default function LandingPage() {
   return (
-    <PageShell>
-      <Hero>
-        <HeroHeading>Turn your ideas into a polished PDF</HeroHeading>
-        <HeroSubheading>
-          Describe what you need, pay securely with Stripe, and download your
-          generated document in minutes. This is a sample application.
-        </HeroSubheading>
-        <HelperText style={{ marginBottom: '24px' }}>
-          $9.99 per document - one-time payment, no subscription.
-        </HelperText>
-        <NavLinkButton href="/create">Create a document</NavLinkButton>
-      </Hero>
-      <Sections>
-        <HowItWorks />
-        <TechStack />
-        <FAQ />
-      </Sections>
-    </PageShell>
+    <>
+      <SiteHeader />
+      <PageShell>
+        <Hero>
+          <HeroHeading>Turn your ideas into a polished PDF</HeroHeading>
+          <HeroSubheading>
+            Describe what you need, pay securely with Stripe, and download
+            your generated document in minutes. This is a sample application.
+          </HeroSubheading>
+          <HelperText style={{ marginBottom: '24px' }}>
+            $9.99 per document - one-time payment, no subscription.
+          </HelperText>
+          <NavLinkButton href="/create">Create a document</NavLinkButton>
+        </Hero>
+        <Sections>
+          <HowItWorks />
+          <TechStack />
+          <FAQ />
+        </Sections>
+      </PageShell>
+    </>
   )
 }

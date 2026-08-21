@@ -1,5 +1,7 @@
 # pdf-shop
 
+[Live demo](./application/README.md)
+
 A demo shop where users order a customized document, pay for it via
 Stripe, and download it once it's ready. Generation happens
 asynchronously: placing an order makes it durable in storage, which

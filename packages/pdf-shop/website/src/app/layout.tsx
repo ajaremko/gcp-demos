@@ -3,7 +3,6 @@ import { Inter } from 'next/font/google'
 import { StyledComponentsRegistry } from '@/lib/layout/styled-components-registry'
 import { GlobalStyles } from '@/lib/ui/global-styles'
 import { ReactQueryProvider } from '@/lib/query/react-query-provider'
-import { SiteHeader } from '@/lib/layout/SiteHeader'
 import { SiteFooter } from '@/lib/layout/SiteFooter'
 
 const inter = Inter({
@@ -27,7 +26,6 @@ export default function RootLayout({
         <StyledComponentsRegistry>
           <ReactQueryProvider>
             <GlobalStyles />
-            <SiteHeader />
             {children}
             <SiteFooter />
           </ReactQueryProvider>
