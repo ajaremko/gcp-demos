@@ -44,7 +44,7 @@ export const workerService = new gcp.cloudrunv2.Service(
             },
             {
               name: 'LOG_LEVEL',
-              value: 'trace',
+              value: 'info',
             },
           ],
           volumeMounts: [
