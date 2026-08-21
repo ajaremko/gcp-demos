@@ -32,7 +32,7 @@ export class GeneratedDocumentEmpty extends ApplicationError {
  *
  * @example
  * const { stream, size } = await readDocumentStream({ logger })({
- *   path: `${dataRoot}/document.txt`,
+ *   path: `${dataRoot}/document.pdf`,
  * })
  * // size === 11
  * // stream.pipe(response)

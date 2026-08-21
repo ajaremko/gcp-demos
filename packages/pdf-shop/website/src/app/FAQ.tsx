@@ -13,8 +13,7 @@ const faqs = [
   },
   {
     question: 'What format do I get?',
-    answer:
-      'Today, generated documents are plain text files, despite the "PDF Shop" name - this demo doesn\'t yet produce actual PDFs.',
+    answer: 'A real PDF, generated on the fly with @react-pdf/renderer.',
   },
 ] as const
 

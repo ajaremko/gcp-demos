@@ -67,7 +67,7 @@ To use it:
 3. Set the collection's `documentId` variable to that id.
 4. Send the request. A `201` response means the notification was accepted;
    check `PDF_SHOP_DATA_DIR/generated/` for the newly written
-   `<documentId>.txt`/`<documentId>.json`.
+   `<documentId>.pdf`/`<documentId>.json`.
 
 If importing the collection into the Postman VS Code extension fails, see
 [`known-issues.md`](./known-issues.md) for a workaround.

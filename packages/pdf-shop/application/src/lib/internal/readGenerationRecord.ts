@@ -39,7 +39,7 @@ export class GeneratedDocumentRecordInvalid extends ApplicationError {
  * const record = await readGenerationRecord({ dataRoot, logger })({
  *   documentId: '11111111-1111-4111-8111-111111111111',
  * })
- * // record.contentType === 'text/plain'
+ * // record.contentType === 'application/pdf'
  */
 export function readGenerationRecord(env: {
   dataRoot: string

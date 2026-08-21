@@ -72,7 +72,7 @@ Produces a document's actual content once its order has been finalized - the
 fulfillment step of the lifecycle, triggered by the order becoming durable in
 storage rather than by a direct request.
 
-- **env**: `{ dataRoot, logger }`
+- **env**: `{ dataRoot, logger, pdfGenerator }`
 - **input**: `{ path: string }` - the storage location of the order record
 - **resolves to**: the written generation record (`documentId`, `path`, `filename`, `contentType`, `timestamp`)
 
@@ -167,7 +167,7 @@ document id inside it:
 <dataRoot>/created/<documentId>.json
 <dataRoot>/paid/<documentId>.json
 <dataRoot>/generated/<documentId>.json
-<dataRoot>/generated/<documentId>.txt
+<dataRoot>/generated/<documentId>.pdf
 ```
 
 This groups by record type rather than by document
@@ -227,15 +227,15 @@ Its presence is what gates access to the generated document.
 ```ts
 {
   documentId: string    // uuid
-  path: string             // absolute path to the sibling .txt content file
+  path: string             // absolute path to the sibling .pdf content file
   filename?: string
   contentType?: string
   timestamp: string        // ISO datetime
 }
 ```
 
-**Generated content** (`generated/<documentId>.txt`) - the document's
-actual rendered content, written alongside its generation record in the
+**Generated content** (`generated/<documentId>.pdf`) - the document's
+actual rendered PDF content, written alongside its generation record in the
 same call to `generateDocument`, and referenced by that record's own
 `path` field.
 
