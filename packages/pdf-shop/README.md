@@ -1,6 +1,6 @@
 # pdf-shop
 
-[Live demo](https://pdf-shop.alfredyoung.com)
+[View the live demo](https://pdf-shop.alfredyoung.com)
 
 A demo shop where users order a customized document, pay for it via
 Stripe, and download it once it's ready. Generation happens
