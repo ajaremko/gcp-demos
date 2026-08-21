@@ -14,11 +14,8 @@
           }
         },
         "configurations": {
-          "dev": {
-            "command": "pulumi up --stack=dev --cwd={projectRoot}"
-          },
-          "prod": {
-            "command": "pulumi up --stack=prod --cwd={projectRoot}"
+          "staging": {
+            "command": "pulumi up --stack=staging --cwd={projectRoot}"
           }
         }
       },
@@ -31,11 +28,8 @@
           }
         },
         "configurations": {
-          "dev": {
-            "command": "pulumi refresh --stack=dev --cwd={projectRoot}"
-          },
-          "prod": {
-            "command": "pulumi refresh --stack=prod --cwd={projectRoot}"
+          "staging": {
+            "command": "pulumi refresh --stack=staging --cwd={projectRoot}"
           }
         }
       },
@@ -48,11 +42,8 @@
           }
         },
         "configurations": {
-          "dev": {
-            "command": "pulumi preview --stack=dev --cwd={projectRoot}"
-          },
-          "prod": {
-            "command": "pulumi preview --stack=prod --cwd={projectRoot}"
+          "staging": {
+            "command": "pulumi preview --stack=staging --cwd={projectRoot}"
           }
         }
       },
@@ -65,11 +56,8 @@
           }
         },
         "configurations": {
-          "dev": {
-            "command": "pulumi destroy --stack=dev --cwd={projectRoot}"
-          },
-          "prod": {
-            "command": "pulumi destroy --stack=prod --cwd={projectRoot}"
+          "staging": {
+            "command": "pulumi destroy --stack=staging --cwd={projectRoot}"
           }
         }
       },
@@ -83,11 +71,8 @@
           }
         },
         "configurations": {
-          "dev": {
-            "command": "pulumi stack output --stack=dev --cwd={projectRoot}"
-          },
-          "prod": {
-            "command": "pulumi stack output --stack=prod --cwd={projectRoot}"
+          "staging": {
+            "command": "pulumi stack output --stack=staging --cwd={projectRoot}"
           }
         }
       }
