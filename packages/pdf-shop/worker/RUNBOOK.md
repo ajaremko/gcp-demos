@@ -13,7 +13,7 @@ configuration, reading its logs, and debugging problems.
 | `LOG_LEVEL`         | `enum`    | Overrides the default pino level         | private    | Defaults to `trace` outside production                                       |
 | `PRETTY_PRINT_LOGS` | `boolean` | Whether logs are pretty-printed vs. JSON | private    | Defaults to `true` outside production                                        |
 
-There is no other configuration surface — no config file, no CLI flags.
+There is no other configuration surface - no config file, no CLI flags.
 
 ## Logging Levels
 
@@ -30,7 +30,7 @@ at each level:
 | `error` | Caught application errors                                        |
 | `fatal` | Express server errors; configuration errors                      |
 
-Application errors carry a `tag` (which specific error occurred — see below) and `cause`
+Application errors carry a `tag` (which specific error occurred - see below) and `cause`
 (the underlying error, e.g. a filesystem error). See `@org/pdf-shop-application`'s
 own README for full logging and exception handling strategy.
 
@@ -38,23 +38,23 @@ own README for full logging and exception handling strategy.
 
 **A `500` response is expected, retryable behavior, not necessarily an
 outage.** Pub/Sub redelivers on any non-2xx response, so a `500` for a
-single notification that later succeeds on redelivery is normal — only a
+single notification that later succeeds on redelivery is normal - only a
 notification that keeps failing across multiple redeliveries indicates a
 real problem.
 
 To investigate a specific failure:
 
-1. Find the `error`-level failure log line and read its `objectId` — a
+1. Find the `error`-level failure log line and read its `objectId` - a
    Cloud Storage object name of the form `created/<documentId>.json`, so
    the document id is the filename portion (without the `.json` suffix).
 2. Check `err.tag` to narrow down what went wrong:
-   - `DocumentOrderNotFound` / `DocumentOrderInvalid` — the referenced order
+   - `DocumentOrderNotFound` / `DocumentOrderInvalid` - the referenced order
      record isn't present or isn't readable yet at `PDF_SHOP_DATA_DIR`. This can
      happen if the notification arrived before the write it describes is
-     fully visible from `worker`'s point of view (a storage-sync race) — a
+     fully visible from `worker`'s point of view (a storage-sync race) - a
      retry may resolve it on its own.
    - `GeneratedDocumentDirectoryFailed` / `GeneratedDocumentWriteFailed` /
-     `GenerationRecordWriteFailed` — writing the generated output failed.
+     `GenerationRecordWriteFailed` - writing the generated output failed.
      Check that `PDF_SHOP_DATA_DIR` is writable, has free space, and that the
      process has the permissions it needs.
 3. Check `err.cause` for the underlying error (filesystem error, etc.) for
@@ -68,7 +68,7 @@ was observed.
 
 ## Notes
 
-`GET /health` is a plain liveness check — it confirms the process is up
+`GET /health` is a plain liveness check - it confirms the process is up
 and listening. Doesn't guarantee notifications will succeed.
 
 See [`known-issues.md`](./known-issues.md)

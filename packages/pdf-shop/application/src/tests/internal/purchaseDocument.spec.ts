@@ -121,7 +121,7 @@ describe('purchaseDocument', () => {
     } as unknown as Stripe.Response<Stripe.PaymentIntent>)
 
     // Point dataRoot at a file instead of a directory so mkdir(recursive)
-    // fails with ENOTDIR — deterministic regardless of user/root.
+    // fails with ENOTDIR - deterministic regardless of user/root.
     await writeFile(`${dataRoot}/not-a-directory`, '', 'utf-8')
 
     const result = purchaseDocument({

@@ -87,7 +87,7 @@ app.post('/', async (req, res) => {
   }
 
   try {
-    // objectId is the GCS object name, relative to the bucket — it isn't
+    // objectId is the GCS object name, relative to the bucket - it isn't
     // a filesystem path on its own, so it has to be joined with the
     // FUSE-mounted dataRoot before being handed off.
     await generateDocument({ path: path.join(dataRoot, objectId) })

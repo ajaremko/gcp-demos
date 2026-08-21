@@ -96,7 +96,7 @@ describe('GenerateDocumentHandler', () => {
       'utf-8',
     )
     // Pre-create the generated .txt output as a directory instead of a
-    // file so writeFile fails with EISDIR — deterministic regardless of
+    // file so writeFile fails with EISDIR - deterministic regardless of
     // user/root.
     await mkdir(
       `${dataRoot}/generated/11111111-1111-4111-8111-111111111111.txt`,

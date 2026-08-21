@@ -16,7 +16,7 @@ const Bar = styled.footer`
 export function SiteFooter() {
   return (
     <Bar>
-      <span>PDF Shop — a technical demo</span>
+      <span>PDF Shop - sample application</span>
       <Link href="/terms">Terms</Link>
       <Link href="/privacy">Privacy</Link>
     </Bar>

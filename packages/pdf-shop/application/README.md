@@ -5,7 +5,7 @@ download lifecycle. Every exported function is a factory that takes an explicit
 `env` object (a Stripe client, a data root directory, a logger) and returns
 an async function that does the work.
 
-Documents are stored as JSON records on disk — see
+Documents are stored as JSON records on disk - see
 [Persistence](#persistence) for the record shapes and path scheme.
 
 ## Building
@@ -68,28 +68,28 @@ the customer's Stripe payment and records the purchase against the document.
 
 ### `GenerateDocumentHandler(env)`
 
-Produces a document's actual content once its order has been finalized — the
+Produces a document's actual content once its order has been finalized - the
 fulfillment step of the lifecycle, triggered by the order becoming durable in
 storage rather than by a direct request.
 
 - **env**: `{ dataRoot, logger }`
-- **input**: `{ path: string }` — the storage location of the order record
+- **input**: `{ path: string }` - the storage location of the order record
 - **resolves to**: the written generation record (`documentId`, `path`, `filename`, `contentType`, `timestamp`)
 
 ### `CheckOrderStatusHandler(env)`
 
 Reports whether a document has been paid for and whether its content has
-been generated — the two are independent, since generation is triggered
+been generated - the two are independent, since generation is triggered
 by the order becoming durable in storage, not by payment.
 
 - **env**: `{ dataRoot, logger }`
 - **input**: `{ documentId: string }`
 - **resolves to**: `{ paid: boolean, generated: boolean }` (rejects only on
-  a corrupt record — see [Error handling](#error-handling))
+  a corrupt record - see [Error handling](#error-handling))
 
 ### `DownloadDocumentHandler(env)`
 
-Delivers a document's content to a customer — the final step in a document's
+Delivers a document's content to a customer - the final step in a document's
 lifecycle, available only once both generation and payment have completed.
 
 - **env**: `{ dataRoot, logger }`
@@ -117,7 +117,7 @@ try {
     switch (err.tag) {
       case 'PaymentIntentNotFound':
       case 'PaymentIntentInvalid':
-        // the payment itself didn't go through — tell the customer
+        // the payment itself didn't go through - tell the customer
         break
       default:
         // an ApplicationError this caller doesn't handle specially
@@ -136,13 +136,13 @@ via `env`. Each factory creates a child logger scoped to that operation
 (`env.logger.child({ method: 'orderDocument' })`), and follows the same
 pattern throughout:
 
-- **`trace`** — one line per operation, right before it happens (a Stripe
+- **`trace`** - one line per operation, right before it happens (a Stripe
   call, a file read/write), with identifying context (`documentId`, the
   path involved, etc.).
-- **`debug`** — one line per failure, right before the corresponding
+- **`debug`** - one line per failure, right before the corresponding
   `ApplicationError` subclass is thrown. The message matches that error
   class's own constructor message; the fields are whatever identifying
-  context is available at that point — never the raw error itself.
+  context is available at that point - never the raw error itself.
 - Nothing is logged at `info`/`warn`/`error`/`fatal` levels. Consumers can
   determine severity.
 
@@ -154,7 +154,7 @@ level fits their context.
 ## Persistence
 
 Every stage of a document's lifecycle durably records its outcome as a
-JSON file on disk under a single `dataRoot` directory — there's no
+JSON file on disk under a single `dataRoot` directory - there's no
 database; the filesystem is the record store, and each record's presence
 is what the rest of the system uses to determine a document's state.
 
@@ -174,7 +174,7 @@ This groups by record type rather than by document
 (`<dataRoot>/<documentId>/<recordType>.json`) specifically so a
 storage-change notification's `objectNamePrefix` filter (`created/`) can
 distinguish an order being placed from a payment being confirmed or a
-document being generated — impossible if all three shared a per-document
+document being generated - impossible if all three shared a per-document
 directory, since GCS notification prefix filters are literal string
 matches, not globs. `internal/recordPath.ts`'s `recordDir`/`buildRecordPath`
 are the shared helpers every read/write function routes through to
@@ -182,12 +182,12 @@ construct these paths.
 
 ### Records
 
-**Order record** (`created/<documentId>.json`) — written by
+**Order record** (`created/<documentId>.json`) - written by
 `orderDocument` when a document is ordered.
 
 ```ts
 {
-  id: string // uuid — the canonical documentId, threading
+  id: string // uuid - the canonical documentId, threading
   // through the rest of the lifecycle
   createdAt: string // ISO datetime
   spec: {
@@ -206,7 +206,7 @@ construct these paths.
 Writing this file is the event that triggers async generation, via a
 storage-change notification to `worker`.
 
-**Payment record** (`paid/<documentId>.json`) — written by
+**Payment record** (`paid/<documentId>.json`) - written by
 `purchaseDocument` once a document's Stripe payment intent has succeeded.
 
 ```ts
@@ -221,7 +221,7 @@ storage-change notification to `worker`.
 
 Its presence is what gates access to the generated document.
 
-**Generation record** (`generated/<documentId>.json`) — written by
+**Generation record** (`generated/<documentId>.json`) - written by
 `generateDocument` after a document's content has been generated.
 
 ```ts
@@ -234,12 +234,12 @@ Its presence is what gates access to the generated document.
 }
 ```
 
-**Generated content** (`generated/<documentId>.txt`) — the document's
+**Generated content** (`generated/<documentId>.txt`) - the document's
 actual rendered content, written alongside its generation record in the
 same call to `generateDocument`, and referenced by that record's own
 `path` field.
 
-No record is ever mutated after it's written — each stage writes a new
+No record is ever mutated after it's written - each stage writes a new
 file rather than updating an earlier one.
 
 ## Usage examples

@@ -8,7 +8,7 @@ const nextConfig = {
   },
   output: 'standalone',
   // The workspace root's npm/pnpm lockfile setup is ambiguous, which makes
-  // Next's auto-detected monorepo root unreliable — pin it explicitly.
+  // Next's auto-detected monorepo root unreliable - pin it explicitly.
   outputFileTracingRoot: path.join(__dirname, '../../..'),
 }
 

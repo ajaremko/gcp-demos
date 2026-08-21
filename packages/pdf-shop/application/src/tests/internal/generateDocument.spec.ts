@@ -67,7 +67,7 @@ describe('generateDocument', () => {
 
   it('throws GeneratedDocumentDirectoryFailed when the output directory cannot be prepared', async () => {
     // Point dataRoot at a file instead of a directory so mkdir(recursive)
-    // fails with ENOTDIR — deterministic regardless of user/root. This only
+    // fails with ENOTDIR - deterministic regardless of user/root. This only
     // exercises the first subfunction (prepareOutputDirectory); the other
     // two (writeGeneratedDocumentFile, writeGeneratedDocumentRecord) aren't
     // reachable via this fixture technique and have no test coverage here.

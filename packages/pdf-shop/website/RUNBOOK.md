@@ -32,7 +32,7 @@ at each level:
 | `error` | Failure creating a document or confirming a payment; an unexpected error checking order status or downloading a document                                                                                                                  |
 | `fatal` | Missing required configuration (`PDF_SHOP_DATA_DIR`, `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`)                                                                                                                           |
 
-Application level failures carry a `tag` (which specific error occurred —
+Application level failures carry a `tag` (which specific error occurred -
 see below) and `cause` (the underlying error, e.g. a filesystem error).
 See `@org/pdf-shop-application`'s own README for its full logging strategy.
 
@@ -44,24 +44,24 @@ to the console.
 The various page/route that call into `@org/pdf-shop-application` may each handle failure differently.
 
 - **Creating a document** (`/create`'s server action): a thrown
-  `ApplicationError` is logged at `error` — visible in production — and the
+  `ApplicationError` is logged at `error` - visible in production - and the
   user sees a generic retry message. A validation failure returns
   field-level errors instead and is logged at `warn` (kept one level above
-  silence — it's normal user input rejection, not a system problem, but
+  silence - it's normal user input rejection, not a system problem, but
   still visible for spotting a pattern like a broken client).
 - **Loading the purchase page** (`/purchase`): a malformed `documentId` in
   the URL is logged at `warn` before redirecting back to `/create`. Any
-  failure fetching payment context — including the order simply not
-  existing yet, or Stripe being unreachable — is logged at `warn` and the
+  failure fetching payment context - including the order simply not
+  existing yet, or Stripe being unreachable - is logged at `warn` and the
   page redirects the visitor back to `/create` to start over.
 - **Confirming a payment** (`/purchase`'s server action): a validation
   failure on the submitted confirmation is logged at `warn`; a thrown
-  `ApplicationError` is logged at `error` (visible in production) — this is
+  `ApplicationError` is logged at `error` (visible in production) - this is
   the one call site with the most diagnosable logging of the six, since the
   message also includes the specific `ApplicationError` tag (payment not
   found, invalid, or the confirmation record failing to write).
 - **Polling status** (`/api/documents/[documentId]/status`): the response
-  is now `{ ready, paid, generated }` — "not paid yet" and "not generated
+  is now `{ ready, paid, generated }` - "not paid yet" and "not generated
   yet" are distinguishable from the response itself (both booleans false
   means neither has happened; `paid: true, generated: false` means payment
   succeeded but generation is still in progress). A genuinely broken record (fails

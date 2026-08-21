@@ -16,7 +16,7 @@ notifications to `worker`'s `POST /` and asserts on the real response and
 real filesystem output:
 
 - A valid `created/<documentId>.json` notification triggers real document
-  generation — asserts the response is `201` and that
+  generation - asserts the response is `201` and that
   `generated/<documentId>.txt`/`.json` are actually written.
 - A notification for an object outside `created/*.json` is acknowledged
   but ignored (`201`, no generation attempted).

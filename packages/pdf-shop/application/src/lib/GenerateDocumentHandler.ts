@@ -8,7 +8,7 @@ export interface GenerateDocument {
 }
 
 /**
- * Produces a document's actual content once its order has been finalized —
+ * Produces a document's actual content once its order has been finalized -
  * the fulfillment step of the lifecycle, triggered by the order becoming
  * durable in storage rather than by a direct request.
  *

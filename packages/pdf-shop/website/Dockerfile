@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-# Build context is this directory (packages/pdf-shop/website) — the
+# Build context is this directory (packages/pdf-shop/website) - the
 # @nx/docker plugin's inferred docker:build target runs `docker build .`
 # from the project root and can't see the workspace root. This assumes
 # `nx build pdf-shop-website` has already produced `.next/standalone`
@@ -14,7 +14,7 @@ ENV HOSTNAME=0.0.0.0
 
 # Standalone server + trimmed production node_modules. Next's standalone
 # build copies the project's own .env into this tree (see
-# known-issues.md) — excluded here so it never lands in an image layer at
+# known-issues.md) - excluded here so it never lands in an image layer at
 # all; production config comes entirely from the deployed environment.
 COPY --exclude=**/.env* .next/standalone/. ./
 # Static assets and public files aren't included in the standalone output.

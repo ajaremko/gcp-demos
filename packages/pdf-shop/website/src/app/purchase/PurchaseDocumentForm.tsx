@@ -91,7 +91,7 @@ function PurchaseDocumentFormInner({ documentId }: { documentId: string }) {
       // dispatchConfirm's underlying action is async and this call happens
       // after an `await` (stripe.confirmPayment), so React has lost the
       // implicit transition context it gets inside a synchronous event
-      // handler — it must be wrapped in startTransition explicitly, or
+      // handler - it must be wrapped in startTransition explicitly, or
       // isPending/error state won't update correctly.
       startTransition(() => {
         dispatchAction({ documentId, paymentIntentId: paymentIntent.id })

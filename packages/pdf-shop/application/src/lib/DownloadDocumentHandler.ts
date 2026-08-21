@@ -9,7 +9,7 @@ export interface DownloadDocument {
 }
 
 /**
- * Delivers a document's content to a customer — the final step in a
+ * Delivers a document's content to a customer - the final step in a
  * document's lifecycle, available only once both generation and payment
  * have completed.
  *

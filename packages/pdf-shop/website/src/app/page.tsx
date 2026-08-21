@@ -49,7 +49,7 @@ export default function LandingPage() {
           generated document in minutes.
         </HeroSubheading>
         <HelperText style={{ marginBottom: '24px' }}>
-          $9.99 per document — one-time payment, no subscription.
+          $9.99 per document - one-time payment, no subscription.
         </HelperText>
         <NavLinkButton href="/create">Create a document</NavLinkButton>
       </Hero>

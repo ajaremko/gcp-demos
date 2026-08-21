@@ -30,7 +30,7 @@ export async function GET(
   } catch (err) {
     if (isApplicationError(err)) {
       // Both PaymentConfirmationNotFound and GeneratedDocumentRecordNotFound
-      // are handled inside CheckOrderStatusHandler and never reach here —
+      // are handled inside CheckOrderStatusHandler and never reach here -
       // any ApplicationError that does is a genuine, unexpected failure.
       pinoLogger.debug({ err }, 'Failed to check order status')
       return Response.json({ ready: false, paid: false, generated: false })

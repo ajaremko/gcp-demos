@@ -33,7 +33,7 @@ describe('DownloadDocumentHandler', () => {
   it('reads the generated document, confirms payment, and streams the file', async () => {
     await mkdir(`${dataRoot}/generated`, { recursive: true })
     await mkdir(`${dataRoot}/paid`, { recursive: true })
-    // generated.json's "path" is a real, directly-statable absolute path —
+    // generated.json's "path" is a real, directly-statable absolute path -
     // readDocumentStream stats/reads it as-is, with no dataRoot
     // joining, so the fixture must point straight at a real file.
     await writeFile(`${dataRoot}/generated-output.txt`, 'hello world', 'utf-8')
@@ -103,7 +103,7 @@ describe('DownloadDocumentHandler', () => {
   it('propagates GeneratedDocumentNotFound from readDocumentStream', async () => {
     await mkdir(`${dataRoot}/generated`, { recursive: true })
     await mkdir(`${dataRoot}/paid`, { recursive: true })
-    // No file written at generated-output.txt — the record points at a
+    // No file written at generated-output.txt - the record points at a
     // path that doesn't exist.
     await writeFile(
       `${dataRoot}/generated/11111111-1111-4111-8111-111111111111.json`,

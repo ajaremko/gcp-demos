@@ -20,7 +20,7 @@ export interface OrderStatus {
 
 /**
  * Reports whether a document's order has been paid for and whether its
- * content has been generated — the two are independent, since generation
+ * content has been generated - the two are independent, since generation
  * is triggered by the order becoming durable in storage, not by payment.
  *
  * @param env.dataRoot - Root directory where per-document records are stored.

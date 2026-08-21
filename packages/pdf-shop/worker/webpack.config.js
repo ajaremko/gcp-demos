@@ -19,12 +19,12 @@ module.exports = {
       outputHashing: 'none',
       sourceMap: true,
       // Bundle the workspace package (@org/pdf-shop-application) directly
-      // into the output — it has no npm registry entry, so it can't be
+      // into the output - it has no npm registry entry, so it can't be
       // `npm install`'d in the Docker image the way a real dependency can.
       // Keep real npm packages external instead of also bundling them:
       // pino dynamically loads its transport (pino-pretty) via a worker
       // thread at a file path it computes at runtime, which breaks once
-      // pino's own module structure is rewritten by webpack bundling —
+      // pino's own module structure is rewritten by webpack bundling -
       // confirmed directly (`nx test pdf-shop-worker-e2e` failed against a
       // fully-bundled build). `tslib` is needed too, since it's a real
       // dependency of the now-bundled @org/pdf-shop-application. The

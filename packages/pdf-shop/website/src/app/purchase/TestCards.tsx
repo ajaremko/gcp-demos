@@ -31,7 +31,7 @@ export function TestCards() {
       <List>
         {TEST_CARDS.map((card) => (
           <li key={card.number}>
-            {card.number} — {card.description}
+            {card.number} - {card.description}
           </li>
         ))}
       </List>

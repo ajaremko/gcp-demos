@@ -2,12 +2,12 @@
  * Common base class for every error this package's internal functions and
  * handlers throw. Consumers catching a call into this package should narrow
  * with {@link isApplicationError} and then switch on `tag` to determine
- * what specifically went wrong — `tag` is a fixed string literal unique to
+ * what specifically went wrong - `tag` is a fixed string literal unique to
  * each concrete subclass (e.g. `PaymentIntentInvalid`, `OrderRecordWriteFailed`),
  * safe to switch on, unlike an `instanceof` chain or parsing the error message.
  * The original underlying error (a Stripe error, a filesystem error, a Zod
  * error, etc.) is preserved on the standard `cause` property for
- * logging/debugging — it isn't meant to be branched on the way `tag` is.
+ * logging/debugging - it isn't meant to be branched on the way `tag` is.
  *
  * @example
  * try {

@@ -21,7 +21,7 @@ export function WhatYouGetPanel() {
         <li>Secure checkout via Stripe</li>
         <li>Instant download once it&apos;s ready</li>
       </List>
-      <HelperText>$9.99 one-time — charged on the next step.</HelperText>
+      <HelperText>$9.99 one-time - charged on the next step.</HelperText>
     </Card>
   )
 }

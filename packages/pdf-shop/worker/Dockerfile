@@ -1,4 +1,4 @@
-# Build context is this directory (packages/pdf-shop/worker) — the
+# Build context is this directory (packages/pdf-shop/worker) - the
 # @nx/docker plugin's inferred docker:build target runs `docker build .`
 # from the project root and can't see the workspace root. This assumes
 # `nx build pdf-shop-worker` has already produced `dist/main.js` here; run
@@ -6,7 +6,7 @@
 #
 # webpack.config.js bundles @org/pdf-shop-application directly into
 # dist/main.js (it has no npm registry entry to install from), but keeps
-# express/pino/tslib as real dependencies — pino dynamically loads its
+# express/pino/tslib as real dependencies - pino dynamically loads its
 # transport at runtime in a way that breaks if pino itself is bundled.
 # package.json still lists @org/pdf-shop-application (needed for local
 # dev/build), so it's stripped here before installing the rest; tslib

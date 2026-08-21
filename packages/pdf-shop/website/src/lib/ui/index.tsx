@@ -133,7 +133,7 @@ export const LinkButton = styled.a`
 `
 
 // styled(Link) is composed here, inside a client module, rather than
-// passed in as an `as` prop from a Server Component — a component
+// passed in as an `as` prop from a Server Component - a component
 // reference can't cross the server/client boundary as a prop value.
 export const NavLinkButton = styled(Link)`
   ${buttonStyles}

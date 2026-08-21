@@ -6,7 +6,7 @@ checkout with Stripe while their document is waiting for creation. Once the user
 paid and their document is ready, they can download their file.
 
 Document _generation_ itself happens outside this app, asynchronously, once
-an order is placed — this app only polls for and serves the result once it
+an order is placed - this app only polls for and serves the result once it
 exists.
 
 ## Building
@@ -51,12 +51,12 @@ defaults):
 | `PDF_SHOP_DATA_DIR`                  | Filesystem root for document/payment records                                                                                          |
 | `STRIPE_SECRET_KEY`                  | Stripe sandbox secret key (server-side)                                                                                               |
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe sandbox publishable key (client-side)                                                                                          |
-| `NODE_ENV`                           | By default, `production` for structured JSON logs and anything else for pretty-printed dev logs — see `PRETTY_PRINT_LOGS` to override |
+| `NODE_ENV`                           | By default, `production` for structured JSON logs and anything else for pretty-printed dev logs - see `PRETTY_PRINT_LOGS` to override |
 | `LOG_LEVEL`                          | Overrides the default log level (`info` in production, `trace` otherwise)                                                             |
 | `PRETTY_PRINT_LOGS`                  | `true`/`false`; overrides whether logs are pretty-printed. Defaults to `true` outside production, `false` in production               |
 
 Outside production, `PDF_SHOP_DATA_DIR` defaults to `/tmp/pdf-shop-data` if
-unset — the same default `worker` uses, so both point at the same
+unset - the same default `worker` uses, so both point at the same
 directory locally without needing `.env`. In production, a request that
 needs `PDF_SHOP_DATA_DIR` throws instead of silently resolving to `''`.
 
@@ -70,7 +70,7 @@ This serves on port `4000`.
 
 ## Testing payments
 
-The purchase page is wired to a Stripe **sandbox** account — no real charges
+The purchase page is wired to a Stripe **sandbox** account - no real charges
 occur. The page itself lists usable test card numbers (a succeeding card, a
 declined card, and one that requires 3-D Secure authentication); any future
 expiry date, any 3-digit CVC, and any ZIP work with them.
@@ -82,7 +82,7 @@ end-to-end:
 
 1. `nx dev pdf-shop-website` and walk through `/create` → `/purchase` →
    `/download` in a browser, using a test card above.
-2. Generation happens outside this app — to actually see a document become
+2. Generation happens outside this app - to actually see a document become
    downloadable, something must process the order record this app writes to
    `PDF_SHOP_DATA_DIR` (see the `worker` package, which does this for local/manual
    testing via its own Postman collection). Point `worker` at the same

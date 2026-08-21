@@ -4,17 +4,17 @@ const faqs = [
   {
     question: 'Is this a real product?',
     answer:
-      'No — this is a technical demo showcasing a document-generation and checkout flow, not a commercial service.',
+      'No - this is a technical demo showcasing a document-generation and checkout flow, not a commercial service.',
   },
   {
     question: 'Will I really be charged?',
     answer:
-      "No. Payments run through Stripe in sandbox/test mode, so no real money changes hands.",
+      'No. Payments run through Stripe in sandbox/test mode, so no real money changes hands.',
   },
   {
     question: 'What format do I get?',
     answer:
-      'Today, generated documents are plain text files, despite the "PDF Shop" name — this demo doesn\'t yet produce actual PDFs.',
+      'Today, generated documents are plain text files, despite the "PDF Shop" name - this demo doesn\'t yet produce actual PDFs.',
   },
 ] as const
 

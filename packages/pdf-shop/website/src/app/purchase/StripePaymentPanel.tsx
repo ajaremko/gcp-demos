@@ -24,7 +24,7 @@ export function StripePaymentPanel({
     <Card>
       <Heading>Pay for &quot;{title}&quot;</Heading>
       <Subheading>
-        One-time purchase — sandbox mode, no real charge. Use one of the payment
+        One-time purchase - sandbox mode, no real charge. Use one of the payment
         methods below.&nbsp;
         <TestCards />
       </Subheading>

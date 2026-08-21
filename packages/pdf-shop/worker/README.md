@@ -41,12 +41,12 @@ Configuration is entirely via environment variables:
 | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
 | `PDF_SHOP_DATA_DIR` | Directory where document records live                                                                                              | `/tmp/pdf-shop-data`       |
 | `PORT`              | Port the server listens on                                                                                                         | `3333`                     |
-| `NODE_ENV`          | By default, `production` for structured JSON logs, anything else for pretty-printed dev logs — see `PRETTY_PRINT_LOGS` to override | unset (dev logs)           |
+| `NODE_ENV`          | By default, `production` for structured JSON logs, anything else for pretty-printed dev logs - see `PRETTY_PRINT_LOGS` to override | unset (dev logs)           |
 | `LOG_LEVEL`         | Overrides the default log level (`info` in production, `trace` otherwise)                                                          | unset                      |
 | `PRETTY_PRINT_LOGS` | `true`/`false`; overrides whether logs are pretty-printed. Defaults to `true` outside production, `false` in production            | unset (`true`)             |
 
 `PDF_SHOP_DATA_DIR` defaults to `/tmp/pdf-shop-data` automatically outside of
-production — the same path `worker-e2e`'s tests expect — so no `.env` is
+production - the same path `worker-e2e`'s tests expect - so no `.env` is
 required to get started. Nx will automatically load `.env` files. Start the server with:
 
 ```
@@ -74,7 +74,7 @@ If importing the collection into the Postman VS Code extension fails, see
 
 ## Automated tests
 
-End-to-end tests for this service live in `worker-e2e`, not here — they run
+End-to-end tests for this service live in `worker-e2e`, not here - they run
 against a really-served instance rather than calling handlers directly (unit
 tests for the underlying document-generation logic live in
 `@org/pdf-shop-application` itself):

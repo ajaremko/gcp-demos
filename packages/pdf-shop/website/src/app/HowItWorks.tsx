@@ -4,12 +4,13 @@ const steps = [
   {
     label: 'Create',
     title: 'Describe your document',
-    description: 'Tell us the title and content you want turned into a document.',
+    description:
+      'Tell us the title and content you want turned into a document.',
   },
   {
     label: 'Purchase',
     title: 'Pay securely',
-    description: "Check out with Stripe — sandbox mode, no real charge.",
+    description: 'Check out with Stripe - sandbox mode, no real charge.',
   },
   {
     label: 'Download',

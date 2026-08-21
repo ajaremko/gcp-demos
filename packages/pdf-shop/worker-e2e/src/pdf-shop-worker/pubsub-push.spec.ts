@@ -40,7 +40,7 @@ describe('POST /', () => {
           eventType: 'OBJECT_FINALIZE',
           bucketId: 'pdf-shop-documents',
           // A real GCS notification's objectId is the object name relative
-          // to the bucket, not a local filesystem path — this is what
+          // to the bucket, not a local filesystem path - this is what
           // exercises main.ts's path.join(dataRoot, objectId) join.
           objectId: 'created/11111111-1111-4111-8111-111111111111.json',
           objectGeneration: '1700000000000000',
@@ -65,7 +65,7 @@ describe('POST /', () => {
 
     // timestamp reflects the real clock of the live worker process, so it
     // can't be hardcoded the way the unit-level handler specs do with fake
-    // timers — asserted structurally instead.
+    // timers - asserted structurally instead.
     const generatedRecord = JSON.parse(
       await readFile(
         '/tmp/pdf-shop-data/generated/11111111-1111-4111-8111-111111111111.json',
