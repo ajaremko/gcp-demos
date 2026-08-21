@@ -23,7 +23,7 @@ const TEST_CARDS = [
 
 export function TestCards() {
   return (
-    <HoverPopup label="Show testing card numbers.">
+    <HoverPopup label="Click here to show testing card numbers.">
       <HelperText>
         Use any of these test cards, any future expiry, any 3-digit CVC, any
         ZIP.

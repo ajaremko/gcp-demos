@@ -1,7 +1,5 @@
 'use client'
-import { useActionState } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { useFormContext } from 'react-hook-form'
 import styled from 'styled-components'
 
 import {
@@ -15,73 +13,28 @@ import {
   Button,
 } from '@/lib/ui'
 
-import { createDocumentAction, type CreateDocumentActionState } from './actions'
-import { documentSpecSchema, type DocumentSpec } from './documentSpecSchema'
-import { randomTitle, randomBody, randomColorScheme } from './sampleData'
+import { type DocumentSpec } from './documentSpecSchema'
 
 const SubmitButton = styled(Button)`
   width: 100%;
 `
 
-const RandomizeButton = styled.button`
-  display: inline-block;
-  background: none;
-  border: none;
-  padding: 0;
-  margin-bottom: ${(props) => props.theme.spacing(3)};
-  font: inherit;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: ${(props) => props.theme.colors.primary};
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-
-  &:hover {
-    color: ${(props) => props.theme.colors.primaryHover};
-  }
-`
-
-const initialState: CreateDocumentActionState = { errors: {} }
-
-export function CreateDocumentSpecForm() {
-  const [state, formAction, isPending] = useActionState(
-    createDocumentAction,
-    initialState,
-  )
-
+export function CreateDocumentSpecForm({
+  formAction,
+  isPending,
+  message,
+}: {
+  formAction: (payload: FormData) => void
+  isPending: boolean
+  message?: string
+}) {
   const {
     register,
-    setValue,
     formState: { errors },
-  } = useForm<DocumentSpec>({
-    resolver: zodResolver(documentSpecSchema),
-    errors: state.errors,
-    mode: 'onBlur',
-    defaultValues: {
-      colorScheme: 'light',
-      title: '',
-      body: '',
-    },
-  })
-
-  function handleRandomize() {
-    setValue('title', randomTitle(), {
-      shouldValidate: true,
-      shouldDirty: true,
-    })
-    setValue('body', randomBody(), { shouldValidate: true, shouldDirty: true })
-    setValue('colorScheme', randomColorScheme(), {
-      shouldValidate: true,
-      shouldDirty: true,
-    })
-  }
+  } = useFormContext<DocumentSpec>()
 
   return (
     <form action={formAction}>
-      <RandomizeButton type="button" onClick={handleRandomize}>
-        Randomize
-      </RandomizeButton>
       <Field>
         <Label htmlFor="title">Title</Label>
         <Input
@@ -118,7 +71,7 @@ export function CreateDocumentSpecForm() {
         )}
       </Field>
 
-      {state.message && <ErrorText>{state.message}</ErrorText>}
+      {message && <ErrorText>{message}</ErrorText>}
       <SubmitButton type="submit" disabled={isPending}>
         {isPending ? 'Saving...' : 'Continue to payment'}
       </SubmitButton>
