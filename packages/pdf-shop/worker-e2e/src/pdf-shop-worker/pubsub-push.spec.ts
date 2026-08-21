@@ -55,13 +55,15 @@ describe('POST /', () => {
 
     expect(res.status).toBe(201)
 
-    const generatedText = await readFile(
-      '/tmp/pdf-shop-data/generated/11111111-1111-4111-8111-111111111111.txt',
-      'utf-8',
+    // Real rendered PDF output (timestamps, internal object IDs,
+    // compression) isn't something to hardcode an exact match against -
+    // checked structurally instead: it exists, has content, and starts
+    // with the standard PDF magic bytes.
+    const generatedBytes = await readFile(
+      '/tmp/pdf-shop-data/generated/11111111-1111-4111-8111-111111111111.pdf',
     )
-    expect(generatedText).toBe(
-      'Generated document for spec 11111111-1111-4111-8111-111111111111\n\n{\n  "colorScheme": "dark",\n  "title": "Test Contract",\n  "body": "Body text"\n}',
-    )
+    expect(generatedBytes.subarray(0, 5).toString('ascii')).toBe('%PDF-')
+    expect(generatedBytes.length).toBeGreaterThan(0)
 
     // timestamp reflects the real clock of the live worker process, so it
     // can't be hardcoded the way the unit-level handler specs do with fake
@@ -74,9 +76,9 @@ describe('POST /', () => {
     )
     expect(generatedRecord).toEqual({
       documentId: '11111111-1111-4111-8111-111111111111',
-      path: '/tmp/pdf-shop-data/generated/11111111-1111-4111-8111-111111111111.txt',
-      filename: '11111111-1111-4111-8111-111111111111.txt',
-      contentType: 'text/plain',
+      path: '/tmp/pdf-shop-data/generated/11111111-1111-4111-8111-111111111111.pdf',
+      filename: '11111111-1111-4111-8111-111111111111.pdf',
+      contentType: 'application/pdf',
       timestamp: expect.any(String),
     })
   })

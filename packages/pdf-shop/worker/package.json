@@ -68,8 +68,10 @@
   },
   "dependencies": {
     "@org/pdf-shop-application": "0.0.1",
+    "@react-pdf/renderer": "^4.6.1",
     "express": "^5.1.0",
-    "pino": "^10.3.1"
+    "pino": "^10.3.1",
+    "react": "^19.2.8"
   },
   "devDependencies": {
     "pino-pretty": "^13.1.3"

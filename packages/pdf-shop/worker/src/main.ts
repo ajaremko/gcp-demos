@@ -6,6 +6,8 @@ import { GenerateDocumentHandler } from '@org/pdf-shop-application'
 
 import { pino } from 'pino'
 
+import { ReactPdfGenerator } from './pdf/ReactPdfGenerator'
+
 const app = express()
 
 app.use(express.json())
@@ -68,6 +70,7 @@ const dataRoot = resolveDataRoot()
 const generateDocument = GenerateDocumentHandler({
   dataRoot,
   logger: pinoLogger,
+  pdfGenerator: ReactPdfGenerator(),
 })
 
 app.post('/', async (req, res) => {
