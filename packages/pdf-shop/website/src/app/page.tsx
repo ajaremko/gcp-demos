@@ -1,7 +1,15 @@
 'use client'
 import styled from 'styled-components'
 
-import { PageShell, Heading, Subheading, NavLinkButton } from '@/lib/ui'
+import {
+  PageShell,
+  Heading,
+  Subheading,
+  HelperText,
+  NavLinkButton,
+} from '@/lib/ui'
+import { HowItWorks } from './HowItWorks'
+import { FAQ } from './FAQ'
 
 const Hero = styled.div`
   max-width: 640px;
@@ -19,7 +27,16 @@ const HeroHeading = styled(Heading)`
 
 const HeroSubheading = styled(Subheading)`
   font-size: 1.05rem;
-  margin-bottom: ${(props) => props.theme.spacing(4)};
+  margin-bottom: ${(props) => props.theme.spacing(2)};
+`
+
+const Sections = styled.div`
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  flex-direction: column;
+  gap: ${(props) => props.theme.spacing(4)};
+  margin-top: ${(props) => props.theme.spacing(6)};
 `
 
 export default function LandingPage() {
@@ -31,8 +48,15 @@ export default function LandingPage() {
           Describe what you need, pay securely with Stripe, and download your
           generated document in minutes.
         </HeroSubheading>
+        <HelperText style={{ marginBottom: '24px' }}>
+          $9.99 per document — one-time payment, no subscription.
+        </HelperText>
         <NavLinkButton href="/create">Create a document</NavLinkButton>
       </Hero>
+      <Sections>
+        <HowItWorks />
+        <FAQ />
+      </Sections>
     </PageShell>
   )
 }

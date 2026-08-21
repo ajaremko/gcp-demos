@@ -3,6 +3,8 @@ import { Inter } from 'next/font/google'
 import { StyledComponentsRegistry } from '@/lib/styled-components-registry'
 import { GlobalStyles } from '@/lib/global-styles'
 import { ReactQueryProvider } from '@/lib/react-query-provider'
+import { SiteHeader } from '@/lib/SiteHeader'
+import { SiteFooter } from '@/lib/SiteFooter'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -25,7 +27,9 @@ export default function RootLayout({
         <StyledComponentsRegistry>
           <ReactQueryProvider>
             <GlobalStyles />
+            <SiteHeader />
             {children}
+            <SiteFooter />
           </ReactQueryProvider>
         </StyledComponentsRegistry>
       </body>

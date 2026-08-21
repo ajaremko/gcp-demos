@@ -25,6 +25,10 @@ const Stack = styled.div`
   margin-bottom: ${(props) => props.theme.spacing(3)};
 `
 
+const SubmitButton = styled(Button)`
+  width: 100%;
+`
+
 let stripePromise: Promise<Stripe | null> | undefined
 
 function getStripe(publishableKey: string) {
@@ -115,9 +119,9 @@ function PurchaseDocumentFormInner({ documentId }: { documentId: string }) {
           <ErrorText>{actionState.message}</ErrorText>
         </Stack>
       )}
-      <Button type="submit" disabled={!stripe || pending}>
-        {pending ? 'Processing…' : 'Pay $9.99'}
-      </Button>
+      <SubmitButton type="submit" disabled={!stripe || pending}>
+        {pending ? 'Processing...' : 'Pay $9.99'}
+      </SubmitButton>
     </form>
   )
 }

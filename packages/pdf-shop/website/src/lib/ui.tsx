@@ -7,7 +7,8 @@ export const PageShell = styled.main`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: ${(props) => props.theme.spacing(8)} ${(props) => props.theme.spacing(3)};
+  padding: ${(props) => props.theme.spacing(8)}
+    ${(props) => props.theme.spacing(3)};
 `
 
 export const Card = styled.div`
@@ -17,7 +18,9 @@ export const Card = styled.div`
   border: 1px solid ${(props) => props.theme.colors.border};
   border-radius: ${(props) => props.theme.radii.lg};
   padding: ${(props) => props.theme.spacing(5)};
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 8px 24px rgba(16, 24, 40, 0.06);
+  box-shadow:
+    0 1px 2px rgba(16, 24, 40, 0.04),
+    0 8px 24px rgba(16, 24, 40, 0.06);
 `
 
 export const Heading = styled.h1`
@@ -27,6 +30,11 @@ export const Heading = styled.h1`
 `
 
 export const Subheading = styled.p`
+  color: ${(props) => props.theme.colors.textMuted};
+  margin: 0 0 ${(props) => props.theme.spacing(4)};
+`
+
+export const SubheadingSpan = styled.span`
   color: ${(props) => props.theme.colors.textMuted};
   margin: 0 0 ${(props) => props.theme.spacing(4)};
 `
@@ -99,7 +107,10 @@ const buttonStyles = css`
   cursor: pointer;
   text-decoration: none;
   display: inline-block;
-  transition: background-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 
   &:hover:not(:disabled) {
     background: ${(props) => props.theme.colors.primaryHover};

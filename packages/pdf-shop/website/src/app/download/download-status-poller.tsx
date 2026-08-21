@@ -1,9 +1,28 @@
 'use client'
 import { useQuery } from '@tanstack/react-query'
-import { HelperText, LinkButton } from '@/lib/ui'
+import styled from 'styled-components'
+import { Heading, Subheading, LinkButton } from '@/lib/ui'
+import { StatusBadge } from '@/lib/StatusBadge'
 import { fetchOrderStatus } from '@/lib/orderStatus'
 
 const POLL_INTERVAL_MS = 3000
+
+const DownloadButton = styled(LinkButton)`
+  width: 100%;
+  text-align: center;
+`
+
+const GithubButton = styled(LinkButton)`
+  width: 100%;
+  text-align: center;
+  margin-top: ${(props) => props.theme.spacing(2)};
+  background: #24292e;
+
+  &:hover:not(:disabled) {
+    background: #1b1f23;
+    box-shadow: 0 4px 12px rgba(36, 41, 46, 0.35);
+  }
+`
 
 export function DownloadStatusPoller({
   documentId,
@@ -21,22 +40,35 @@ export function DownloadStatusPoller({
     refetchInterval: (query) =>
       query.state.data?.ready ? false : POLL_INTERVAL_MS,
   })
-
-  if (data?.ready) {
-    return (
-      <LinkButton
-        href={`/api/documents/${documentId}/download`}
-        target="_blank"
-      >
-        Download PDF
-      </LinkButton>
-    )
-  }
+  const ready = data?.ready ?? false
 
   return (
-    <HelperText>
-      Still processing your document — this page will update automatically once
-      it&apos;s ready.
-    </HelperText>
+    <>
+      <Heading style={{ marginTop: '1rem' }}>
+        {ready ? 'Your document is ready!' : "We're preparing your document"}
+      </Heading>
+      <Subheading>
+        {ready
+          ? 'Your document has been generated and is ready to download.'
+          : 'This usually takes a few moments. This page updates automatically.'}
+      </Subheading>
+      {!ready && <StatusBadge state="processing">Processing</StatusBadge>}
+      {ready && (
+        <DownloadButton
+          href={`/api/documents/${documentId}/download`}
+          target="_blank"
+        >
+          Download PDF
+        </DownloadButton>
+      )}
+      {ready && (
+        <GithubButton
+          href="https://github.com/ajaremko/gcp-demos/tree/main/packages/pdf-shop"
+          target="_blank"
+        >
+          View Source on GitHub
+        </GithubButton>
+      )}
+    </>
   )
 }

@@ -1,12 +1,15 @@
 'use client'
 import styled from 'styled-components'
 import { HelperText } from '@/lib/ui'
+import { HoverPopup } from '@/lib/HoverPopup'
 
 const List = styled.ul`
   margin: 0;
   padding-left: 1.25rem;
+  padding-top: 0.75rem;
   font-family: ui-monospace, monospace;
   font-size: 0.85rem;
+  width: 420px;
 `
 
 const TEST_CARDS = [
@@ -20,10 +23,10 @@ const TEST_CARDS = [
 
 export function TestCards() {
   return (
-    <div>
+    <HoverPopup label="Show testing card numbers.">
       <HelperText>
-        Sandbox mode — use any of these test cards, any future expiry, any
-        3-digit CVC, any ZIP.
+        Use any of these test cards, any future expiry, any 3-digit CVC, any
+        ZIP.
       </HelperText>
       <List>
         {TEST_CARDS.map((card) => (
@@ -32,6 +35,6 @@ export function TestCards() {
           </li>
         ))}
       </List>
-    </div>
+    </HoverPopup>
   )
 }

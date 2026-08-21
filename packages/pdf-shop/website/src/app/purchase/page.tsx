@@ -5,16 +5,15 @@ import {
   CheckOrderStatusHandler,
 } from '@org/pdf-shop-application'
 
-import { PageShell, Card, Heading, Subheading } from '@/lib/ui'
-import { StepHeader } from '@/lib/StepHeader'
+import { PageShell } from '@/lib/ui'
+import { FlowGrid } from '@/lib/FlowGrid'
 import { getStripeClient } from '@/lib/stripe'
 import { pinoLogger } from '@/lib/pino'
 import { resolveDataRoot } from '@/lib/dataRoot'
 import { documentIdSchema } from '@/lib/schemas'
-import { GenerationStatusPoller } from '@/lib/generation-status-poller'
 
-import { PurchaseDocumentForm } from './PurchaseDocumentForm'
-import { TestCards } from './TestCards'
+import { StripePaymentPanel } from './StripePaymentPanel'
+import { OrderSummaryPanel } from './OrderSummaryPanel'
 
 export default async function PurchasePage({
   searchParams,
@@ -66,26 +65,19 @@ export default async function PurchasePage({
 
   return (
     <PageShell>
-      <StepHeader currentStep="purchase">
-        <GenerationStatusPoller
+      <FlowGrid>
+        <StripePaymentPanel
+          title={document.spec.title}
+          documentId={document.documentId}
+          clientSecret={document.clientSecret}
+          publishableKey={publishableKey}
+        />
+        <OrderSummaryPanel
+          title={document.spec.title}
           documentId={document.documentId}
           initialGenerated={status?.generated ?? false}
         />
-      </StepHeader>
-      <Card>
-        <Heading>Pay for &quot;{document.spec.title}&quot;</Heading>
-        <Subheading>
-          One-time purchase — sandbox mode, no real charge.
-        </Subheading>
-        {document.clientSecret && (
-          <PurchaseDocumentForm
-            documentId={document.documentId}
-            clientSecret={document.clientSecret}
-            publishableKey={publishableKey}
-          />
-        )}
-        <TestCards />
-      </Card>
+      </FlowGrid>
     </PageShell>
   )
 }

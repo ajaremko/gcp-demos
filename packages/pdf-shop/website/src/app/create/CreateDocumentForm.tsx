@@ -2,7 +2,8 @@
 import { useActionState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { documentSpecSchema, type DocumentSpec } from './documentSpecSchema'
+import styled from 'styled-components'
+
 import {
   Field,
   Label,
@@ -13,7 +14,13 @@ import {
   HelperText,
   Button,
 } from '@/lib/ui'
+
 import { createDocumentAction, type CreateDocumentActionState } from './actions'
+import { documentSpecSchema, type DocumentSpec } from './documentSpecSchema'
+
+const SubmitButton = styled(Button)`
+  width: 100%;
+`
 
 const initialState: CreateDocumentActionState = { errors: {} }
 
@@ -40,20 +47,6 @@ export function CreateDocumentSpecForm() {
   return (
     <form action={formAction}>
       <Field>
-        <Label htmlFor="colorScheme">Color scheme</Label>
-        <Select id="colorScheme" {...register('colorScheme')}>
-          <option value="light">Light</option>
-          <option value="dark">Dark</option>
-        </Select>
-        <HelperText>
-          Used to style the generated document, not this site.
-        </HelperText>
-        {errors.colorScheme && (
-          <ErrorText>{errors.colorScheme.message}</ErrorText>
-        )}
-      </Field>
-
-      <Field>
         <Label htmlFor="title">Title</Label>
         <Input
           id="title"
@@ -73,10 +66,26 @@ export function CreateDocumentSpecForm() {
         <HelperText>The main text of the document.</HelperText>
         {errors.body && <ErrorText>{errors.body.message}</ErrorText>}
       </Field>
+
+      <Field>
+        <Label htmlFor="colorScheme">Color scheme</Label>
+        <Select id="colorScheme" {...register('colorScheme')}>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </Select>
+        <HelperText>
+          Color scheme affects the background and text colors of the generated
+          PDF.
+        </HelperText>
+        {errors.colorScheme && (
+          <ErrorText>{errors.colorScheme.message}</ErrorText>
+        )}
+      </Field>
+
       {state.message && <ErrorText>{state.message}</ErrorText>}
-      <Button type="submit" disabled={isPending}>
-        {isPending ? 'Saving…' : 'Continue to payment'}
-      </Button>
+      <SubmitButton type="submit" disabled={isPending}>
+        {isPending ? 'Saving...' : 'Continue to payment'}
+      </SubmitButton>
     </form>
   )
 }
