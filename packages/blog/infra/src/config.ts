@@ -10,9 +10,8 @@ export const gcpProject = config.require('project')
 export const gcpRegion = config.require('region')
 export const backendImageTag = config.require('backendImageTag')
 export const deletionProtection = config.requireBoolean('deletionProtection')
-export const stripeSecretKeySecretVersion = config.get(
-  'stripeSecretKeySecretVersion',
-)
+export const backendUrl = config.require('backendUrl')
+export const backendAdminUrl = config.require('backendAdminUrl')
 
 export const labels: Record<string, string> = {
   env: stackName,
@@ -29,9 +28,6 @@ export const sharedProject = sharedStackRef.getOutput('gcpProject')
 export const sharedRegion = sharedStackRef.getOutput('gcpRegion')
 export const sharedMysqlInstanceName =
   sharedStackRef.getOutput('mysqlInstanceName')
-export const sharedMysqlInstanceFirstIpAddress = sharedStackRef.getOutput(
-  'mysqlInstanceFirstIpAddress',
-)
 export const sharedMysqlInstanceId = sharedStackRef.getOutput('mysqlInstanceId')
 
 // Retrieve exported artifact registry details

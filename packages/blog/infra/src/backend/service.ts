@@ -5,7 +5,8 @@ import {
   backendImageTag,
   tag,
   deletionProtection,
-  sharedMysqlInstanceFirstIpAddress,
+  backendUrl,
+  backendAdminUrl,
   sharedMysqlInstanceId,
 } from '../config'
 import { getImageUrl } from '../getImageUrl'
@@ -50,18 +51,9 @@ export const backendService = new gcp.cloudrunv2.Service(
             },
           ],
           envs: [
-            // { name: 'url', value: 'https://your-custom-domain.com' },
+            { name: 'url', value: backendUrl },
+            { name: 'admin__url', value: backendAdminUrl },
             { name: 'database__client', value: 'mysql' },
-            {
-              name: 'database__connection__host',
-              value: sharedMysqlInstanceFirstIpAddress,
-            },
-            {
-              name: 'database__connection__socketPath',
-              value: backendDb.instance.apply(
-                (instance) => `/cloudsql/${instance}`,
-              ),
-            },
             { name: 'database__connection__user', value: backendDbUser.name },
             {
               name: 'database__connection__password',
@@ -73,6 +65,12 @@ export const backendService = new gcp.cloudrunv2.Service(
               },
             },
             { name: 'database__connection__database', value: backendDb.name },
+            {
+              name: 'database__connection__socketPath',
+              value: sharedMysqlInstanceId.apply(
+                (instanceId) => `/cloudsql/${instanceId}`,
+              ),
+            },
             // Enable Storage Adapter
             { name: 'storage__active', value: 'gcloud' },
             { name: 'storage__gcloud__bucket', value: dataBucket.name },

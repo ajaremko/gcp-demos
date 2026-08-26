@@ -1,7 +1,7 @@
 import * as gcp from '@pulumi/gcp'
 import * as pulumi from '@pulumi/pulumi'
 
-import { tag } from '../config'
+import { tag, gcpProject } from '../config'
 import { provider } from '../project'
 
 import { dataBucket } from './storage'
@@ -38,7 +38,7 @@ export const dataBucketObjectViewerBinding = new gcp.storage.BucketIAMMember(
 
 export const backendDbUserPasswordSecretAccessorBinding =
   new gcp.secretmanager.SecretIamMember(
-    `${tag}-website-backend-db-user-password-accessor`,
+    `${tag}-backend-db-user-password-accessor`,
     {
       secretId: backendDbUserPasswordSecret.secretId,
       role: 'roles/secretmanager.secretAccessor',
@@ -47,8 +47,19 @@ export const backendDbUserPasswordSecretAccessorBinding =
     { provider },
   )
 
+export const cloudSqlClientBinding = new gcp.projects.IAMMember(
+  `${tag}-backend-sql-client`,
+  {
+    project: gcpProject,
+    role: 'roles/cloudsql.client',
+    member: pulumi.interpolate`serviceAccount:${websiteServiceAccount.email}`,
+  },
+  { provider },
+)
+
 export const iamBindings = [
   dataBucketObjectCreatorBinding,
   dataBucketObjectViewerBinding,
   backendDbUserPasswordSecretAccessorBinding,
+  cloudSqlClientBinding,
 ]

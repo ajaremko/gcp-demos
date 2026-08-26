@@ -3,4 +3,6 @@ config:
   region: us-central1
   sharedStackName: alfredsyoung/gcp-demos-shared-infra
   backendImageTag: 2608.26.830dd50-hotfix
+  backendUrl: https://blog.alfredyoung.com
+  backendAdminUrl: https://ghost.alfredyoung.com
   deletionProtection: false
