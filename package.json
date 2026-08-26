@@ -53,6 +53,7 @@
     "webpack-dev-server": "^5.2.1"
   },
   "workspaces": [
+    "packages/blog/*",
     "packages/pdf-shop/*",
     "packages/shared/*"
   ],

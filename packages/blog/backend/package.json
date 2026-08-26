@@ -1,0 +1,15 @@
+{
+  "name": "@org/blog-backend",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "name": "blog-backend",
+    "release": {
+      "docker": {
+        "repositoryName": "blog-backend"
+      }
+    }
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
