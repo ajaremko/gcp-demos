@@ -50,3 +50,11 @@ export const artifactRegistryService = new gcp.projects.Service(
   },
   { provider, dependsOn: [computeService, resourceManagerService] },
 )
+
+export const sqlAdminService = new gcp.projects.Service(
+  `${tag}-sql-admin-service`,
+  {
+    service: 'sqladmin.googleapis.com',
+  },
+  { provider },
+)

@@ -7,6 +7,11 @@ export const githubActionIdentityPoolProviderName =
   githubActionIdentityPoolProvider.name
 export const githubActionServiceAccountEmail = githubActionServiceAccount.email
 
+import { mysqlInstance } from './mysql'
+
+export const mysqlInstanceName = mysqlInstance.name
+export const mysqlInstanceFirstIpAddress = mysqlInstance.firstIpAddress
+
 import { artifactRegistry } from './artifact-registry'
 
 export const artifactRegistryUri = artifactRegistry.registryUri
