@@ -1,0 +1,6 @@
+config:
+  project: gcp-demos-505417
+  region: us-central1
+  sharedStackName: alfredsyoung/gcp-demos-shared-infra
+  backendImageTag: 2608.26.830dd50-hotfix
+  deletionProtection: false
