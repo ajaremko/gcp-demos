@@ -11,6 +11,7 @@ import { mysqlInstance } from './mysql'
 
 export const mysqlInstanceName = mysqlInstance.name
 export const mysqlInstanceFirstIpAddress = mysqlInstance.firstIpAddress
+export { mysqlInstanceId } from './mysql'
 
 import { artifactRegistry } from './artifact-registry'
 
