@@ -8,6 +8,7 @@ export async function GET(context) {
 	const { entries, error } = await getLiveCollection('blog');
 	if (error) {
 		console.error('Failed to load posts from Ghost:', error);
+		return new Response('Failed to load feed', { status: 502 });
 	}
 	return rss({
 		title: SITE_TITLE,

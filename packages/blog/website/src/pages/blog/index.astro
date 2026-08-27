@@ -11,6 +11,7 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
 const { entries, error } = await getLiveCollection('blog');
 if (error) {
 	console.error('Failed to load posts from Ghost:', error);
+	Astro.response.status = 502;
 }
 const posts = (entries ?? []).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),

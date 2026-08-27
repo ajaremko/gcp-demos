@@ -31,7 +31,7 @@ export default defineConfig({
 
   cache: {
     provider: {
-      entrypoint: 'astro/cache/memory',
+      entrypoint: './src/cache/filesystem-provider.ts',
     },
   },
 

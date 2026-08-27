@@ -28,8 +28,13 @@ interface GhostPostsResponse {
 }
 
 function getGhostConfig() {
-	const url = import.meta.env.GHOST_ADMIN_URL;
-	const key = import.meta.env.GHOST_CONTENT_KEY;
+	// process.env, not import.meta.env: this must read the real container
+	// environment at request time (Cloud Run injects GHOST_ADMIN_URL/
+	// GHOST_CONTENT_KEY as runtime env vars). import.meta.env is statically
+	// inlined by Vite at `astro build` time, which happens before the
+	// Docker image (and its runtime env) even exists.
+	const url = process.env.GHOST_ADMIN_URL;
+	const key = process.env.GHOST_CONTENT_KEY;
 	if (!url || !key) {
 		throw new Error(
 			'GHOST_ADMIN_URL and GHOST_CONTENT_KEY must be set to fetch blog content from Ghost.',
@@ -38,10 +43,18 @@ function getGhostConfig() {
 	return { url: url.replace(/\/+$/, ''), key };
 }
 
-async function fetchGhost(path: string): Promise<GhostPostsResponse> {
+async function fetchGhost(
+	path: string,
+	{ treat404AsEmpty = false }: { treat404AsEmpty?: boolean } = {},
+): Promise<GhostPostsResponse> {
 	const { url, key } = getGhostConfig();
 	const separator = path.includes('?') ? '&' : '?';
 	const response = await fetch(`${url}/ghost/api/content${path}${separator}key=${key}`);
+	if (response.status === 404 && treat404AsEmpty) {
+		// Ghost genuinely has no matching post - not a failure, don't treat it as one
+		// (a real Ghost outage/network error never gets this far to produce a clean 404).
+		return { posts: [] };
+	}
 	if (!response.ok) {
 		throw new Error(`Ghost Content API request failed: ${response.status} ${response.statusText}`);
 	}
@@ -85,7 +98,7 @@ export const ghostLoader: LiveLoader<BlogPostData> = {
 	},
 	async loadEntry({ filter }) {
 		try {
-			const data = await fetchGhost(`/posts/slug/${filter.id}/`);
+			const data = await fetchGhost(`/posts/slug/${filter.id}/`, { treat404AsEmpty: true });
 			const post = data.posts[0];
 			if (!post) return undefined;
 			return toEntry(post);

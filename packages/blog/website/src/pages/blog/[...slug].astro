@@ -7,7 +7,14 @@ import BlogPost from '../../layouts/BlogPost.astro';
 const { slug } = Astro.params;
 const { entry, error } = await getLiveEntry('blog', slug as string);
 
-if (error || !entry) {
+if (error && error.name === 'LiveEntryNotFoundError') {
+	// Astro's own getLiveEntry() wraps a loader's "not found" (returning
+	// undefined) into this specific error - a real 404, not a Ghost failure.
+	Astro.response.status = 404;
+} else if (error) {
+	console.error('Failed to load post from Ghost:', error);
+	Astro.response.status = 502;
+} else if (!entry) {
 	Astro.response.status = 404;
 }
 ---
