@@ -3,6 +3,7 @@ export const prerender = false;
 
 import { getLiveEntry } from 'astro:content';
 import BlogPost from '../../layouts/BlogPost.astro';
+import { pinoLogger } from '../../logging/pino';
 
 const { slug } = Astro.params;
 const { entry, error } = await getLiveEntry('blog', slug as string);
@@ -12,7 +13,7 @@ if (error && error.name === 'LiveEntryNotFoundError') {
 	// undefined) into this specific error - a real 404, not a Ghost failure.
 	Astro.response.status = 404;
 } else if (error) {
-	console.error('Failed to load post from Ghost:', error);
+	pinoLogger.error({ err: error }, 'Failed to load post from Ghost');
 	Astro.response.status = 502;
 } else if (!entry) {
 	Astro.response.status = 404;

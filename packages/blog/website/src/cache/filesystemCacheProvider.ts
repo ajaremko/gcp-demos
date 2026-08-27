@@ -14,6 +14,8 @@ import type {
   InvalidateOptions,
 } from 'astro'
 
+import { pinoLogger } from '../logging/pino'
+
 interface StoredEntry {
   path: string
   body: string
@@ -76,10 +78,12 @@ function responseFromEntry(entry: StoredEntry, cacheStatus: string): Response {
 const filesystemCacheProvider: CacheProviderFactory<{ dir?: string }> = (
   config,
 ) => {
+  const logger = pinoLogger.child({ provider: 'filesystem' })
   const dir = process.env.RESPONSE_CACHE_DIR || config?.dir
 
   if (!dir) {
     // No mounted cache directory available (e.g. local dev) - passthrough only.
+    logger.trace('RESPONSE_CACHE_DIR not set, passthrough only')
     return {
       name: 'filesystem',
       async onRequest(_context, next) {
@@ -111,12 +115,13 @@ const filesystemCacheProvider: CacheProviderFactory<{ dir?: string }> = (
       await mkdir(cacheDir, { recursive: true })
       const target = fileFor(keyFor(url))
       const tmp = join(cacheDir, `.${randomUUID()}.tmp`)
+      logger.trace({ path: url.pathname }, 'persisting entry')
       await writeFile(tmp, JSON.stringify(entry), 'utf-8')
       await rename(tmp, target)
     } catch (error) {
-      console.warn(
-        `[filesystem-cache] Failed to persist cache entry for ${url.pathname}:`,
-        error,
+      logger.debug(
+        { err: error, path: url.pathname },
+        'failed to persist cache entry',
       )
     }
   }
@@ -130,13 +135,26 @@ const filesystemCacheProvider: CacheProviderFactory<{ dir?: string }> = (
       }
 
       const url = context.url
+      logger.trace(
+        { method: context.request.method, path: url.pathname },
+        'looking up cache entry',
+      )
+
       const cached = await readEntry(url)
 
       if (cached) {
         if (!isExpired(cached)) {
+          logger.trace(
+            { path: url.pathname },
+            'returning fresh entry from cache',
+          )
           return responseFromEntry(cached, 'HIT')
         }
         if (isStale(cached)) {
+          logger.trace(
+            { path: url.pathname },
+            'returning stale entry from cache and revalidating in background',
+          )
           next()
             .then(async (fresh) => {
               const { maxAge, swr } = parseCdnCacheControl(
@@ -145,6 +163,10 @@ const filesystemCacheProvider: CacheProviderFactory<{ dir?: string }> = (
               if (maxAge > 0 && fresh.status < 500) {
                 const tags = parseCacheTags(fresh.headers.get('Cache-Tag'))
                 const body = await fresh.clone().text()
+                logger.trace(
+                  { path: url.pathname },
+                  'writing fresh cache entry',
+                )
                 await writeEntry(url, {
                   path: url.pathname,
                   body,
@@ -158,13 +180,14 @@ const filesystemCacheProvider: CacheProviderFactory<{ dir?: string }> = (
               }
             })
             .catch((error) => {
-              console.warn(
-                `[filesystem-cache] Background revalidation failed for ${url.pathname}:`,
-                error,
+              logger.debug(
+                { err: error, path: url.pathname },
+                'background revalidation failed',
               )
             })
           return responseFromEntry(cached, 'STALE')
         }
+        logger.trace({ path: url.pathname }, 'entry stale past swr window')
       }
 
       const response = await next()
@@ -175,8 +198,16 @@ const filesystemCacheProvider: CacheProviderFactory<{ dir?: string }> = (
           // rather than the failure. This is the whole point of this provider: it's
           // what lets Ghost's Cloud Run service scale to zero without visitors seeing
           // a broken blog during its cold start.
+          logger.trace(
+            { path: url.pathname, status: response.status },
+            'origin failed, serving STALE-ERROR fallback',
+          )
           return responseFromEntry(cached, 'STALE-ERROR')
         }
+        logger.trace(
+          { path: url.pathname, status: response.status },
+          'origin failed and no cached copy exists, passing through',
+        )
         return response
       }
 
@@ -198,17 +229,24 @@ const filesystemCacheProvider: CacheProviderFactory<{ dir?: string }> = (
           tags,
         })
         forClient.headers.set('X-Astro-Cache', 'MISS')
+        logger.trace(
+          { path: url.pathname, maxAge, swr },
+          'MISS, stored fresh response',
+        )
         return forClient
       }
 
+      logger.trace({ path: url.pathname }, 'no maxAge configured, not caching')
       return response
     },
 
     async invalidate(options: InvalidateOptions) {
+      logger.trace({ options }, 'invalidate() called')
       let files: string[]
       try {
         files = await readdir(cacheDir)
-      } catch {
+      } catch (error) {
+        logger.debug({ err: error }, 'invalidate() failed to list cache dir')
         return
       }
       const tagsToInvalidate = options.tags
@@ -228,9 +266,19 @@ const filesystemCacheProvider: CacheProviderFactory<{ dir?: string }> = (
           )
           if (pathMatches || tagMatches) {
             await rm(filePath, { force: true })
+            logger.trace({ path: entry.path, file }, 'invalidated entry')
+          } else {
+            logger.trace(
+              { path: entry.path, file },
+              'invalidate() considered entry, no match',
+            )
           }
-        } catch {
+        } catch (error) {
           // Corrupt/unreadable entry - leave it, not worth failing invalidation over.
+          logger.debug(
+            { err: error, file },
+            'invalidate() could not read entry, leaving it',
+          )
         }
       }
     },

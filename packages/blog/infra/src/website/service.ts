@@ -70,6 +70,10 @@ export const websiteService = new gcp.cloudrunv2.Service(
               name: 'RESPONSE_CACHE_DIR',
               value: '/mnt/response-cache',
             },
+            {
+              name: 'LOG_LEVEL',
+              value: 'info',
+            },
             ...ghostContentKeySecretMount,
           ],
         },

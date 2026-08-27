@@ -7,10 +7,11 @@ import Footer from '../../components/Footer.astro';
 import FormattedDate from '../../components/FormattedDate.astro';
 import Header from '../../components/Header.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
+import { pinoLogger } from '../../logging/pino';
 
 const { entries, error } = await getLiveCollection('blog');
 if (error) {
-	console.error('Failed to load posts from Ghost:', error);
+	pinoLogger.error({ err: error }, 'Failed to load posts from Ghost');
 	Astro.response.status = 502;
 }
 const posts = (entries ?? []).sort(
