@@ -8,10 +8,10 @@ export const tag = 'blog'
 const config = new pulumi.Config()
 export const gcpProject = config.require('project')
 export const gcpRegion = config.require('region')
-export const backendImageTag = config.require('backendImageTag')
+export const ghostImageTag = config.require('ghostImageTag')
 export const deletionProtection = config.requireBoolean('deletionProtection')
-export const backendUrl = config.require('backendUrl')
-export const backendAdminUrl = config.require('backendAdminUrl')
+export const ghostUrl = config.require('ghostUrl')
+export const ghostAdminUrl = config.require('ghostAdminUrl')
 
 export const labels: Record<string, string> = {
   env: stackName,

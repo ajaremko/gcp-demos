@@ -2,7 +2,7 @@ config:
   project: gcp-demos-505417
   region: us-central1
   sharedStackName: alfredsyoung/gcp-demos-shared-infra
-  backendImageTag: 2608.26.830dd50-hotfix
-  backendUrl: https://blog.alfredyoung.com
-  backendAdminUrl: https://ghost.alfredyoung.com
+  ghostImageTag: 2608.27.cc25fc7-hotfix
+  ghostUrl: https://blog.alfredyoung.com
+  ghostAdminUrl: https://ghost.alfredyoung.com
   deletionProtection: false

@@ -1,3 +1,3 @@
-export * from './backend'
+export * from './ghost'
 
 export { gcpProject, gcpRegion } from './config'

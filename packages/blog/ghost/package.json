@@ -1,12 +1,12 @@
 {
-  "name": "@org/blog-backend",
+  "name": "@org/blog-ghost",
   "version": "0.0.1",
   "private": true,
   "nx": {
-    "name": "blog-backend",
+    "name": "blog-ghost",
     "release": {
       "docker": {
-        "repositoryName": "blog-backend"
+        "repositoryName": "blog-ghost"
       }
     }
   },

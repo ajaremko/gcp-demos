@@ -2,11 +2,11 @@ import * as gcp from '@pulumi/gcp'
 
 import {
   gcpRegion,
-  backendImageTag,
+  ghostImageTag,
   tag,
   deletionProtection,
-  backendUrl,
-  backendAdminUrl,
+  ghostUrl,
+  ghostAdminUrl,
   sharedMysqlInstanceId,
 } from '../config'
 import { getImageUrl } from '../getImageUrl'
@@ -15,21 +15,21 @@ import { provider } from '../project'
 import { cloudRunService } from '../services'
 
 import {
-  backendDb,
-  backendDbUser,
-  backendDbUserPasswordSecret,
-  backendDbUserPasswordSecretVersion,
+  ghostDb,
+  ghostDbUser,
+  ghostDbUserPasswordSecret,
+  ghostDbUserPasswordSecretVersion,
 } from './mysql'
-import { iamBindings, websiteServiceAccount } from './service-account'
+import { iamBindings, ghostServiceAccount } from './service-account'
 import { dataBucket } from './storage'
 
-export const backendService = new gcp.cloudrunv2.Service(
-  `${tag}-backend-service`,
+export const ghostService = new gcp.cloudrunv2.Service(
+  `${tag}-ghost-service`,
   {
     location: gcpRegion,
     deletionProtection,
     template: {
-      serviceAccount: websiteServiceAccount.email,
+      serviceAccount: ghostServiceAccount.email,
       volumes: [
         {
           name: 'cloudsql',
@@ -40,7 +40,7 @@ export const backendService = new gcp.cloudrunv2.Service(
       ],
       containers: [
         {
-          image: getImageUrl('blog-backend', backendImageTag),
+          image: getImageUrl('blog-ghost', ghostImageTag),
           ports: {
             containerPort: 2368,
           },
@@ -57,20 +57,20 @@ export const backendService = new gcp.cloudrunv2.Service(
             },
           },
           envs: [
-            { name: 'url', value: backendUrl },
-            { name: 'admin__url', value: backendAdminUrl },
+            { name: 'url', value: ghostUrl },
+            { name: 'admin__url', value: ghostAdminUrl },
             { name: 'database__client', value: 'mysql' },
-            { name: 'database__connection__user', value: backendDbUser.name },
+            { name: 'database__connection__user', value: ghostDbUser.name },
             {
               name: 'database__connection__password',
               valueSource: {
                 secretKeyRef: {
-                  secret: backendDbUserPasswordSecret.secretId,
-                  version: backendDbUserPasswordSecretVersion.version,
+                  secret: ghostDbUserPasswordSecret.secretId,
+                  version: ghostDbUserPasswordSecretVersion.version,
                 },
               },
             },
-            { name: 'database__connection__database', value: backendDb.name },
+            { name: 'database__connection__database', value: ghostDb.name },
             {
               name: 'database__connection__socketPath',
               value: sharedMysqlInstanceId.apply(
@@ -95,11 +95,11 @@ export const backendService = new gcp.cloudrunv2.Service(
   },
 )
 
-export const backendServicePublicAccess = new gcp.cloudrunv2.ServiceIamBinding(
-  `${tag}-backend-service-public-access`,
+export const ghostServicePublicAccess = new gcp.cloudrunv2.ServiceIamBinding(
+  `${tag}-ghost-service-public-access`,
   {
-    name: backendService.name,
-    location: backendService.location,
+    name: ghostService.name,
+    location: ghostService.location,
     role: 'roles/run.invoker',
     members: ['allUsers'],
   },

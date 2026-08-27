@@ -10,18 +10,18 @@ import {
 import { sqlAdminService, secretManagerService } from '../services'
 import { provider } from '../project'
 
-const backendDbUserPassword = new random.RandomPassword(
-  `${tag}-backend-db-user-password`,
+const ghostDbUserPassword = new random.RandomPassword(
+  `${tag}-ghost-db-user-password`,
   {
     length: 16,
     special: true,
   },
 )
 
-export const backendDbUserPasswordSecret = new gcp.secretmanager.Secret(
-  `${tag}-backend-db-user-password-secret`,
+export const ghostDbUserPasswordSecret = new gcp.secretmanager.Secret(
+  `${tag}-ghost-db-user-password-secret`,
   {
-    secretId: 'backend-db-user-password',
+    secretId: 'ghost-db-user-password',
     labels,
     replication: {
       auto: {},
@@ -31,18 +31,18 @@ export const backendDbUserPasswordSecret = new gcp.secretmanager.Secret(
   { provider, dependsOn: secretManagerService },
 )
 
-export const backendDbUserPasswordSecretVersion =
+export const ghostDbUserPasswordSecretVersion =
   new gcp.secretmanager.SecretVersion(
-    `${tag}-backend-db-user-password-secret-version`,
+    `${tag}-ghost-db-user-password-secret-version`,
     {
-      secret: backendDbUserPasswordSecret.id,
-      secretData: backendDbUserPassword.result,
+      secret: ghostDbUserPasswordSecret.id,
+      secretData: ghostDbUserPassword.result,
     },
     { provider },
   )
 
-export const backendDb = new gcp.sql.Database(
-  `${tag}-backend-db`,
+export const ghostDb = new gcp.sql.Database(
+  `${tag}-ghost-db`,
   {
     instance: sharedMysqlInstanceName,
     name: 'ghost_production',
@@ -50,12 +50,12 @@ export const backendDb = new gcp.sql.Database(
   { provider, dependsOn: [sqlAdminService] },
 )
 
-export const backendDbUser = new gcp.sql.User(
-  `${tag}-backend-db-user`,
+export const ghostDbUser = new gcp.sql.User(
+  `${tag}-ghost-db-user`,
   {
     instance: sharedMysqlInstanceName,
     name: 'ghost_user',
-    password: backendDbUserPassword.result,
+    password: ghostDbUserPassword.result,
   },
   { provider },
 )

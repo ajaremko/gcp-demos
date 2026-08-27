@@ -5,13 +5,13 @@ import { tag, gcpProject } from '../config'
 import { provider } from '../project'
 
 import { dataBucket } from './storage'
-import { backendDbUserPasswordSecret } from './mysql'
+import { ghostDbUserPasswordSecret } from './mysql'
 
-export const websiteServiceAccount = new gcp.serviceaccount.Account(
-  `${tag}-website-sa`,
+export const ghostServiceAccount = new gcp.serviceaccount.Account(
+  `${tag}-ghost-sa`,
   {
-    accountId: `${tag}-website-sa`,
-    displayName: 'Website Service Account',
+    accountId: `${tag}-ghost-sa`,
+    displayName: 'Ghost Service Account',
   },
   { provider },
 )
@@ -21,7 +21,7 @@ export const dataBucketObjectCreatorBinding = new gcp.storage.BucketIAMMember(
   {
     bucket: dataBucket.name,
     role: 'roles/storage.objectCreator',
-    member: pulumi.interpolate`serviceAccount:${websiteServiceAccount.email}`,
+    member: pulumi.interpolate`serviceAccount:${ghostServiceAccount.email}`,
   },
   { provider },
 )
@@ -31,28 +31,28 @@ export const dataBucketObjectViewerBinding = new gcp.storage.BucketIAMMember(
   {
     bucket: dataBucket.name,
     role: 'roles/storage.objectViewer',
-    member: pulumi.interpolate`serviceAccount:${websiteServiceAccount.email}`,
+    member: pulumi.interpolate`serviceAccount:${ghostServiceAccount.email}`,
   },
   { provider },
 )
 
-export const backendDbUserPasswordSecretAccessorBinding =
+export const ghostDbUserPasswordSecretAccessorBinding =
   new gcp.secretmanager.SecretIamMember(
-    `${tag}-backend-db-user-password-accessor`,
+    `${tag}-ghost-db-user-password-accessor`,
     {
-      secretId: backendDbUserPasswordSecret.secretId,
+      secretId: ghostDbUserPasswordSecret.secretId,
       role: 'roles/secretmanager.secretAccessor',
-      member: pulumi.interpolate`serviceAccount:${websiteServiceAccount.email}`,
+      member: pulumi.interpolate`serviceAccount:${ghostServiceAccount.email}`,
     },
     { provider },
   )
 
 export const cloudSqlClientBinding = new gcp.projects.IAMMember(
-  `${tag}-backend-sql-client`,
+  `${tag}-ghost-sql-client`,
   {
     project: gcpProject,
     role: 'roles/cloudsql.client',
-    member: pulumi.interpolate`serviceAccount:${websiteServiceAccount.email}`,
+    member: pulumi.interpolate`serviceAccount:${ghostServiceAccount.email}`,
   },
   { provider },
 )
@@ -60,6 +60,6 @@ export const cloudSqlClientBinding = new gcp.projects.IAMMember(
 export const iamBindings = [
   dataBucketObjectCreatorBinding,
   dataBucketObjectViewerBinding,
-  backendDbUserPasswordSecretAccessorBinding,
+  ghostDbUserPasswordSecretAccessorBinding,
   cloudSqlClientBinding,
 ]

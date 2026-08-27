@@ -20,6 +20,9 @@
     },
     {
       "path": "./packages/pdf-shop/infra"
+    },
+    {
+      "path": "./packages/blog/infra"
     }
   ],
   "compilerOptions": {}
