@@ -1,20 +1,23 @@
 ---
-import { type CollectionEntry, getCollection, render } from 'astro:content';
+export const prerender = false;
+
+import { getLiveEntry } from 'astro:content';
 import BlogPost from '../../layouts/BlogPost.astro';
 
-export async function getStaticPaths() {
-	const posts = await getCollection('blog');
-	return posts.map((post) => ({
-		params: { slug: post.id },
-		props: post,
-	}));
-}
-type Props = CollectionEntry<'blog'>;
+const { slug } = Astro.params;
+const { entry, error } = await getLiveEntry('blog', slug as string);
 
-const post = Astro.props;
-const { Content } = await render(post);
+if (error || !entry) {
+	Astro.response.status = 404;
+}
 ---
 
-<BlogPost {...post.data}>
-	<Content />
-</BlogPost>
+{
+	entry ? (
+		<BlogPost {...entry.data}>
+			<Fragment set:html={entry.rendered?.html ?? ''} />
+		</BlogPost>
+	) : (
+		<p>Post not found.</p>
+	)
+}

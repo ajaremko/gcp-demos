@@ -29,6 +29,17 @@ export default defineConfig({
     },
   },
 
+  cache: {
+    provider: {
+      entrypoint: 'astro/cache/memory',
+    },
+  },
+
+  routeRules: {
+    '/blog': { maxAge: 300, swr: 60 },
+    '/blog/[...slug]': { maxAge: 300, swr: 60 },
+  },
+
   fonts: [
     {
       provider: fontProviders.local(),
