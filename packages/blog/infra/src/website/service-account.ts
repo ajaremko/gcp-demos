@@ -5,6 +5,7 @@ import { tag } from '../config'
 import { provider } from '../project'
 
 import { ghostContentKeySecret } from './ghost'
+import { cacheBucket } from './storage'
 
 export const websiteServiceAccount = new gcp.serviceaccount.Account(
   `${tag}-website-sa`,
@@ -26,4 +27,28 @@ export const ghostContentKeySecretAccessorBinding =
     { provider },
   )
 
-export const iamBindings = [ghostContentKeySecretAccessorBinding]
+export const cacheBucketObjectCreatorBinding = new gcp.storage.BucketIAMMember(
+  `${tag}-website-cache-bucket-object-creator`,
+  {
+    bucket: cacheBucket.name,
+    role: 'roles/storage.objectCreator',
+    member: pulumi.interpolate`serviceAccount:${websiteServiceAccount.email}`,
+  },
+  { provider },
+)
+
+export const cacheBucketObjectViewerBinding = new gcp.storage.BucketIAMMember(
+  `${tag}-website-cache-bucket-object-viewer`,
+  {
+    bucket: cacheBucket.name,
+    role: 'roles/storage.objectViewer',
+    member: pulumi.interpolate`serviceAccount:${websiteServiceAccount.email}`,
+  },
+  { provider },
+)
+
+export const iamBindings = [
+  ghostContentKeySecretAccessorBinding,
+  cacheBucketObjectCreatorBinding,
+  cacheBucketObjectViewerBinding,
+]

@@ -2,6 +2,10 @@ import { websiteService } from './service'
 
 export const websiteServiceName = websiteService.name
 
+import { cacheBucket } from './storage'
+
+export const websiteCacheBucketName = cacheBucket.name
+
 import { ghostContentKeySecret } from './ghost'
 
 export const ghostContentKeySecretId = ghostContentKeySecret.secretId

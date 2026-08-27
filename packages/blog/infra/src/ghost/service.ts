@@ -38,6 +38,10 @@ export const ghostService = new gcp.cloudrunv2.Service(
           },
         },
       ],
+      scaling: {
+        minInstanceCount: 0,
+        maxInstanceCount: 1,
+      },
       containers: [
         {
           image: getImageUrl('blog-ghost', ghostImageTag),

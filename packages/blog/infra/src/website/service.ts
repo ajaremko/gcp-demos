@@ -15,6 +15,7 @@ import { cloudRunArtifactRegistryReader } from '../iam'
 
 import { iamBindings, websiteServiceAccount } from './service-account'
 import { ghostContentKeySecret } from './ghost'
+import { cacheBucket } from './storage'
 
 const ghostContentKeySecretMount = ghostContentKeySecretVersion
   ? [
@@ -37,13 +38,37 @@ export const websiteService = new gcp.cloudrunv2.Service(
     deletionProtection,
     template: {
       serviceAccount: websiteServiceAccount.email,
+      executionEnvironment: 'EXECUTION_ENVIRONMENT_GEN2',
+      volumes: [
+        {
+          name: 'response-cache',
+          gcs: {
+            bucket: cacheBucket.name,
+            readOnly: false,
+          },
+        },
+      ],
+      scaling: {
+        minInstanceCount: 0,
+        maxInstanceCount: 1,
+      },
       containers: [
         {
           image: getImageUrl('blog-website', websiteImageTag),
+          volumeMounts: [
+            {
+              name: 'response-cache',
+              mountPath: '/mnt/response-cache',
+            },
+          ],
           envs: [
             {
               name: 'GHOST_ADMIN_URL',
               value: ghostAdminUrl,
+            },
+            {
+              name: 'RESPONSE_CACHE_DIR',
+              value: '/mnt/response-cache',
             },
             ...ghostContentKeySecretMount,
           ],
