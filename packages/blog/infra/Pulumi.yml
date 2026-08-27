@@ -1,0 +1,4 @@
+name: gcp-demos-blog-infra
+runtime: nodejs
+description: Infrastructure for blog project
+main: src/index.ts

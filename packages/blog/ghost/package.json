@@ -1,0 +1,15 @@
+{
+  "name": "@org/blog-ghost",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "name": "blog-ghost",
+    "release": {
+      "docker": {
+        "repositoryName": "blog-ghost"
+      }
+    }
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

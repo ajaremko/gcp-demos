@@ -1,0 +1,86 @@
+{
+  "name": "@org/blog-infra",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "name": "blog-infra",
+    "targets": {
+      "deploy": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "pulumi up --stack={args.stack} --cwd={projectRoot}",
+          "options": {
+            "cwd": "{projectRoot}"
+          }
+        },
+        "configurations": {
+          "staging": {
+            "command": "pulumi up --stack=staging --cwd={projectRoot}"
+          }
+        }
+      },
+      "refresh": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "pulumi refresh --stack={args.stack} --cwd={projectRoot}",
+          "options": {
+            "cwd": "{projectRoot}"
+          }
+        },
+        "configurations": {
+          "staging": {
+            "command": "pulumi refresh --stack=staging --cwd={projectRoot}"
+          }
+        }
+      },
+      "preview": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "pulumi preview --stack={args.stack} --cwd={projectRoot}",
+          "options": {
+            "cwd": "{projectRoot}"
+          }
+        },
+        "configurations": {
+          "staging": {
+            "command": "pulumi preview --stack=staging --cwd={projectRoot}"
+          }
+        }
+      },
+      "destroy": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "pulumi destroy --stack={args.stack} --cwd={projectRoot}",
+          "options": {
+            "cwd": "{projectRoot}"
+          }
+        },
+        "configurations": {
+          "staging": {
+            "command": "pulumi destroy --stack=staging --cwd={projectRoot}"
+          }
+        }
+      },
+      "output": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "pulumi stack output --stack={args.stack} --cwd={projectRoot} --json={args.json}",
+          "json": false,
+          "options": {
+            "cwd": "{projectRoot}"
+          }
+        },
+        "configurations": {
+          "staging": {
+            "command": "pulumi stack output --stack=staging --cwd={projectRoot}"
+          }
+        }
+      }
+    }
+  },
+  "devDependencies": {
+    "@pulumi/gcp": "^9.34.1",
+    "@pulumi/pulumi": "^3.248.0",
+    "@pulumi/random": "^4.21.1"
+  }
+}

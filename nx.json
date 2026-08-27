@@ -117,6 +117,14 @@
       "preVersionCommand": "npx nx run-many --target=docker:build"
     },
     "groups": {
+      "blog": {
+        "projects": ["blog-*"],
+        "projectsRelationship": "independent",
+        "docker": {
+          "registryUrl": "${DOCKER_REGISTRY}",
+          "skipVersionActions": true
+        }
+      },
       "pdf-shop": {
         "projects": ["pdf-shop-*"],
         "projectsRelationship": "independent",
