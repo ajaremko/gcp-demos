@@ -8,6 +8,23 @@ import { defineConfig, fontProviders } from 'astro/config'
 export default defineConfig({
   site: 'https://example.com',
   integrations: [mdx(), sitemap()],
+  vite: {
+    ssr: {
+      noExternal: ['cookie'],
+    },
+    environments: {
+      prerender: {
+        resolve: {
+          noExternal: ['cookie'],
+        },
+      },
+      ssr: {
+        resolve: {
+          noExternal: ['cookie'],
+        },
+      },
+    },
+  },
   fonts: [
     {
       provider: fontProviders.local(),
