@@ -27,7 +27,8 @@
         "ms-azuretools.vscode-containers",
         "nrwl.angular-console",
         "github.vscode-github-actions",
-        "postman.postman-for-vscode"
+        "postman.postman-for-vscode",
+        "astro-build.astro-vscode"
       ],
       "settings": {
         "extensions.verifySignature": false,
