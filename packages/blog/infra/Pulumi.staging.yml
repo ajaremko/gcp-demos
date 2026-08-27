@@ -6,5 +6,5 @@ config:
   ghostImageTag: 2608.27.8fcd454-hotfix
   ghostUrl: https://blog.alfredyoung.com
   ghostAdminUrl: https://ghost.alfredyoung.com
-  ghostContentKeySecretVersion: 1
+  ghostContentKeySecretVersion: 2
   deletionProtection: false
