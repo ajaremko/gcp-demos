@@ -50,6 +50,12 @@ export const backendService = new gcp.cloudrunv2.Service(
               mountPath: '/cloudsql',
             },
           ],
+          resources: {
+            limits: {
+              cpu: '1',
+              memory: '1024Mi',
+            },
+          },
           envs: [
             { name: 'url', value: backendUrl },
             { name: 'admin__url', value: backendAdminUrl },
