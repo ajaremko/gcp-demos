@@ -56,3 +56,6 @@ Thumbs.db
 .next
 out
 vitest.config.*.timestamp*
+
+# Astro.js
+.astro
