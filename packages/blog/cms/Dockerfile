@@ -18,7 +18,7 @@ WORKDIR /deps
 COPY package.json ./
 RUN npm install
 
-FROM node:22-alpine AS runner
+FROM node:22-alpine AS app
 WORKDIR /app
 
 ENV NODE_ENV=production
@@ -37,8 +37,12 @@ COPY public ./packages/blog/cms/public
 # install - see the deps stage above.
 COPY --from=deps /deps/node_modules ./node_modules
 
-# Cloud Run injects PORT at runtime; Next's standalone server.js reads it
-# directly, so it's never hardcoded here. EXPOSE is documentation-only.
-EXPOSE 8080
-
 CMD ["node", "packages/blog/cms/server.js"]
+
+FROM app AS runner
+# Add litestream 
+COPY --from=litestream/litestream:0.5 /usr/local/bin/litestream /usr/local/bin/litestream
+COPY litestream.yml /etc/litestream.yml
+COPY run.sh /run.sh
+
+CMD ["/run.sh"]

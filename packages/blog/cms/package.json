@@ -4,7 +4,12 @@
   "private": true,
   "type": "module",
   "nx": {
-    "name": "blog-cms"
+    "name": "blog-cms",
+    "release": {
+      "docker": {
+        "repositoryName": "blog-cms"
+      }
+    }
   },
   "dependencies": {
     "@payloadcms/db-sqlite": "^3.88.0",

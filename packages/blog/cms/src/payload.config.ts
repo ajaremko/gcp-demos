@@ -18,7 +18,7 @@ export default buildConfig({
   collections: [Users, Media],
   db: sqliteAdapter({
     client: {
-      url: process.env.DATABASE_URI || 'file:./payload.db',
+      url: `file:${process.env.DB_PATH}`,
     },
   }),
   editor: lexicalEditor(),
