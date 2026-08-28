@@ -4,7 +4,7 @@ dbs:
   - path: ${DB_PATH}
     replica:
       type: gs
-      bucket: ${LITESTREAM_BUCKET}
+      bucket: ${GCS_DATA_BUCKET}
       path: db/blog
       sync-interval: 1s
 
