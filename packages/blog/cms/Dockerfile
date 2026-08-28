@@ -45,4 +45,4 @@ COPY --from=litestream/litestream:0.5 /usr/local/bin/litestream /usr/local/bin/l
 COPY litestream.yml /etc/litestream.yml
 COPY run.sh /run.sh
 
-CMD ["/run.sh"]
+CMD ["sh", "-c", "/run.sh"]
