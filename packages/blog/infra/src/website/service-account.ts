@@ -4,51 +4,99 @@ import * as pulumi from '@pulumi/pulumi'
 import { tag } from '../config'
 import { provider } from '../project'
 
-import { ghostContentKeySecret } from './ghost'
-import { cacheBucket } from './storage'
+import { nginxConfSecret } from './nginx'
+import { litestreamConfSecret } from './litestream'
+import { payloadSecretKeySecret } from './payload'
+import { dataBucket, mediaBucket } from './storage'
 
 export const websiteServiceAccount = new gcp.serviceaccount.Account(
   `${tag}-website-sa`,
   {
-    accountId: `${tag}-website-sa`,
+    accountId: `${tag}-sa`,
     displayName: 'Website Service Account',
   },
   { provider },
 )
 
-export const ghostContentKeySecretAccessorBinding =
-  new gcp.secretmanager.SecretIamMember(
-    `${tag}-website-ghost-content-key-accessor`,
-    {
-      secretId: ghostContentKeySecret.secretId,
-      role: 'roles/secretmanager.secretAccessor',
-      member: pulumi.interpolate`serviceAccount:${websiteServiceAccount.email}`,
-    },
-    { provider },
-  )
-
-export const cacheBucketObjectCreatorBinding = new gcp.storage.BucketIAMMember(
-  `${tag}-website-cache-bucket-object-creator`,
+export const dataBucketObjectViewerBinding = new gcp.storage.BucketIAMMember(
+  `${tag}-website-sa-data-bucket-object-viewer`,
   {
-    bucket: cacheBucket.name,
-    role: 'roles/storage.objectCreator',
-    member: pulumi.interpolate`serviceAccount:${websiteServiceAccount.email}`,
-  },
-  { provider },
-)
-
-export const cacheBucketObjectViewerBinding = new gcp.storage.BucketIAMMember(
-  `${tag}-website-cache-bucket-object-viewer`,
-  {
-    bucket: cacheBucket.name,
+    bucket: dataBucket.name,
     role: 'roles/storage.objectViewer',
     member: pulumi.interpolate`serviceAccount:${websiteServiceAccount.email}`,
   },
   { provider },
 )
 
+export const dataBucketObjectCreatorBinding = new gcp.storage.BucketIAMMember(
+  `${tag}-website-sa-data-bucket-object-creator`,
+  {
+    bucket: dataBucket.name,
+    role: 'roles/storage.objectCreator',
+    member: pulumi.interpolate`serviceAccount:${websiteServiceAccount.email}`,
+  },
+  { provider },
+)
+
+export const mediaBucketObjectViewerBinding = new gcp.storage.BucketIAMMember(
+  `${tag}-website-sa-media-bucket-object-viewer`,
+  {
+    bucket: mediaBucket.name,
+    role: 'roles/storage.objectViewer',
+    member: pulumi.interpolate`serviceAccount:${websiteServiceAccount.email}`,
+  },
+  { provider },
+)
+
+export const mediaBucketObjectCreatorBinding = new gcp.storage.BucketIAMMember(
+  `${tag}-website-sa-media-bucket-object-creator`,
+  {
+    bucket: mediaBucket.name,
+    role: 'roles/storage.objectCreator',
+    member: pulumi.interpolate`serviceAccount:${websiteServiceAccount.email}`,
+  },
+  { provider },
+)
+
+export const litestreamConfSecretAccessorBinding =
+  new gcp.secretmanager.SecretIamMember(
+    `${tag}-website-sa-litestream-conf-accessor`,
+    {
+      secretId: litestreamConfSecret.secretId,
+      role: 'roles/secretmanager.secretAccessor',
+      member: pulumi.interpolate`serviceAccount:${websiteServiceAccount.email}`,
+    },
+    { provider },
+  )
+
+export const nginxConfSecretAccessorBinding =
+  new gcp.secretmanager.SecretIamMember(
+    `${tag}-website-sa-nginx-conf-accessor`,
+    {
+      secretId: nginxConfSecret.secretId,
+      role: 'roles/secretmanager.secretAccessor',
+      member: pulumi.interpolate`serviceAccount:${websiteServiceAccount.email}`,
+    },
+    { provider },
+  )
+
+export const payloadSecretKeySecretAccessorBinding =
+  new gcp.secretmanager.SecretIamMember(
+    `${tag}-website-sa-payload-secret-key-accessor`,
+    {
+      secretId: payloadSecretKeySecret.secretId,
+      role: 'roles/secretmanager.secretAccessor',
+      member: pulumi.interpolate`serviceAccount:${websiteServiceAccount.email}`,
+    },
+    { provider },
+  )
+
 export const iamBindings = [
-  ghostContentKeySecretAccessorBinding,
-  cacheBucketObjectCreatorBinding,
-  cacheBucketObjectViewerBinding,
+  dataBucketObjectViewerBinding,
+  dataBucketObjectCreatorBinding,
+  mediaBucketObjectViewerBinding,
+  mediaBucketObjectCreatorBinding,
+  nginxConfSecretAccessorBinding,
+  litestreamConfSecretAccessorBinding,
+  payloadSecretKeySecretAccessorBinding,
 ]

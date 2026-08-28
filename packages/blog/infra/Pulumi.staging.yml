@@ -3,8 +3,5 @@ config:
   region: us-central1
   sharedStackName: alfredsyoung/gcp-demos-shared-infra
   websiteImageTag: 2608.27.48701da-hotfix
-  ghostImageTag: 2608.27.8fcd454-hotfix
-  ghostUrl: https://blog.alfredyoung.com
-  ghostAdminUrl: https://ghost.alfredyoung.com
-  ghostContentKeySecretVersion: 2
+  cmsImageTag: 2608.28.88a5743-hotfix
   deletionProtection: false
