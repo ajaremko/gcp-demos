@@ -101,7 +101,6 @@
       }
     }
   ],
-
   "release": {
     "releaseTag": {
       "pattern": "release/{projectName}/{version}"

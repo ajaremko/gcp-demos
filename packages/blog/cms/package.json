@@ -1,0 +1,20 @@
+{
+  "name": "@org/blog-cms",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "nx": {
+    "name": "blog-cms"
+  },
+  "dependencies": {
+    "@payloadcms/db-sqlite": "^3.88.0",
+    "@payloadcms/next": "^3.88.0",
+    "@payloadcms/richtext-lexical": "^3.88.0",
+    "graphql": "^16.8.1",
+    "next": "~16.3.3",
+    "payload": "^3.88.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "sharp": "^0.35.4"
+  }
+}

@@ -23,6 +23,9 @@
     },
     {
       "path": "./packages/blog/infra"
+    },
+    {
+      "path": "./packages/blog/cms"
     }
   ],
   "compilerOptions": {}

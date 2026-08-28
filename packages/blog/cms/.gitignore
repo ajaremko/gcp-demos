@@ -1,0 +1,10 @@
+# Local SQLite database (dev only - not a durable production store)
+*.db
+*.db-shm
+*.db-wal
+
+# Payload-generated TypeScript interfaces (regenerate with `payload generate:types`)
+src/payload-types.ts
+
+# Uploaded media (local dev only)
+public/media
