@@ -42,7 +42,8 @@ CMD ["node", "packages/blog/cms/server.js"]
 FROM app AS runner
 # Add litestream 
 COPY --from=litestream/litestream:0.5 /usr/local/bin/litestream /usr/local/bin/litestream
-COPY litestream.yml /etc/litestream.yml
+# litestream configuration is mounted via a volume in the container, so we don't need to copy it here.
+# COPY litestream.yml /etc/litestream.yml
 COPY run.sh /run.sh
 
 CMD ["sh", "-c", "/run.sh"]
