@@ -10,10 +10,10 @@ const { entry, error } = await getLiveEntry('blog', slug as string);
 
 if (error && error.name === 'LiveEntryNotFoundError') {
 	// Astro's own getLiveEntry() wraps a loader's "not found" (returning
-	// undefined) into this specific error - a real 404, not a Ghost failure.
+	// undefined) into this specific error - a real 404, not a CMS failure.
 	Astro.response.status = 404;
 } else if (error) {
-	pinoLogger.error({ err: error }, 'Failed to load post from Ghost');
+	pinoLogger.error({ err: error }, 'Failed to load post from the CMS');
 	Astro.response.status = 502;
 } else if (!entry) {
 	Astro.response.status = 404;

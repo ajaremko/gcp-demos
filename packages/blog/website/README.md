@@ -56,7 +56,7 @@ All commands are run from the root of the project, from a terminal:
 
 ## Logging
 
-Server-side logging goes through [pino](https://getpino.io/) (`src/lib/pino.ts`),
+Server-side logging goes through [pino](https://getpino.io/) (`src/logging/pino.ts`),
 following the same pattern documented in `packages/pdf-shop/website/RUNBOOK.md`.
 
 | Env var             | Type      | Purpose                                  | Default                                  |
@@ -67,13 +67,13 @@ following the same pattern documented in `packages/pdf-shop/website/RUNBOOK.md`.
 pino's level is a threshold: whatever `LOG_LEVEL` is set to shows that level
 and everything more severe.
 
-| Level   | Events logged                                                                                                                                     |
-| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `trace` | Step-by-step execution: Ghost Content API loader calls (`src/loaders/ghost.ts`) and cache provider internals (`src/cache/filesystem-provider.ts`) |
+| Level   | Events logged                                                                                                                                |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `trace` | Step-by-step execution: CMS API loader calls (`src/loaders/cms.ts`) and cache provider internals (`src/cache/inMemoryCacheProvider.ts`) |
 | `debug` | Internally-handled failures in the cache provider (a failed persist/revalidation/invalidate that doesn't affect the response)                     |
-| `warn`  | A non-ok response from Ghost's Content API - a `401` specifically calls out `GHOST_CONTENT_KEY` as the likely cause                               |
-| `error` | Failure to load posts/a post from Ghost that surfaces to a visitor as a `502`                                                                     |
-| `fatal` | Missing required configuration (`GHOST_ADMIN_URL`/`GHOST_CONTENT_KEY`)                                                                            |
+| `warn`  | A non-ok response from the CMS's REST API (`/api/posts`)                                                                                          |
+| `error` | Failure to load posts/a post from the CMS that surfaces to a visitor as a `502`                                                                   |
+| `fatal` | Missing required configuration (`CMS_URL`)                                                                                                        |
 
 `pino-pretty` is a devDependency only - the production Docker image excludes
 devDependencies (`Dockerfile`'s `npm install --omit=dev`), so

@@ -11,7 +11,7 @@ import { pinoLogger } from '../../logging/pino';
 
 const { entries, error } = await getLiveCollection('blog');
 if (error) {
-	pinoLogger.error({ err: error }, 'Failed to load posts from Ghost');
+	pinoLogger.error({ err: error }, 'Failed to load posts from the CMS');
 	Astro.response.status = 502;
 }
 const posts = (entries ?? []).sort(

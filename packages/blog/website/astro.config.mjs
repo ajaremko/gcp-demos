@@ -2,7 +2,7 @@
 
 import mdx from '@astrojs/mdx'
 import sitemap from '@astrojs/sitemap'
-import { defineConfig, fontProviders } from 'astro/config'
+import { defineConfig, fontProviders, memoryCache } from 'astro/config'
 
 import node from '@astrojs/node'
 
@@ -30,9 +30,7 @@ export default defineConfig({
   },
 
   cache: {
-    provider: {
-      entrypoint: './src/cache/filesystemCacheProvider.ts',
-    },
+    provider: memoryCache(),
   },
 
   routeRules: {
