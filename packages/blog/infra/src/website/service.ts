@@ -46,16 +46,11 @@ server {
 const litestreamConfData = dataBucket.name.apply(
   (name) => `
 dbs:
-  - path: /data/blog.db
-    replica:
-      type: gs
-      bucket: ${name}
-      path: db/blog
-      sync-interval: 1s
-
-snapshot:
-  interval: 24h
-  retention: 168h
+  - path: /data/blog.sqlite
+    replicas:
+      - type: gcs
+        bucket: ${name}
+        path: blog.sqlite
 `,
 )
 
@@ -127,8 +122,6 @@ export const websiteService = new gcp.cloudrunv2.Service(
             { name: 'HOST', value: '0.0.0.0' },
             { name: 'PORT', value: '4321' },
             { name: 'CMS_URL', value: 'http://127.0.0.1:3000' },
-            { name: 'DB_PATH', value: '/data/blog.db' },
-            { name: 'GCS_MEDIA_BUCKET', value: mediaBucket.name },
             {
               name: 'PAYLOAD_SECRET',
               valueSource: {
@@ -158,10 +151,11 @@ export const websiteService = new gcp.cloudrunv2.Service(
             failureThreshold: 60,
           },
           volumeMounts: [
-            { name: 'litestream-conf', mountPath: '/etc/litestream' },
+            { name: 'litestream-conf', mountPath: '/etc/litestream.yml' },
           ],
           envs: [
             { name: 'PORT', value: '3000' },
+            { name: 'DB_PATH', value: '/data/blog.sqlite' },
             { name: 'GCS_DATA_BUCKET', value: dataBucket.name },
             { name: 'GCS_MEDIA_BUCKET', value: mediaBucket.name },
             {
