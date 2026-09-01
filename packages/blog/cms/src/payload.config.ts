@@ -16,6 +16,13 @@ const dirname = path.dirname(filename)
 export default buildConfig({
   admin: {
     user: Users.slug,
+    // The (payload) route group is flattened away in this project (routes
+    // live directly under src/app/admin), which isn't the location
+    // `payload generate:importmap` assumes by default - point it at where
+    // the admin route actually imports the map from.
+    importMap: {
+      importMapFile: path.resolve(dirname, 'app/admin/importMap.js'),
+    },
   },
   collections: [Users, Media, Posts],
   db: sqliteAdapter({
