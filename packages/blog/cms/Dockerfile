@@ -23,6 +23,11 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV HOSTNAME=0.0.0.0
+# payload migrate needs the raw TS config + migrations at runtime - Next's
+# standalone tracing excludes them entirely (only used by the separate
+# `payload` CLI, not by Next's own server). Payload's CLI loads TS directly
+# via its own tsx-based loader, so shipping the raw source is enough.
+ENV PAYLOAD_CONFIG_PATH=/app/packages/blog/cms/src/payload.config.ts
 
 # Standalone server + trimmed production node_modules. Next's standalone
 # build copies the project's own .env into this tree (see
@@ -32,6 +37,7 @@ COPY --exclude=**/.env* .next/standalone/. ./
 # Static assets and public files aren't included in the standalone output.
 COPY .next/static ./packages/blog/cms/.next/static
 COPY public ./packages/blog/cms/public
+COPY src ./packages/blog/cms/src
 # Overwrite whatever output-file-tracing included (or omitted) for
 # native/platform-specific dependencies with a complete Alpine-native
 # install - see the deps stage above.
@@ -43,6 +49,6 @@ FROM app AS runner
 # Add litestream 
 COPY --from=litestream/litestream:0.5 /usr/local/bin/litestream /usr/local/bin/litestream
 # litestream configuration is mounted via a volume in the container, so we don't need to copy it here.
-COPY run.sh /run.sh
+# COPY run.sh /run.sh
 
-CMD ["sh", "-c", "/run.sh"]
+# CMD ["sh", "-c", "/run.sh"]
