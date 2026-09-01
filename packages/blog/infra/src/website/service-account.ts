@@ -21,41 +21,21 @@ export const websiteServiceAccount = new gcp.serviceaccount.Account(
   { provider },
 )
 
-export const dataBucketObjectViewerBinding = new gcp.storage.BucketIAMMember(
-  `${tag}-website-sa-data-bucket-object-viewer`,
+export const dataBucketObjectAdminBinding = new gcp.storage.BucketIAMMember(
+  `${tag}-website-sa-data-bucket-object-admin`,
   {
     bucket: dataBucket.name,
-    role: 'roles/storage.objectViewer',
+    role: 'roles/storage.objectAdmin',
     member: pulumi.interpolate`serviceAccount:${websiteServiceAccount.email}`,
   },
   { provider },
 )
 
-export const dataBucketObjectCreatorBinding = new gcp.storage.BucketIAMMember(
-  `${tag}-website-sa-data-bucket-object-creator`,
-  {
-    bucket: dataBucket.name,
-    role: 'roles/storage.objectCreator',
-    member: pulumi.interpolate`serviceAccount:${websiteServiceAccount.email}`,
-  },
-  { provider },
-)
-
-export const mediaBucketObjectViewerBinding = new gcp.storage.BucketIAMMember(
-  `${tag}-website-sa-media-bucket-object-viewer`,
+export const mediaBucketObjectAdminBinding = new gcp.storage.BucketIAMMember(
+  `${tag}-website-sa-media-bucket-object-admin`,
   {
     bucket: mediaBucket.name,
-    role: 'roles/storage.objectViewer',
-    member: pulumi.interpolate`serviceAccount:${websiteServiceAccount.email}`,
-  },
-  { provider },
-)
-
-export const mediaBucketObjectCreatorBinding = new gcp.storage.BucketIAMMember(
-  `${tag}-website-sa-media-bucket-object-creator`,
-  {
-    bucket: mediaBucket.name,
-    role: 'roles/storage.objectCreator',
+    role: 'roles/storage.objectAdmin',
     member: pulumi.interpolate`serviceAccount:${websiteServiceAccount.email}`,
   },
   { provider },
@@ -106,10 +86,8 @@ export const payloadSecretKeySecretAccessorBinding =
   )
 
 export const iamBindings = [
-  dataBucketObjectViewerBinding,
-  dataBucketObjectCreatorBinding,
-  mediaBucketObjectViewerBinding,
-  mediaBucketObjectCreatorBinding,
+  dataBucketObjectAdminBinding,
+  mediaBucketObjectAdminBinding,
   nginxConfSecretAccessorBinding,
   litestreamConfSecretAccessorBinding,
   litestreamStartupScriptSecretAccessorBinding,

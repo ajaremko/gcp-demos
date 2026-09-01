@@ -45,10 +45,18 @@ server {
 }
 `)
 
+const litestreamDataDir = '/data'
+const litestreamDbPath = `${litestreamDataDir}/blog.sqlite`
+// A dedicated subdirectory, not /etc itself - Cloud Run secret volumes hide
+// everything already in the mounted directory (resolv.conf, CA certs, ...),
+// which breaks ADC/GCS access if mounted directly over /etc.
+const litestreamConfDir = '/etc/litestream'
+const litestreamConfPath = `${litestreamConfDir}/litestream.yml`
+
 const litestreamConfData = dataBucket.name.apply(
   (name) => `
 dbs:
-  - path: /data/blog.sqlite
+  - path: ${litestreamDbPath}
     replica:
       type: gs
       bucket: ${name}
@@ -62,16 +70,16 @@ const litestreamConfSecretVersion =
 const litestreamStartupScriptSecretVersion =
   makeLitestreamStartupScriptSecretVersion(`
 #!/bin/sh
-echo "Running with /etc/litestream.yml:"
-cat /etc/litestream.yml
+echo "Running with ${litestreamConfPath}:"
+cat ${litestreamConfPath}
 set -e
-mkdir -p /data
+mkdir -p ${litestreamDataDir}
 echo "Running litestream restore:"
-litestream restore -if-replica-exists -o /data/blog.sqlite "gs://$GCS_DATA_BUCKET/blog.sqlite"
+litestream restore -if-replica-exists -o ${litestreamDbPath} "gs://$GCS_DATA_BUCKET/blog.sqlite"
 echo "Running payload migrate:"
 npx payload migrate
 echo "Running litestream replicate:"
-exec litestream replicate -exec "node packages/blog/cms/server.js"
+exec litestream replicate -config ${litestreamConfPath} -exec "node packages/blog/cms/server.js"
 `)
 
 export const websiteService = new gcp.cloudrunv2.Service(
@@ -181,15 +189,15 @@ export const websiteService = new gcp.cloudrunv2.Service(
           },
           commands: ['sh', '-c'],
           args: [
-            'cp /etc/scripts/run.sh /tmp/run.sh && cp /etc/litestream/litestream.yml /etc/litestream.yml && chmod +x /tmp/run.sh && /tmp/run.sh',
+            'cp /scripts/run.sh /tmp/run.sh && chmod +x /tmp/run.sh && /tmp/run.sh',
           ],
           volumeMounts: [
-            { name: 'litestream-conf', mountPath: '/etc/litestream' },
-            { name: 'litestream-startup-script', mountPath: '/etc/scripts' },
+            { name: 'litestream-conf', mountPath: litestreamConfDir },
+            { name: 'litestream-startup-script', mountPath: '/scripts' },
           ],
           envs: [
             { name: 'PORT', value: '3000' },
-            { name: 'DB_PATH', value: '/data/blog.sqlite' },
+            { name: 'DB_PATH', value: litestreamDbPath },
             { name: 'GCS_DATA_BUCKET', value: dataBucket.name },
             { name: 'GCS_MEDIA_BUCKET', value: mediaBucket.name },
             {
