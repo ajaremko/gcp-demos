@@ -65,6 +65,7 @@ const litestreamStartupScriptSecretVersion =
 echo "Running with /etc/litestream.yml:"
 cat /etc/litestream.yml
 set -e
+mkdir -p /data
 echo "Running litestream restore:"
 litestream restore -if-replica-exists -o /data/blog.sqlite "gs://$GCS_DATA_BUCKET/blog.sqlite"
 echo "Running payload migrate:"
