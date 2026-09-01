@@ -30,3 +30,29 @@ export function makeLitestreamConfSecretVersion(
     { provider },
   )
 }
+
+export const litestreamStartupScriptSecret = new gcp.secretmanager.Secret(
+  `${tag}-litestream-startup-script-secret`,
+  {
+    secretId: 'blog-litestream-startup-script',
+    labels,
+    replication: {
+      auto: {},
+    },
+    deletionProtection: false,
+  },
+  { provider, dependsOn: secretManagerService },
+)
+
+export function makeLitestreamStartupScriptSecretVersion(
+  litestreamStartupScript: pulumi.Input<string>,
+) {
+  return new gcp.secretmanager.SecretVersion(
+    `${tag}-litestream-startup-script-secret-version`,
+    {
+      secret: litestreamStartupScriptSecret.id,
+      secretData: litestreamStartupScript,
+    },
+    { provider },
+  )
+}

@@ -5,7 +5,10 @@ import { tag } from '../config'
 import { provider } from '../project'
 
 import { nginxConfSecret } from './nginx'
-import { litestreamConfSecret } from './litestream'
+import {
+  litestreamConfSecret,
+  litestreamStartupScriptSecret,
+} from './litestream'
 import { payloadSecretKeySecret } from './payload'
 import { dataBucket, mediaBucket } from './storage'
 
@@ -69,6 +72,17 @@ export const litestreamConfSecretAccessorBinding =
     { provider },
   )
 
+export const litestreamStartupScriptSecretAccessorBinding =
+  new gcp.secretmanager.SecretIamMember(
+    `${tag}-website-sa-litestream-startup-script-accessor`,
+    {
+      secretId: litestreamStartupScriptSecret.secretId,
+      role: 'roles/secretmanager.secretAccessor',
+      member: pulumi.interpolate`serviceAccount:${websiteServiceAccount.email}`,
+    },
+    { provider },
+  )
+
 export const nginxConfSecretAccessorBinding =
   new gcp.secretmanager.SecretIamMember(
     `${tag}-website-sa-nginx-conf-accessor`,
@@ -98,5 +112,6 @@ export const iamBindings = [
   mediaBucketObjectCreatorBinding,
   nginxConfSecretAccessorBinding,
   litestreamConfSecretAccessorBinding,
+  litestreamStartupScriptSecretAccessorBinding,
   payloadSecretKeySecretAccessorBinding,
 ]

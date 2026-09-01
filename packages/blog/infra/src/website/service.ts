@@ -16,7 +16,9 @@ import { iamBindings, websiteServiceAccount } from './service-account'
 import { nginxConfSecret, makeNginxConfSecretVersion } from './nginx'
 import {
   litestreamConfSecret,
+  litestreamStartupScriptSecret,
   makeLitestreamConfSecretVersion,
+  makeLitestreamStartupScriptSecretVersion,
 } from './litestream'
 import {
   payloadSecretKeySecret,
@@ -47,15 +49,29 @@ const litestreamConfData = dataBucket.name.apply(
   (name) => `
 dbs:
   - path: /data/blog.sqlite
-    replicas:
-      - type: gcs
-        bucket: ${name}
-        path: blog.sqlite
+    replica:
+      type: gs
+      bucket: ${name}
+      path: blog.sqlite
 `,
 )
 
 const litestreamConfSecretVersion =
   makeLitestreamConfSecretVersion(litestreamConfData)
+
+const litestreamStartupScriptSecretVersion =
+  makeLitestreamStartupScriptSecretVersion(`
+#!/bin/sh
+echo "Running with /etc/litestream.yml:"
+cat /etc/litestream.yml
+set -e
+echo "Running litestream restore:"
+litestream restore -if-replica-exists -o /data/blog.sqlite "gs://$GCS_DATA_BUCKET/blog.sqlite"
+echo "Running payload migrate:"
+npx payload migrate
+echo "Running litestream replicate:"
+exec litestream replicate -exec "node packages/blog/cms/server.js"
+`)
 
 export const websiteService = new gcp.cloudrunv2.Service(
   `${tag}-website-service`,
@@ -86,6 +102,18 @@ export const websiteService = new gcp.cloudrunv2.Service(
               {
                 version: litestreamConfSecretVersion.version,
                 path: 'litestream.yml',
+              },
+            ],
+          },
+        },
+        {
+          name: 'litestream-startup-script',
+          secret: {
+            secret: litestreamStartupScriptSecret.secretId,
+            items: [
+              {
+                version: litestreamStartupScriptSecretVersion.version,
+                path: 'run.sh',
               },
             ],
           },
@@ -150,8 +178,13 @@ export const websiteService = new gcp.cloudrunv2.Service(
             periodSeconds: 1,
             failureThreshold: 60,
           },
+          commands: ['sh', '-c'],
+          args: [
+            'cp /etc/scripts/run.sh /tmp/run.sh && cp /etc/litestream/litestream.yml /etc/litestream.yml && chmod +x /tmp/run.sh && /tmp/run.sh',
+          ],
           volumeMounts: [
-            { name: 'litestream-conf', mountPath: '/etc/litestream.yml' },
+            { name: 'litestream-conf', mountPath: '/etc/litestream' },
+            { name: 'litestream-startup-script', mountPath: '/etc/scripts' },
           ],
           envs: [
             { name: 'PORT', value: '3000' },
