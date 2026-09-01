@@ -22,6 +22,7 @@ export default buildConfig({
     client: {
       url: `file:${process.env.DB_PATH}`,
     },
+    migrationDir: path.resolve(dirname, 'migrations'),
   }),
   editor: lexicalEditor(),
   plugins: [
