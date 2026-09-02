@@ -9,7 +9,7 @@ const config = new pulumi.Config()
 export const gcpProject = config.require('project')
 export const gcpRegion = config.require('region')
 export const websiteImageTag = config.require('websiteImageTag')
-export const cmsImageTag = config.require('cmsImageTag')
+export const adminImageTag = config.require('adminImageTag')
 export const deletionProtection = config.requireBoolean('deletionProtection')
 
 export const labels: Record<string, string> = {

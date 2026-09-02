@@ -3,7 +3,7 @@ import * as gcp from '@pulumi/gcp'
 import {
   gcpRegion,
   websiteImageTag,
-  cmsImageTag,
+  adminImageTag,
   tag,
   deletionProtection,
 } from './config'
@@ -193,7 +193,7 @@ export const websiteService = new gcp.cloudrunv2.Service(
         },
         {
           name: 'cms',
-          image: getImageUrl('blog-admin', cmsImageTag),
+          image: getImageUrl('blog-admin', adminImageTag),
           resources: {
             limits: { cpu: '1', memory: '512Mi' },
             startupCpuBoost: true,

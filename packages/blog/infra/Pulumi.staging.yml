@@ -3,5 +3,5 @@ config:
   region: us-central1
   sharedStackName: alfredsyoung/gcp-demos-shared-infra
   websiteImageTag: 2609.01.e63348b-hotfix
-  cmsImageTag: 2609.02.4e4a5f5-hotfix
+  adminImageTag: 2609.02.55ba3b0-hotfix
   deletionProtection: false
