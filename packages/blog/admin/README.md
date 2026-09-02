@@ -1,9 +1,8 @@
 # blog-admin
 
-Payload CMS admin app - manages the content (`posts`, `media`) that
-`blog-website` (the public Astro site) reads over Payload's REST API.
-Deployed as a sidecar container alongside `blog-website` behind nginx, in
-the same Cloud Run service.
+A Nextjs app that allows admins to manage and author content with drafts,
+richtext editing, tags and SEO customizations. Posts are served over an
+HTTP API and consumed and rendered by `blog-website` (a public Astro site).
 
 ## Building
 
@@ -37,21 +36,17 @@ See the full [runbook](./RUNBOOK.md) for more details about operation.
 
 ## Collections
 
-- **`users`** - admin auth (`auth: true`), no custom fields.
-- **`media`** - file uploads (GCS-backed via the `gcsStorage` plugin when
-  `GCS_MEDIA_BUCKET` is set); one field, `alt` (required).
-- **`posts`** - `title`, `slug` (unique), `excerpt`, `heroImage` (→
-  `media`), `content` (Lexical richtext), `publishedDate`.
-  `versions.drafts: true`. `access.read` shows drafts only to
-  authenticated (admin) requests - anonymous requests (`blog-website`)
-  only ever see `_status: published`. A virtual `contentHTML` field
-  renders `content` to HTML via `convertLexicalToHTMLAsync` in an
-  `afterRead` hook, so API consumers get ready-to-render HTML instead of
-  parsing Lexical's JSON themselves.
+See the [payload documentation](./PAYLOAD.md) for a complete reference.
+
+- **`posts`** - shows drafts for authenticated (admin) requests - published
+  posts for anonymous requests. A virtual `contentHTML` field renders
+  `content` to HTML in a hook.
+- **`media`** - file uploads with `alt` field
+- **`users`** - admin users
 
 ## Local setup
 
-Env vars (see `.env`):
+Env vars (see `.env.template`):
 
 | Variable              | Purpose                                                                                                                                           |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
