@@ -28,7 +28,7 @@ at first - ruled out directly: both fail identically until the install
 itself is complete.) `pdf-shop-website`'s standalone output has the same
 latent gap, just never triggered.
 
-**Resolution:** `packages/blog/cms/Dockerfile` adds a `deps` build stage
+**Resolution:** `packages/blog/admin/Dockerfile` adds a `deps` build stage
 that runs `npm install` against this project's real `package.json` inside
 `node:22-alpine` itself, so npm's platform detection resolves the correct
 pair, then copies that complete `node_modules` over the standalone output's:
