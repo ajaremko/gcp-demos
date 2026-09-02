@@ -9,6 +9,7 @@ import sharp from 'sharp'
 import { Media } from './collections/Media'
 import { Posts } from './collections/Posts'
 import { Users } from './collections/Users'
+import { pinoLogger } from './logging/pino'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -32,17 +33,22 @@ const isBuildPhase = process.env.NEXT_PHASE === PHASE_PRODUCTION_BUILD
 
 if (!isBuildPhase) {
   if (process.env.NODE_ENV !== 'development' && !process.env.GCS_MEDIA_BUCKET) {
+    pinoLogger.fatal('GCS_MEDIA_BUCKET environment variable is not set')
     throw new Error('GCS_MEDIA_BUCKET environment variable is not set')
   }
 
   if (!process.env.PAYLOAD_SECRET) {
+    pinoLogger.fatal('PAYLOAD_SECRET environment variable is not set')
     throw new Error('PAYLOAD_SECRET environment variable is not set')
   }
 
   if (!process.env.DB_PATH) {
+    pinoLogger.fatal('DB_PATH environment variable is not set')
     throw new Error('DB_PATH environment variable is not set')
   }
 }
+
+const payloadLogger = pinoLogger.child({ module: 'payload' })
 
 export default buildConfig({
   admin: {
@@ -63,6 +69,7 @@ export default buildConfig({
     migrationDir: path.resolve(dirname, 'migrations'),
   }),
   editor: lexicalEditor(),
+  logger: payloadLogger,
   plugins: [
     gcsStorage({
       enabled: Boolean(process.env.GCS_MEDIA_BUCKET),

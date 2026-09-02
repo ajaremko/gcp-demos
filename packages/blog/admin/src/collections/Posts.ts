@@ -1,6 +1,8 @@
 import { convertLexicalToHTMLAsync } from '@payloadcms/richtext-lexical/html-async'
 import type { CollectionConfig } from 'payload'
 
+import { pinoLogger } from '../logging/pino'
+
 export const Posts: CollectionConfig = {
   slug: 'posts',
   admin: {
@@ -65,7 +67,22 @@ export const Posts: CollectionConfig = {
         afterRead: [
           async ({ siblingData }) => {
             if (!siblingData.content) return ''
-            return convertLexicalToHTMLAsync({ data: siblingData.content })
+            pinoLogger.trace(
+              { id: siblingData.id },
+              'converting Lexical content to HTML',
+            )
+            try {
+              return await convertLexicalToHTMLAsync({ data: siblingData.content })
+            } catch (err) {
+              // Degrade gracefully - one post with malformed content
+              // shouldn't fail the whole read. contentHTML just comes back
+              // empty for this post until the content is fixed.
+              pinoLogger.warn(
+                { err, id: siblingData.id },
+                'failed to convert Lexical content to HTML',
+              )
+              return ''
+            }
           },
         ],
       },
