@@ -3,7 +3,6 @@ import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { gcsStorage } from '@payloadcms/storage-gcs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { PHASE_PRODUCTION_BUILD } from 'next/constants'
 import { buildConfig } from 'payload'
 import sharp from 'sharp'
 
@@ -20,6 +19,15 @@ const dirname = path.dirname(filename)
 // (next start / payload migrate / the running server). NEXT_PHASE is set by
 // Next itself specifically to distinguish that build-time import from a
 // real run, so skip the guards only there.
+//
+// PHASE_PRODUCTION_BUILD's value, hardcoded rather than imported from
+// next/constants - in production this file is loaded directly (via
+// PAYLOAD_CONFIG_PATH) by the payload CLI's raw-TS-source loader, where
+// `next/constants` resolves to the *traced* copy of `next` that Next's own
+// standalone output ships (only what Next's own compiled code needs
+// internally), which doesn't include this subpath at all.
+const PHASE_PRODUCTION_BUILD = 'phase-production-build'
+
 const isBuildPhase = process.env.NEXT_PHASE === PHASE_PRODUCTION_BUILD
 
 if (!isBuildPhase) {
