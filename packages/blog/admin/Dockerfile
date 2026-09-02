@@ -1,8 +1,8 @@
 # syntax=docker/dockerfile:1
-# Build context is this directory (packages/blog/cms) - the
+# Build context is this directory (packages/blog/admin) - the
 # @nx/docker plugin's inferred docker:build target runs `docker build .`
 # from the project root and can't see the workspace root. This assumes
-# `nx build blog-cms` has already produced `.next/standalone`
+# `nx build blog-admin` has already produced `.next/standalone`
 # here (next.config.js sets `output: 'standalone'`); run that build
 # immediately before `docker build`.
 
@@ -27,7 +27,7 @@ ENV HOSTNAME=0.0.0.0
 # standalone tracing excludes them entirely (only used by the separate
 # `payload` CLI, not by Next's own server). Payload's CLI loads TS directly
 # via its own tsx-based loader, so shipping the raw source is enough.
-ENV PAYLOAD_CONFIG_PATH=/app/packages/blog/cms/src/payload.config.ts
+ENV PAYLOAD_CONFIG_PATH=/app/packages/blog/admin/src/payload.config.ts
 
 # Standalone server + trimmed production node_modules. Next's standalone
 # build copies the project's own .env into this tree (see
@@ -35,15 +35,15 @@ ENV PAYLOAD_CONFIG_PATH=/app/packages/blog/cms/src/payload.config.ts
 # all; production config comes entirely from the deployed environment.
 COPY --exclude=**/.env* .next/standalone/. ./
 # Static assets and public files aren't included in the standalone output.
-COPY .next/static ./packages/blog/cms/.next/static
-COPY public ./packages/blog/cms/public
-COPY src ./packages/blog/cms/src
+COPY .next/static ./packages/blog/admin/.next/static
+COPY public ./packages/blog/admin/public
+COPY src ./packages/blog/admin/src
 # Overwrite whatever output-file-tracing included (or omitted) for
 # native/platform-specific dependencies with a complete Alpine-native
 # install - see the deps stage above.
 COPY --from=deps /deps/node_modules ./node_modules
 
-CMD ["node", "packages/blog/cms/server.js"]
+CMD ["node", "packages/blog/admin/server.js"]
 
 FROM app AS runner
 # Add litestream 

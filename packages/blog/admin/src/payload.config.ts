@@ -3,6 +3,7 @@ import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { gcsStorage } from '@payloadcms/storage-gcs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { PHASE_PRODUCTION_BUILD } from 'next/constants'
 import { buildConfig } from 'payload'
 import sharp from 'sharp'
 
@@ -13,16 +14,26 @@ import { Users } from './collections/Users'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
-if (process.env.NODE_ENV !== 'development' && !process.env.GCS_MEDIA_BUCKET) {
-  throw new Error('GCS_MEDIA_BUCKET environment variable is not set')
-}
+// `next build` imports this module during its static-analysis pass (via
+// withPayload()) to learn collection slugs, admin routes, etc. - the real
+// runtime env vars below are never available then, only at actual startup
+// (next start / payload migrate / the running server). NEXT_PHASE is set by
+// Next itself specifically to distinguish that build-time import from a
+// real run, so skip the guards only there.
+const isBuildPhase = process.env.NEXT_PHASE === PHASE_PRODUCTION_BUILD
 
-if (!process.env.PAYLOAD_SECRET) {
-  throw new Error('PAYLOAD_SECRET environment variable is not set')
-}
+if (!isBuildPhase) {
+  if (process.env.NODE_ENV !== 'development' && !process.env.GCS_MEDIA_BUCKET) {
+    throw new Error('GCS_MEDIA_BUCKET environment variable is not set')
+  }
 
-if (!process.env.DB_PATH) {
-  throw new Error('DB_PATH environment variable is not set')
+  if (!process.env.PAYLOAD_SECRET) {
+    throw new Error('PAYLOAD_SECRET environment variable is not set')
+  }
+
+  if (!process.env.DB_PATH) {
+    throw new Error('DB_PATH environment variable is not set')
+  }
 }
 
 export default buildConfig({

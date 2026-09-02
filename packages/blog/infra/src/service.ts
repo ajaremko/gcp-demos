@@ -92,7 +92,7 @@ litestream restore -if-replica-exists -o ${litestreamDbPath} "gs://${name}/blog.
 echo "Running payload migrate:"
 npx payload migrate
 echo "Running litestream replicate:"
-exec litestream replicate -config ${litestreamConfPath} -exec "node packages/blog/cms/server.js"
+exec litestream replicate -config ${litestreamConfPath} -exec "node packages/blog/admin/server.js"
 `,
 )
 
@@ -193,7 +193,7 @@ export const websiteService = new gcp.cloudrunv2.Service(
         },
         {
           name: 'cms',
-          image: getImageUrl('blog-cms', cmsImageTag),
+          image: getImageUrl('blog-admin', cmsImageTag),
           resources: {
             limits: { cpu: '1', memory: '512Mi' },
             startupCpuBoost: true,

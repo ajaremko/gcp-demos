@@ -25,7 +25,7 @@
       "path": "./packages/blog/infra"
     },
     {
-      "path": "./packages/blog/cms"
+      "path": "./packages/blog/admin"
     }
   ],
   "compilerOptions": {}
