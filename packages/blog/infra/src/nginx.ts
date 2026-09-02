@@ -1,9 +1,9 @@
 import * as gcp from '@pulumi/gcp'
 import * as pulumi from '@pulumi/pulumi'
 
-import { tag, labels } from '../config'
-import { provider } from '../project'
-import { secretManagerService } from '../services'
+import { tag, labels } from './config'
+import { provider } from './project'
+import { secretManagerService } from './services'
 
 export const nginxConfSecret = new gcp.secretmanager.Secret(
   `${tag}-nginx-conf-secret`,

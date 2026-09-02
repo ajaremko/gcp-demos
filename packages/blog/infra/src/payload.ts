@@ -1,9 +1,9 @@
 import * as random from '@pulumi/random'
 import * as gcp from '@pulumi/gcp'
 
-import { tag, labels, deletionProtection } from '../config'
-import { secretManagerService } from '../services'
-import { provider } from '../project'
+import { tag, labels, deletionProtection } from './config'
+import { secretManagerService } from './services'
+import { provider } from './project'
 
 const payloadSecretKey = new random.RandomPassword(
   `${tag}-payload-secret-key`,

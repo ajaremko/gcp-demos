@@ -6,11 +6,11 @@ import {
   cmsImageTag,
   tag,
   deletionProtection,
-} from '../config'
-import { cloudRunService } from '../services'
-import { provider } from '../project'
-import { getImageUrl } from '../getImageUrl'
-import { cloudRunArtifactRegistryReader } from '../iam'
+} from './config'
+import { cloudRunService } from './services'
+import { provider } from './project'
+import { getImageUrl } from './getImageUrl'
+import { cloudRunArtifactRegistryReader } from './iam'
 
 import { iamBindings, websiteServiceAccount } from './service-account'
 import { nginxConfSecret, makeNginxConfSecretVersion } from './nginx'
@@ -26,6 +26,10 @@ import {
 } from './payload'
 import { dataBucket, mediaBucket } from './storage'
 
+/**
+ * Nginx configuration for routing between the admin interface (Nextjs)
+ * and the public website (Astro).
+ */
 const nginxConfSecretVersion = makeNginxConfSecretVersion(`
 server {
   listen 8080;
@@ -46,13 +50,18 @@ server {
 `)
 
 const litestreamDataDir = '/data'
+/**
+ * Path to the SQLite database file used by Payload and replicated by Litestream.
+ */
 const litestreamDbPath = `${litestreamDataDir}/blog.sqlite`
-// A dedicated subdirectory, not /etc itself - Cloud Run secret volumes hide
-// everything already in the mounted directory (resolv.conf, CA certs, ...),
-// which breaks ADC/GCS access if mounted directly over /etc.
+
 const litestreamConfDir = '/etc/litestream'
 const litestreamConfPath = `${litestreamConfDir}/litestream.yml`
 
+/**
+ * Litestream configuration for replicating the SQLite database to
+ * Google Cloud Storage.
+ */
 const litestreamConfData = dataBucket.name.apply(
   (name) => `
 dbs:
@@ -67,23 +76,31 @@ dbs:
 const litestreamConfSecretVersion =
   makeLitestreamConfSecretVersion(litestreamConfData)
 
-const litestreamStartupScriptSecretVersion =
-  makeLitestreamStartupScriptSecretVersion(`
+/**
+ * Startup script for initializing Litestream, running Payload migrations and
+ * starting the server.
+ */
+const litestreamStartupScript = dataBucket.name.apply(
+  (name) => `
 #!/bin/sh
 echo "Running with ${litestreamConfPath}:"
 cat ${litestreamConfPath}
 set -e
 mkdir -p ${litestreamDataDir}
 echo "Running litestream restore:"
-litestream restore -if-replica-exists -o ${litestreamDbPath} "gs://$GCS_DATA_BUCKET/blog.sqlite"
+litestream restore -if-replica-exists -o ${litestreamDbPath} "gs://${name}/blog.sqlite"
 echo "Running payload migrate:"
 npx payload migrate
 echo "Running litestream replicate:"
 exec litestream replicate -config ${litestreamConfPath} -exec "node packages/blog/cms/server.js"
-`)
+`,
+)
+
+const litestreamStartupScriptSecretVersion =
+  makeLitestreamStartupScriptSecretVersion(litestreamStartupScript)
 
 export const websiteService = new gcp.cloudrunv2.Service(
-  `${tag}-website-service`,
+  `${tag}-service`,
   {
     location: gcpRegion,
     deletionProtection,
@@ -225,7 +242,7 @@ export const websiteService = new gcp.cloudrunv2.Service(
 )
 
 export const websiteServicePublicAccess = new gcp.cloudrunv2.ServiceIamMember(
-  `${tag}-website-service-public-access`,
+  `${tag}-service-public-access`,
   {
     name: websiteService.name,
     location: gcpRegion,

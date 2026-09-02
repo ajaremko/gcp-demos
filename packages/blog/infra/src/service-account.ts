@@ -1,8 +1,8 @@
 import * as gcp from '@pulumi/gcp'
 import * as pulumi from '@pulumi/pulumi'
 
-import { tag } from '../config'
-import { provider } from '../project'
+import { tag } from './config'
+import { provider } from './project'
 
 import { nginxConfSecret } from './nginx'
 import {
@@ -13,7 +13,7 @@ import { payloadSecretKeySecret } from './payload'
 import { dataBucket, mediaBucket } from './storage'
 
 export const websiteServiceAccount = new gcp.serviceaccount.Account(
-  `${tag}-website-sa`,
+  `${tag}-sa`,
   {
     accountId: `${tag}-sa`,
     displayName: 'Website Service Account',
@@ -22,7 +22,7 @@ export const websiteServiceAccount = new gcp.serviceaccount.Account(
 )
 
 export const dataBucketObjectAdminBinding = new gcp.storage.BucketIAMMember(
-  `${tag}-website-sa-data-bucket-object-admin`,
+  `${tag}-sa-data-bucket-object-admin`,
   {
     bucket: dataBucket.name,
     role: 'roles/storage.objectAdmin',
@@ -32,7 +32,7 @@ export const dataBucketObjectAdminBinding = new gcp.storage.BucketIAMMember(
 )
 
 export const mediaBucketObjectAdminBinding = new gcp.storage.BucketIAMMember(
-  `${tag}-website-sa-media-bucket-object-admin`,
+  `${tag}-sa-media-bucket-object-admin`,
   {
     bucket: mediaBucket.name,
     role: 'roles/storage.objectAdmin',
@@ -43,7 +43,7 @@ export const mediaBucketObjectAdminBinding = new gcp.storage.BucketIAMMember(
 
 export const litestreamConfSecretAccessorBinding =
   new gcp.secretmanager.SecretIamMember(
-    `${tag}-website-sa-litestream-conf-accessor`,
+    `${tag}-sa-litestream-conf-accessor`,
     {
       secretId: litestreamConfSecret.secretId,
       role: 'roles/secretmanager.secretAccessor',
@@ -54,7 +54,7 @@ export const litestreamConfSecretAccessorBinding =
 
 export const litestreamStartupScriptSecretAccessorBinding =
   new gcp.secretmanager.SecretIamMember(
-    `${tag}-website-sa-litestream-startup-script-accessor`,
+    `${tag}-sa-litestream-startup-script-accessor`,
     {
       secretId: litestreamStartupScriptSecret.secretId,
       role: 'roles/secretmanager.secretAccessor',
@@ -65,7 +65,7 @@ export const litestreamStartupScriptSecretAccessorBinding =
 
 export const nginxConfSecretAccessorBinding =
   new gcp.secretmanager.SecretIamMember(
-    `${tag}-website-sa-nginx-conf-accessor`,
+    `${tag}-sa-nginx-conf-accessor`,
     {
       secretId: nginxConfSecret.secretId,
       role: 'roles/secretmanager.secretAccessor',
@@ -76,7 +76,7 @@ export const nginxConfSecretAccessorBinding =
 
 export const payloadSecretKeySecretAccessorBinding =
   new gcp.secretmanager.SecretIamMember(
-    `${tag}-website-sa-payload-secret-key-accessor`,
+    `${tag}-sa-payload-secret-key-accessor`,
     {
       secretId: payloadSecretKeySecret.secretId,
       role: 'roles/secretmanager.secretAccessor',
