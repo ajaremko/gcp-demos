@@ -51,3 +51,28 @@ lockfile), so it's a fresh semver resolution, not the exact graph the rest
 of the monorepo was tested against. Widening the build context to include
 the lockfile and switching to `npm ci` would close that gap if it ever
 matters.
+
+## `payload.config.ts` crashes in production: `next/constants` not found
+
+**Error:**
+
+```
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '.../node_modules/next/constants'
+imported from .../payload.config.ts
+```
+
+**Where:** Production only (`payload migrate`, or any real startup) -
+`payload.config.ts` is loaded as raw source via `PAYLOAD_CONFIG_PATH`, not
+through Next's bundler.
+
+**Root cause:** Next's standalone output ships a *traced* copy of `next`
+itself (only what Next's own compiled code needs) nested under the
+project's own `node_modules`. Node resolves `next/constants` to that copy
+first - it's missing the shim file entirely, since nothing in Next's own
+bundle imports it that way. The complete `next` install elsewhere in the
+image is never reached, since Node commits to the first-found package by
+name.
+
+**Resolution:** Don't import `PHASE_PRODUCTION_BUILD` from `next/constants` -
+hardcode the string value (`'phase-production-build'`) directly in
+`payload.config.ts` instead.
