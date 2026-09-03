@@ -11,6 +11,9 @@
       }
     }
   },
+  "scripts": {
+    "build": "NODE_ENV=production next build"
+  },
   "dependencies": {
     "@payloadcms/db-sqlite": "^3.88.0",
     "@payloadcms/next": "^3.88.0",

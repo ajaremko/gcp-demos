@@ -76,3 +76,43 @@ name.
 **Resolution:** Don't import `PHASE_PRODUCTION_BUILD` from `next/constants` -
 hardcode the string value (`'phase-production-build'`) directly in
 `payload.config.ts` instead.
+
+## `nx run blog-admin:build` fails prerendering `/_global-error`: `Cannot read properties of null (reading 'useContext')`
+
+**Error:**
+
+```
+Error occurred prerendering page "/_global-error".
+TypeError: Cannot read properties of null (reading 'useContext')
+```
+
+**Where:** only when the build runs through `nx run blog-admin:build`
+(or anything else that inherits Nx's task environment) - a direct
+`npm run build` in this directory never showed it. Not related to
+`next dev`, and not this project's own code.
+
+**Root cause:** Nx sets `NODE_ENV=development` for tasks executed via the
+`nx:run-script` executor (the path used once `package.json` has an
+explicit `build` script) - there's no equivalent to the deprecated
+`@nx/next:build` executor's own `process.env.NODE_ENV ||= 'production'`
+override in that path. Next 16 flags `development` as a "non-standard"
+`NODE_ENV` for a production build and its static-generation phase becomes
+unreliable under it - prerendering Next's own auto-generated
+`/_global-error` fallback page crashes with a null `useContext`. Verified
+directly: the crash reproduces under **both** Turbopack and `--webpack`
+whenever `NODE_ENV` is `development`, and disappears under **both** once
+`NODE_ENV` is forced to `production` - so this isn't a Turbopack-specific
+bug (an earlier pass at this issue reached that conclusion by conflating
+the bundler switch with an accidental `NODE_ENV` fix; ruling out a
+duplicate `react`/`react-dom` install, done during that pass, still holds).
+
+**Resolution:** `package.json`'s `build` script sets `NODE_ENV=production`
+explicitly rather than relying on Nx's task default:
+
+```json
+"build": "NODE_ENV=production next build"
+```
+
+Turbopack stays as the bundler (Next 16's default) - no `--webpack` flag
+needed. `dev` is unaffected either way (Turbopack, and Nx's `development`
+default is correct there).
