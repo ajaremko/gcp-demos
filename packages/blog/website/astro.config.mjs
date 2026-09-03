@@ -6,10 +6,21 @@ import { defineConfig, memoryCache } from 'astro/config'
 
 import node from '@astrojs/node'
 
+import icon from 'astro-icon';
+
 // https://astro.build/config
 export default defineConfig({
   site: 'https://example.com',
-  integrations: [mdx(), sitemap()],
+  integrations: [
+    mdx(),
+    sitemap(),
+    icon({
+      include: {
+        'simple-icons': ['github', 'linkedin'],
+        mdi: ['email-outline'],
+      },
+    }),
+  ],
 
   // '/' is now the post listing itself (matching the redesign's IA) -
   // keep the old '/blog' URL working as a redirect rather than a 404.

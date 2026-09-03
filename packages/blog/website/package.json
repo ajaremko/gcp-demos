@@ -25,7 +25,10 @@
     "@astrojs/node": "^11.1.4",
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.3",
+    "@iconify-json/mdi": "^1.2.3",
+    "@iconify-json/simple-icons": "^1.2.94",
     "astro": "^7.2.8",
+    "astro-icon": "^1.2.0",
     "pino": "^10.3.1",
     "sharp": "^0.35.0"
   },
