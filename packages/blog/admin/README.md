@@ -66,7 +66,7 @@ end:
 3. Confirm it's readable anonymously via the REST API
    (`/api/posts?where[_status][equals]=published`) and that a draft post
    is _not_ included.
-4. If testing against `blog-website` too, point its `CMS_URL` at this
+4. If testing against `blog-website` too, point its `ADMIN_API_URL` at this
    app's origin and confirm `/blog` and `/blog/<slug>` render it.
 
 See [`known-issues.md`](./known-issues.md) for known Docker-image-only

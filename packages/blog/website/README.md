@@ -1,81 +1,68 @@
-# Astro Starter Kit: Blog
+# blog-website
 
-```sh
-npm create astro@latest -- --template blog
+Public-facing blog site (Astro), reading published posts from `blog-admin`
+(a sibling Payload CMS app) over its REST API. Deployed as a sidecar
+container alongside `blog-admin` behind nginx, in the same Cloud Run
+service - nginx routes everything except `/admin`, `/api`, `/_next` here.
+
+## Building
+
+```
+nx build blog-website
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Dev (Hot reload)
 
-Features:
-
-- ✅ Minimal styling (make it your own!)
-- ✅ 100/100 Lighthouse performance
-- ✅ SEO-friendly with canonical URLs and Open Graph data
-- ✅ Sitemap support
-- ✅ RSS Feed support
-- ✅ Markdown & MDX support
-
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-├── public/
-├── src/
-│   ├── assets/
-│   ├── components/
-│   ├── content/
-│   ├── layouts/
-│   └── pages/
-├── astro.config.mjs
-├── README.md
-├── package.json
-└── tsconfig.json
+```
+nx dev blog-website
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+## Containerize
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+```
+nx docker:build blog-website
+```
 
-The `src/content/` directory contains "collections" of related Markdown and MDX documents. Use `getCollection()` to retrieve posts from `src/content/blog/`, and type-check your frontmatter using an optional schema. See [Astro's Content Collections docs](https://docs.astro.build/en/guides/content-collections/) to learn more.
+See the full [runbook](./RUNBOOK.md) for more details about operation.
 
-Any static assets, like images, can be placed in the `public/` directory.
+## Routes
 
-## 🧞 Commands
+| Path           | Purpose                                                |
+| -------------- | ------------------------------------------------------ |
+| `/`            | Landing page                                           |
+| `/about`       | About page                                             |
+| `/blog`        | Post listing, live-loaded from the CMS at request time |
+| `/blog/<slug>` | A single post                                          |
+| `/rss.xml`     | RSS feed of published posts                            |
 
-All commands are run from the root of the project, from a terminal:
+## Local setup
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+Env vars (see `.env`):
 
-## Logging
+| Variable            | Purpose                                                                              |
+| ------------------- | ------------------------------------------------------------------------------------ |
+| `ADMIN_API_URL`     | Base URL of the `blog-admin` instance to read posts from - required, throws if unset |
+| `LOG_LEVEL`         | Overrides the default pino level - optional                                          |
+| `PRETTY_PRINT_LOGS` | Whether logs are pretty-printed vs. JSON - optional                                  |
 
-Server-side logging goes through [pino](https://getpino.io/) (`src/logging/pino.ts`),
-following the same pattern documented in `packages/pdf-shop/website/RUNBOOK.md`.
+```
+nx dev blog-website
+```
 
-| Env var             | Type      | Purpose                                  | Default                                  |
-| ------------------- | --------- | ---------------------------------------- | ---------------------------------------- |
-| `LOG_LEVEL`         | `enum`    | Overrides the default pino level         | `info` in production, `trace` otherwise  |
-| `PRETTY_PRINT_LOGS` | `boolean` | Whether logs are pretty-printed vs. JSON | `true` outside production, `false` in it |
+Run `blog-admin` locally too (see its own README) and point `ADMIN_API_URL`
+at it, or point it at a real deployed `blog-admin` origin.
 
-pino's level is a threshold: whatever `LOG_LEVEL` is set to shows that level
-and everything more severe.
+## Manually testing
 
-| Level   | Events logged                                                                                                                                |
-| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `trace` | Step-by-step execution: CMS API loader calls (`src/loaders/cms.ts`) and cache provider internals (`src/cache/inMemoryCacheProvider.ts`) |
-| `debug` | Internally-handled failures in the cache provider (a failed persist/revalidation/invalidate that doesn't affect the response)                     |
-| `warn`  | A non-ok response from the CMS's REST API (`/api/posts`)                                                                                          |
-| `error` | Failure to load posts/a post from the CMS that surfaces to a visitor as a `502`                                                                   |
-| `fatal` | Missing required configuration (`CMS_URL`)                                                                                                        |
+No automated test suite exists for this package. To exercise it end to
+end:
 
-`pino-pretty` is a devDependency only - the production Docker image excludes
-devDependencies (`Dockerfile`'s `npm install --omit=dev`), so
-`PRETTY_PRINT_LOGS` must never be forced to `true` there (the default
-already handles this correctly by keying off `NODE_ENV`).
+1. `nx dev blog-website` with `ADMIN_API_URL` pointed at a running
+   `blog-admin` instance that has at least one published post.
+2. Visit `/blog` - confirm the post list renders; visit `/blog/<slug>` -
+   confirm the post itself renders, including its hero image if set.
+3. Confirm a draft post (unpublished in `blog-admin`) does _not_ appear.
+4. Visit `/rss.xml` and confirm it lists the same published posts.
+
+See [`known-issues.md`](./known-issues.md) for a known `astro build`
+failure mode.

@@ -175,16 +175,7 @@ export const websiteService = new gcp.cloudrunv2.Service(
           envs: [
             { name: 'HOST', value: '0.0.0.0' },
             { name: 'PORT', value: '4321' },
-            { name: 'CMS_URL', value: 'http://127.0.0.1:3000' },
-            {
-              name: 'PAYLOAD_SECRET',
-              valueSource: {
-                secretKeyRef: {
-                  secret: payloadSecretKeySecret.secretId,
-                  version: payloadSecretKeySecretVersion.version,
-                },
-              },
-            },
+            { name: 'ADMIN_API_URL', value: 'http://127.0.0.1:3000' },
             {
               name: 'LOG_LEVEL',
               value: 'info',

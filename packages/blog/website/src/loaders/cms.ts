@@ -34,15 +34,15 @@ interface CmsPostsResponse {
 
 function getCmsUrl(): string {
 	// process.env, not import.meta.env: this must read the real container
-	// environment at request time (Cloud Run injects CMS_URL as a runtime
-	// env var, pointing at the "cms" sidecar container over loopback).
-	// import.meta.env is statically inlined by Vite at `astro build` time,
-	// which happens before the Docker image (and its runtime env) even
-	// exists.
-	const url = process.env.CMS_URL
+	// environment at request time (Cloud Run injects ADMIN_API_URL as a
+	// runtime env var, pointing at the "cms" sidecar container over
+	// loopback). import.meta.env is statically inlined by Vite at
+	// `astro build` time, which happens before the Docker image (and its
+	// runtime env) even exists.
+	const url = process.env.ADMIN_API_URL
 	if (!url) {
-		pinoLogger.fatal('Missing required configuration: CMS_URL must be set to fetch blog content from the CMS')
-		throw new Error('CMS_URL must be set to fetch blog content from the CMS.')
+		pinoLogger.fatal('Missing required configuration: ADMIN_API_URL must be set to fetch blog content from the CMS')
+		throw new Error('ADMIN_API_URL must be set to fetch blog content from the CMS.')
 	}
 	return url.replace(/\/+$/, '')
 }
