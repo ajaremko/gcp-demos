@@ -1,28 +1,7 @@
-export const SITE_TITLE = 'Sample Blog'
-export const SITE_DESCRIPTION =
-  'A sample showing a custom blog backed by a self-hosted CMS, deployed end to end to GCP.'
-export const GITHUB_REPO_URL =
-  'https://github.com/ajaremko/gcp-demos/tree/main/packages/blog'
+---
+import { Icon } from 'astro-icon/components'
 
-export const SOCIAL_LINKS = [
-  {
-    name: 'mdi:email-outline' as const,
-    href: 'mailto:hello@example.com',
-    label: 'Email',
-  },
-  {
-    name: 'simple-icons:github' as const,
-    href: 'https://github.com/ajaremko/gcp-demos',
-    label: 'GitHub',
-  },
-  {
-    name: 'simple-icons:linkedin' as const,
-    href: 'https://www.linkedin.com',
-    label: 'LinkedIn',
-  },
-]
-
-export const BUILT_WITH = [
+export const buildWithItems = [
   {
     name: 'simple-icons:typescript' as const,
     label: 'TypeScript',
@@ -79,3 +58,54 @@ export const BUILT_WITH = [
     href: 'https://www.pulumi.com',
   },
 ]
+
+---
+
+<ul class="build-with">
+	{
+		buildWithItems.map((tech) => (
+			<li class="build-with__item">
+				<a
+					href={tech.href}
+					class="build-with__link"
+					title={tech.label}
+					aria-label={tech.label}
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					<Icon name={tech.name} />
+				</a>
+			</li>
+		))
+	}
+</ul>
+
+<style>
+	.build-with {
+		display: flex;
+		flex-flow: row wrap;
+		gap: 0.5rem;
+		list-style: none;
+		margin: 0 0 1.625rem;
+		padding: 0;
+	}
+	.build-with__item {
+		margin: 0;
+		padding: 0;
+	}
+	.build-with__link {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 2.1875rem;
+		height: 2.1875rem;
+		border: 1px solid #ebebeb;
+		border-radius: 50%;
+		color: #222;
+		text-decoration: none;
+	}
+	.build-with__link:hover,
+	.build-with__link:focus {
+		color: #5d93ff;
+	}
+</style>
