@@ -97,10 +97,10 @@ export const buildWithItems = [
 
 <style>
 	.sidebar {
-		width: 100%;
-		height: 100%;
+		display: flex;
 	}
 	.sidebar__inner {
+		flex: 1;
 		padding: 2.5rem 1.25rem 1.25rem;
 		border-right: 1px solid #ebebeb;
 	}
@@ -151,14 +151,16 @@ export const buildWithItems = [
 
 	@media screen and (min-width: 685px) {
 		.sidebar {
-			width: calc(41.625% - 1.09375rem);
-			float: left;
-			margin-right: 1.875rem;
+			flex: 0 0 41.625%;
+			min-width: 0;
+			position: sticky;
+			top: 0;
+			min-height: 100vh;
 		}
 	}
 	@media screen and (min-width: 960px) {
 		.sidebar {
-			width: calc(33.4% - 1.25rem);
+			flex-basis: 33.4%;
 		}
 	}
 </style>

@@ -24,7 +24,6 @@ const { title, description, image } = Astro.props
 					<slot />
 				</div>
 			</div>
-			<div class="clearfix"></div>
 		</div>
 	</body>
 </html>
@@ -36,30 +35,28 @@ const { title, description, image } = Astro.props
 		margin: 0 auto;
 		padding: 0 1.25rem;
 		min-height: 100vh;
-	}
-	.clearfix {
-		clear: both;
+		display: flex;
+		flex-direction: column;
 	}
 	.content {
-		width: 100%;
+		flex: 1;
+		min-width: 0;
 	}
 	.content__inner {
 		padding: 1.5625rem 0;
 	}
 
 	@media screen and (min-width: 685px) {
-		.content {
-			width: calc(58.375% - 0.78125rem);
-			float: right;
+		.page {
+			flex-direction: row;
+			align-items: flex-start;
+			gap: 1.875rem;
 		}
 		.content__inner {
 			padding: 1.875rem 0;
 		}
 	}
 	@media screen and (min-width: 960px) {
-		.content {
-			width: calc(66.6% - 0.625rem);
-		}
 		.content__inner {
 			padding: 2.5rem 0;
 			max-width: 80%;
