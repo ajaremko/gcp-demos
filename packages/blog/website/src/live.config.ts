@@ -1,9 +1,9 @@
-import { defineLiveCollection } from 'astro:content';
-import { cmsLoader, blogPostSchema } from './loaders/cms';
+import { defineLiveCollection } from 'astro:content'
+import { postsLoader, blogPostSchema } from './loaders/posts'
 
 const blog = defineLiveCollection({
-	loader: cmsLoader,
-	schema: blogPostSchema,
-});
+  loader: postsLoader,
+  schema: blogPostSchema,
+})
 
-export const collections = { blog };
+export const collections = { blog }
