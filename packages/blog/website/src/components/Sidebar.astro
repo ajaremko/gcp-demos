@@ -73,25 +73,29 @@ export const buildWithItems = [
 
 <aside class="sidebar">
 	<div class="sidebar__inner">
-		<a href="/" class="author__photo-link">
-			<Avatar size={96} />
-		</a>
-		<a href="/" class="author__title">Sample Author</a>
-		<p class="author__subtitle">This is a custom blog built with Astro, Payload CMS, and SQLite, showcasing a real, end-to-end integration of these technologies. It features an admin dashboard for managing content, including creating and editing posts with richtext editing, tags, drafts and media uploads.&nbsp;<a href={GITHUB_REPO_URL} target="_blank" rel="noopener noreferrer">View source on github</a></p>
-		<nav class="menu">
-			<ul class="menu__list">
-				{
-					navItems.map((item) => (
-						<li class="menu__list-item">
-							<HeaderLink href={item.href}>{item.label}</HeaderLink>
-						</li>
-					))
-				}
-			</ul>
-		</nav>
-		<p class="stack-heading">Built with</p>
-		<BuiltWith />
-		<p class="copyright">{SITE_TITLE} &copy; 2026</p>
+		<div class="sidebar__content">
+			<a href="/" class="author__photo-link">
+				<Avatar size={96} />
+			</a>
+			<a href="/" class="author__title">Sample Author</a>
+			<p class="author__subtitle">This is a custom blog built with Astro, Payload CMS, and SQLite, showcasing a real, end-to-end integration of these technologies. It features an admin dashboard for managing content, including creating and editing posts with richtext editing, tags, drafts and media uploads.&nbsp;<a href={GITHUB_REPO_URL} target="_blank" rel="noopener noreferrer">View source on github</a></p>
+			<nav class="menu">
+				<ul class="menu__list">
+					{
+						navItems.map((item) => (
+							<li class="menu__list-item">
+								<HeaderLink href={item.href}>{item.label}</HeaderLink>
+							</li>
+						))
+					}
+				</ul>
+			</nav>
+		</div>
+		<div>
+			<p class="stack-heading">Built with</p>
+			<BuiltWith />
+			<p class="copyright">{SITE_TITLE} &copy; 2026</p>
+		</div>
 	</div>
 </aside>
 
@@ -101,8 +105,13 @@ export const buildWithItems = [
 	}
 	.sidebar__inner {
 		flex: 1;
-		padding: 2.5rem 1.25rem 1.25rem;
-		border-right: 1px solid #ebebeb;
+		min-width: 0;
+		padding-top: 2.5rem;
+		display: flex;
+		flex-direction: column;
+	}
+	.sidebar__content {
+		flex: 1;
 	}
 	.author__photo-link {
 		display: inline-block;
@@ -156,11 +165,27 @@ export const buildWithItems = [
 			position: sticky;
 			top: 0;
 			min-height: 100vh;
+			border-right: 1px solid #ebebeb;
+		}
+		.sidebar__inner {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			min-width: 0;
+			padding: 2.5rem 1.25rem 1.25rem;
 		}
 	}
 	@media screen and (min-width: 960px) {
 		.sidebar {
 			flex-basis: 33.4%;
+			border-right: 1px solid #ebebeb;
+		}
+		.sidebar__inner {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			min-width: 0;
+			padding: 2.5rem 1.25rem 1.25rem;
 		}
 	}
 </style>

@@ -4,6 +4,12 @@
   an approximation.
  */
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 :root {
   --text: #222;
   --text-muted: #888;
@@ -92,12 +98,24 @@ input {
 
 table {
   width: 100%;
+  table-layout: fixed;
+}
+td,
+th {
+  overflow-wrap: break-word;
 }
 
 img {
   max-width: 100%;
   height: auto;
   border-radius: 8px;
+}
+
+iframe,
+embed,
+video,
+object {
+  max-width: 100%;
 }
 
 code:not([class*='language-']) {
@@ -110,6 +128,8 @@ code:not([class*='language-']) {
 pre {
   padding: 1em;
   border-radius: 0.3em;
+  overflow-x: auto;
+  max-width: 100%;
   /* Solarized Light, matching the reference's code-block background/text
      color - post content is server-rendered HTML from Payload (Lexical to
      HTML), not Astro's own Markdown pipeline, so there's no token/keyword
