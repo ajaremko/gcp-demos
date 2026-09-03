@@ -12,11 +12,9 @@ function getAdminApiUrl(): string {
   const url = process.env.ADMIN_API_URL
   if (!url) {
     pinoLogger.fatal(
-      'Missing required configuration: ADMIN_API_URL must be set to fetch blog content from the CMS',
+      'Missing required configuration: ADMIN_API_URL must be set to fetch blog content',
     )
-    throw new Error(
-      'ADMIN_API_URL must be set to fetch blog content from the CMS.',
-    )
+    throw new Error('ADMIN_API_URL must be set to fetch blog content.')
   }
   return url.replace(/\/+$/, '')
 }

@@ -1,33 +1,91 @@
 ---
-import BaseHead from '../components/BaseHead.astro';
-import Footer from '../components/Footer.astro';
-import Header from '../components/Header.astro';
-import { SITE_DESCRIPTION, SITE_TITLE, GITHUB_REPO_URL } from '../consts';
+export const prerender = false;
+
+import { getLiveCollection } from 'astro:content';
+import FormattedDate from '../components/FormattedDate.astro';
+import Layout from '../layouts/Layout.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import { pinoLogger } from '../logging/pino';
+
+const { entries, error } = await getLiveCollection('blog');
+if (error) {
+	pinoLogger.error({ err: error }, 'Failed to load posts');
+	Astro.response.status = 502;
+}
+const posts = (entries ?? []).sort(
+	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
 ---
 
-<!doctype html>
-<html lang="en">
-	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-	</head>
-	<body>
-		<Header />
-		<main>
-			<h1>A Custom Blog</h1>
-			<p>
-				This is the custom blog built and deployed end to end. Nothing here is a real
-				publication. But the stack behind it is real - a real self-hosted Payload CMS, real
-				Docker releases and real GCP infrastructure.&nbsp;
-				<a 
-					href={GITHUB_REPO_URL} 
-					target="_blank" 
-					rel="noopener noreferrer"
-				>
-					View on Github
-				</a>
-			</p>
-			<p><a href="/blog">Read the posts →</a></p>
-		</main>
-		<Footer />
-	</body>
-</html>
+<Layout title={SITE_TITLE} description={SITE_DESCRIPTION}>
+	<ul class="posts">
+		{
+			posts.map((post) => (
+				<li class="post-card">
+					<a href={`/posts/${post.id}/`} class="post-card__link">
+						{post.data.heroImage && (
+							<img
+								class="post-card__image"
+								width="720"
+								height="360"
+								src={post.data.heroImage}
+								alt=""
+								loading="lazy"
+							/>
+						)}
+						<h2 class="post-card__title">{post.data.title}</h2>
+						<p class="post-card__date">
+							<FormattedDate date={post.data.pubDate} />
+						</p>
+						<p class="post-card__excerpt">{post.data.description}</p>
+					</a>
+				</li>
+			))
+		}
+	</ul>
+	{
+		posts.length === 0 && !error && (
+			<p class="empty">No posts published yet.</p>
+		)
+	}
+</Layout>
+
+<style>
+	.posts {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+	.post-card {
+		margin-bottom: 3.25rem;
+	}
+	.post-card__link {
+		display: block;
+		color: inherit;
+	}
+	.post-card__image {
+		display: block;
+		width: 100%;
+		margin-bottom: 0.8125rem;
+		border-radius: 8px;
+	}
+	.post-card__title {
+		margin-bottom: 0.40625rem;
+	}
+	.post-card__date {
+		margin: 0 0 0.8125rem;
+		color: var(--text-muted);
+		font-size: 0.875rem;
+	}
+	.post-card__excerpt {
+		margin: 0;
+		color: var(--text);
+	}
+	.post-card__link:hover .post-card__title,
+	.post-card__link:focus .post-card__title {
+		color: var(--link);
+	}
+	.empty {
+		color: var(--text-muted);
+	}
+</style>

@@ -2,7 +2,7 @@
 
 import mdx from '@astrojs/mdx'
 import sitemap from '@astrojs/sitemap'
-import { defineConfig, fontProviders, memoryCache } from 'astro/config'
+import { defineConfig, memoryCache } from 'astro/config'
 
 import node from '@astrojs/node'
 
@@ -10,6 +10,15 @@ import node from '@astrojs/node'
 export default defineConfig({
   site: 'https://example.com',
   integrations: [mdx(), sitemap()],
+
+  // '/' is now the post listing itself (matching the redesign's IA) -
+  // keep the old '/blog' URL working as a redirect rather than a 404.
+  // Individual posts moved from '/blog/<slug>' to '/posts/<slug>' -
+  // preserve those links too rather than 404ing existing bookmarks.
+  redirects: {
+    '/blog': '/',
+    '/blog/[...slug]': '/posts/[...slug]',
+  },
 
   vite: {
     ssr: {
@@ -34,25 +43,11 @@ export default defineConfig({
   },
 
   routeRules: {
-    '/blog': { maxAge: 300, swr: 60 },
-    '/blog/[...slug]': { maxAge: 300, swr: 60 },
+    // '/' is now the post listing (was '/blog' before the redesign) -
+    // '/blog' itself is just a redirect to '/', not worth caching.
+    '/': { maxAge: 300, swr: 60 },
+    '/posts/[...slug]': { maxAge: 300, swr: 60 },
   },
-
-  fonts: [
-    {
-      provider: fontProviders.google(),
-      name: 'DM Serif Display',
-      cssVariable: '--font-dm-serif-display',
-      fallbacks: ['serif'],
-    },
-    {
-      provider: fontProviders.google(),
-      name: 'Outfit',
-      cssVariable: '--font-outfit',
-      weights: [400, 700],
-      fallbacks: ['sans-serif'],
-    },
-  ],
 
   adapter: node({
     mode: 'standalone',

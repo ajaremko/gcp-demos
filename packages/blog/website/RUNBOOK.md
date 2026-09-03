@@ -39,7 +39,7 @@ already handles this correctly by keying off `NODE_ENV`).
 
 ## Caching
 
-`/blog` and `/blog/[...slug]` are cached via Astro's built-in `cache`
+`/` and `/posts/[...slug]` are cached via Astro's built-in `cache`
 config (`astro.config.mjs`'s `routeRules`), backed by Astro's own
 in-process `memoryCache()` provider - `maxAge: 300` (5 minutes fresh),
 `swr: 60` (another 60 seconds stale-while-revalidate before a request
@@ -53,18 +53,17 @@ Two operational consequences worth knowing:
   that's routine. Don't expect a warm cache to persist across deploys or
   scale-to-zero cycles.
 - **Up to ~6 minutes of staleness after a `blog-admin` edit is normal**,
-  not a bug - that's `maxAge` + `swr` combined. The CMS loader
-  (`src/loaders/cms.ts`) attaches cache tags (`cms:posts`,
-  `cms:post:<slug>`) for tag-based invalidation, but nothing in this
+  not a bug - that's `maxAge` + `swr` combined. The posts loader
+  (`src/loaders/posts.ts`) attaches cache tags (`posts`,
+  `post:<slug>`) for tag-based invalidation, but nothing in this
   project currently calls Astro's invalidation API to use them.
 
 ## Debugging problems
 
 - **Every page returns 502** - `ADMIN_API_URL` is almost certainly wrong or
   `blog-admin` is unreachable; check the `error`/`fatal` log line first
-  (`loadCollection()`/`loadEntry() failed to load ... from the CMS`).
 - **A draft post is visible, or a published one is missing** - not this
-  project's concern to fix; the CMS loader passes
+  project's concern to fix; the posts loader (`src/loaders/posts.ts`) passes
   `where[_status][equals]=published` straight through to `blog-admin`'s
   REST API, so check access control there
   (`packages/blog/admin/src/collections/Posts.ts`).

@@ -1,0 +1,33 @@
+---
+// A placeholder avatar - this is a demo blog with no real person behind it,
+// so an initials-based circle avoids sourcing/licensing a stock photo.
+interface Props {
+	size?: number
+}
+
+const { size = 96 } = Astro.props
+---
+
+<svg
+	class="avatar"
+	width={size}
+	height={size}
+	viewBox="0 0 96 96"
+	role="img"
+	aria-label="Author avatar"
+>
+	<circle cx="48" cy="48" r="48" fill="#5d93ff"></circle>
+	<text
+		x="50%"
+		y="50%"
+		dy=".08em"
+		text-anchor="middle"
+		dominant-baseline="middle"
+		fill="#fff"
+		font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+		font-size="36"
+		font-weight="600"
+	>
+		SA
+	</text>
+</svg>

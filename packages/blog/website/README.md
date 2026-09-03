@@ -1,9 +1,9 @@
 # blog-website
 
 Public-facing blog site (Astro), reading published posts from `blog-admin`
-(a sibling Payload CMS app) over its REST API. Deployed as a sidecar
-container alongside `blog-admin` behind nginx, in the same Cloud Run
-service - nginx routes everything except `/admin`, `/api`, `/_next` here.
+over its HTTP API. Deployed as a sidecar container alongside `blog-admin`
+behind nginx, in the same Cloud Run service - nginx routes everything
+except `/admin`, `/api`, `/_next` here.
 
 ## Building
 
@@ -27,13 +27,13 @@ See the full [runbook](./RUNBOOK.md) for more details about operation.
 
 ## Routes
 
-| Path           | Purpose                                                |
-| -------------- | ------------------------------------------------------ |
-| `/`            | Landing page                                           |
-| `/about`       | About page                                             |
-| `/blog`        | Post listing, live-loaded from the CMS at request time |
-| `/blog/<slug>` | A single post                                          |
-| `/rss.xml`     | RSS feed of published posts                            |
+| Path            | Purpose                                   |
+| --------------- | ----------------------------------------- |
+| `/`             | Post listing, live-loaded at request time |
+| `/about`        | About page                                |
+| `/contact`      | Contact page                              |
+| `/posts/<slug>` | A single post                             |
+| `/rss.xml`      | RSS feed of published posts               |
 
 ## Local setup
 
@@ -59,7 +59,7 @@ end:
 
 1. `nx dev blog-website` with `ADMIN_API_URL` pointed at a running
    `blog-admin` instance that has at least one published post.
-2. Visit `/blog` - confirm the post list renders; visit `/blog/<slug>` -
+2. Visit `/` - confirm the post list renders; visit `/posts/<slug>` -
    confirm the post itself renders, including its hero image if set.
 3. Confirm a draft post (unpublished in `blog-admin`) does _not_ appear.
 4. Visit `/rss.xml` and confirm it lists the same published posts.

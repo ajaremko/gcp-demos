@@ -1,0 +1,49 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
+import { SITE_TITLE, SOCIAL_LINKS } from '../consts';
+
+const description = 'Ways to get in touch.';
+---
+
+<Layout title={`Contact - ${SITE_TITLE}`} description={description}>
+	<h1>Contact</h1>
+	<p>Please feel free to get in touch via any of the following:</p>
+	<ul class="contact-list">
+		{
+			SOCIAL_LINKS.map((social) => (
+				<li>
+					<a
+						href={social.href}
+						target={social.href.startsWith('http') ? '_blank' : undefined}
+						rel={social.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+					>
+						<Icon name={social.name} />
+						<span>{social.label}</span>
+					</a>
+				</li>
+			))
+		}
+	</ul>
+</Layout>
+
+<style>
+	.contact-list {
+		list-style: none;
+		margin: 1.625rem 0 0;
+		padding: 0;
+	}
+	.contact-list li {
+		margin-bottom: 0.8125rem;
+	}
+	.contact-list a {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		color: var(--text);
+	}
+	.contact-list a:hover,
+	.contact-list a:focus {
+		color: var(--link);
+	}
+</style>

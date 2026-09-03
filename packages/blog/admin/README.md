@@ -67,7 +67,7 @@ end:
    (`/api/posts?where[_status][equals]=published`) and that a draft post
    is _not_ included.
 4. If testing against `blog-website` too, point its `ADMIN_API_URL` at this
-   app's origin and confirm `/blog` and `/blog/<slug>` render it.
+   app's origin and confirm `/` and `/posts/<slug>` render it.
 
 See [`known-issues.md`](./known-issues.md) for known Docker-image-only
 failure modes.

@@ -1,0 +1,141 @@
+---
+import { AUTHOR_NAME, AUTHOR_TAGLINE, SITE_TITLE, SOCIAL_LINKS } from '../consts'
+import Avatar from './Avatar.astro'
+import HeaderLink from './HeaderLink.astro'
+import Icon from './Icon.astro'
+
+const year = new Date().getFullYear()
+
+const navItems = [
+	{ href: '/', label: 'Home' },
+	{ href: '/about', label: 'About' },
+	{ href: '/contact', label: 'Contact' },
+]
+---
+
+<aside class="sidebar">
+	<div class="sidebar__inner">
+		<a href="/" class="author__photo-link">
+			<Avatar size={96} />
+		</a>
+		<a href="/" class="author__title">{AUTHOR_NAME}</a>
+		<p class="author__subtitle">{AUTHOR_TAGLINE}</p>
+		<ul class="contacts">
+			{
+				SOCIAL_LINKS.map((social) => (
+					<li class="contacts__item">
+						<a
+							href={social.href}
+							class="contacts__link"
+							aria-label={social.label}
+							target={social.href.startsWith('http') ? '_blank' : undefined}
+							rel={social.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+						>
+							<Icon name={social.name} />
+						</a>
+					</li>
+				))
+			}
+		</ul>
+		<nav class="menu">
+			<ul class="menu__list">
+				{
+					navItems.map((item) => (
+						<li class="menu__list-item">
+							<HeaderLink href={item.href}>{item.label}</HeaderLink>
+						</li>
+					))
+				}
+			</ul>
+		</nav>
+		<p class="copyright">{SITE_TITLE} &copy; {year}</p>
+	</div>
+</aside>
+
+<style>
+	.sidebar {
+		width: 100%;
+	}
+	.sidebar__inner {
+		padding: 2.5rem 1.25rem 1.25rem;
+	}
+	.author__photo-link {
+		display: inline-block;
+		line-height: 0;
+	}
+	.author__title {
+		display: block;
+		margin: 0.8125rem 0;
+		font-size: 1.125rem;
+		font-weight: 600;
+		line-height: 1.82813rem;
+		color: #222;
+		text-decoration: none;
+	}
+	.author__title:hover,
+	.author__title:focus {
+		color: #5d93ff;
+	}
+	.author__subtitle {
+		margin: 0 0 1.625rem;
+		color: #888;
+		line-height: 1.625rem;
+	}
+	.contacts {
+		display: flex;
+		flex-flow: row wrap;
+		gap: 0.5rem;
+		list-style: none;
+		margin: 0 0 1.625rem;
+		padding: 0;
+	}
+	.contacts__item {
+		margin: 0;
+		padding: 0;
+	}
+	.contacts__link {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 2.1875rem;
+		height: 2.1875rem;
+		border: 1px solid #ebebeb;
+		border-radius: 50%;
+		color: #222;
+		text-decoration: none;
+	}
+	.contacts__link:hover,
+	.contacts__link:focus {
+		color: #5d93ff;
+	}
+	.menu {
+		margin-bottom: 1.625rem;
+	}
+	.menu__list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+	.menu__list-item {
+		margin: 0.625rem 0;
+		padding: 0;
+	}
+	.copyright {
+		margin: 0;
+		color: #b6b6b6;
+		font-size: 0.875rem;
+	}
+
+	@media screen and (min-width: 685px) {
+		.sidebar {
+			width: calc(41.625% - 1.09375rem);
+			float: left;
+			margin-right: 1.875rem;
+		}
+	}
+	@media screen and (min-width: 960px) {
+		.sidebar {
+			width: calc(33.4% - 1.25rem);
+		}
+	}
+</style>

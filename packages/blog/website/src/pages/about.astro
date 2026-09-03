@@ -1,74 +1,31 @@
 ---
-import { Image } from 'astro:assets';
-import AboutHeroImage from '../assets/blog-placeholder-about.jpg';
-import BaseHead from '../components/BaseHead.astro';
-import Footer from '../components/Footer.astro';
-import Header from '../components/Header.astro';
-import { SITE_TITLE, GITHUB_REPO_URL } from '../consts';
+import Layout from '../layouts/Layout.astro';
+import { GITHUB_REPO_URL, SITE_TITLE } from '../consts';
 
 const description =
-	"About This Sample: a custom blog built and deployed end to end.";
+	"About this sample: a custom blog built and deployed end to end.";
 ---
 
-<!doctype html>
-<html lang="en">
-	<head>
-		<BaseHead title={`About - ${SITE_TITLE}`} description={description} />
-	</head>
-	<body>
-		<Header />
-		<main>
-			<div class="hero-image">
-				<Image width={1020} height={510} src={AboutHeroImage} alt="" />
-			</div>
-			<div class="prose">
-				<h1>About this blog</h1>
-				<p>
-					I'm building gcp-demos: a handful of small apps, each one a real, end-to-end demo of a
-					particular stack, deployed the way a real product would be - real infra, real third-party
-					services in test/sandbox mode where money's involved, real bugs. This blog is one of them.
-				</p>
-				<p>
-					This is an Astro site. It serves prerendered html for static pages and renders other pages on
-					the fly by fetching content from a self-hosted Payload CMS instance running alongside it.
-				</p>
-				<p>
-					If you're looking at this expecting a real publication - it isn't one - it merely exists to
-					showcase the integration of Astro with Payload.&nbsp;
-					<a 
-						href={GITHUB_REPO_URL} 
-						target="_blank" 
-						rel="noopener noreferrer"
-					>
-						View on Github
-					</a>
-				</p>
-			</div>
-		</main>
-		<Footer />
-	</body>
-</html>
-
-<style>
-	main {
-		width: calc(100% - 2em);
-		max-width: 100%;
-		margin: 0;
-	}
-	.hero-image {
-		width: 100%;
-	}
-	.hero-image img {
-		display: block;
-		margin: 0 auto;
-		border-radius: 12px;
-		box-shadow: var(--box-shadow);
-	}
-	.prose {
-		width: 720px;
-		max-width: calc(100% - 2em);
-		margin: auto;
-		padding: 1em;
-		color: rgb(var(--gray-dark));
-	}
-</style>
+<Layout title={`About - ${SITE_TITLE}`} description={description}>
+	<h1>About</h1>
+	<p>
+		I'm building gcp-demos: a handful of small apps, each one a real,
+		end-to-end demo of a particular stack, deployed the way a real product
+		would be - real infra, real third-party services in test/sandbox mode
+		where money's involved, real bugs. This blog is one of them.
+	</p>
+	<p>
+		This is an Astro site. It serves prerendered HTML for static pages and
+		renders other pages on the fly by fetching content from a self-hosted
+		Payload CMS instance running alongside it.
+	</p>
+	<h2>Not a real publication</h2>
+	<p>
+		If you're looking at this expecting a real publication - it isn't one -
+		it merely exists to showcase the integration of Astro with Payload, and
+		the real Docker releases and GCP infrastructure behind both.&nbsp;
+		<a href={GITHUB_REPO_URL} target="_blank" rel="noopener noreferrer">
+			View on GitHub
+		</a>
+	</p>
+</Layout>
