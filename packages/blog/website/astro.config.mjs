@@ -16,7 +16,21 @@ export default defineConfig({
     sitemap(),
     icon({
       include: {
-        'simple-icons': ['github', 'linkedin'],
+        'simple-icons': [
+          'github',
+          'linkedin',
+          'astro',
+          'typescript',
+          'nextdotjs',
+          'react',
+          'payloadcms',
+          'sqlite',
+          'nodedotjs',
+          'docker',
+          'nginx',
+          'googlecloud',
+          'pulumi',
+        ],
         mdi: ['email-outline'],
       },
     }),

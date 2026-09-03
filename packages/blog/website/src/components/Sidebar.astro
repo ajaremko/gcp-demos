@@ -1,5 +1,5 @@
 ---
-import { AUTHOR_NAME, AUTHOR_TAGLINE, SITE_TITLE, SOCIAL_LINKS } from '../consts'
+import { AUTHOR_NAME, AUTHOR_TAGLINE, BUILT_WITH, SITE_TITLE,  } from '../consts'
 import Avatar from './Avatar.astro'
 import HeaderLink from './HeaderLink.astro'
 import { Icon } from 'astro-icon/components'
@@ -20,18 +20,20 @@ const navItems = [
 		</a>
 		<a href="/" class="author__title">{AUTHOR_NAME}</a>
 		<p class="author__subtitle">{AUTHOR_TAGLINE}</p>
+		<p class="stack-heading">Built with</p>
 		<ul class="contacts">
 			{
-				SOCIAL_LINKS.map((social) => (
+				BUILT_WITH.map((tech) => (
 					<li class="contacts__item">
 						<a
-							href={social.href}
+							href={tech.href}
 							class="contacts__link"
-							aria-label={social.label}
-							target={social.href.startsWith('http') ? '_blank' : undefined}
-							rel={social.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+							title={tech.label}
+							aria-label={tech.label}
+							target="_blank"
+							rel="noopener noreferrer"
 						>
-							<Icon name={social.name} />
+							<Icon name={tech.name} />
 						</a>
 					</li>
 				))
@@ -80,6 +82,11 @@ const navItems = [
 		margin: 0 0 1.625rem;
 		color: #888;
 		line-height: 1.625rem;
+	}
+	.stack-heading {
+		margin: 0 0 0.5rem;
+		color: #888;
+		font-size: 0.875rem;
 	}
 	.contacts {
 		display: flex;
