@@ -7,7 +7,8 @@ configuration, reading its logs, and debugging problems.
 
 | Variable            | Type      | Purpose                                                | Visibility | Notes                                                                                        |
 | ------------------- | --------- | ------------------------------------------------------ | ---------- | -------------------------------------------------------------------------------------------- |
-| `ADMIN_API_URL`     | `string`  | Base URL of the `blog-admin` origin to read posts from | private    | Throws (`fatal`-logged) at request time if unset. In production it's `http://127.0.0.1:3000` |
+| `ADMIN_API_URL`     | `string`  | Base URL of the `blog-admin` origin to read posts from | private    | Throws (`fatal`-logged) at request time if unset. In production it's `http://127.0.0.1:3000` - an internal-only address, not reachable from a visitor's browser |
+| `ADMIN_PUBLIC_URL`  | `string`  | Browser-reachable base URL for `blog-admin`'s media files | private    | Throws (`fatal`-logged) at request time if unset. Different from `ADMIN_API_URL` in production, where nginx fronts both apps on the site's public domain - locally the two are the same (`http://localhost:4000`) since there's no gateway separating them |
 | `PORT`              | `number`  | Port the server listens on (`4321`)                    | private    |                                                                                              |
 | `LOG_LEVEL`         | `enum`    | Overrides the default pino level                       | private    | Defaults to `info` in production, `trace` otherwise                                          |
 | `PRETTY_PRINT_LOGS` | `boolean` | Whether logs are pretty-printed vs. JSON               | private    | Defaults to `true` outside production, `false` in it                                         |
@@ -62,6 +63,14 @@ Two operational consequences worth knowing:
 
 - **Every page returns 502** - `ADMIN_API_URL` is almost certainly wrong or
   `blog-admin` is unreachable; check the `error`/`fatal` log line first
+- **Hero images are missing on every post** - check two things:
+  `ADMIN_PUBLIC_URL` is set correctly (a wrong value produces a broken
+  `<img>` src, not a missing one), and that `blog-admin`'s `media`
+  collection still grants public read access
+  (`packages/blog/admin/src/collections/Media.ts`) - without it, the
+  admin API silently returns `heroImage` as an unpopulated raw ID for
+  anonymous requests rather than erroring, so the field just comes back
+  empty.
 - **A draft post is visible, or a published one is missing** - not this
   project's concern to fix; the posts loader (`src/loaders/posts.ts`) passes
   `where[_status][equals]=published` straight through to `blog-admin`'s

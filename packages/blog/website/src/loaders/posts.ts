@@ -1,7 +1,7 @@
 import { z } from 'astro/zod'
 import type { LiveLoader } from 'astro/loaders'
 
-import { fetchData } from '../data/fetchData'
+import { fetchData, getAdminPublicUrl } from '../data/fetchData'
 import { pinoLogger } from '../logging/pino'
 
 export const blogPostSchema = z.object({
@@ -24,6 +24,19 @@ interface Document {
   contentHTML: string
 }
 
+// The admin API's media url is only relative to blog-admin's own origin
+// (e.g. "/api/media/file/hero-1.jpg") when local-disk storage is in use -
+// resolve it against the browser-reachable admin origin so it's a usable
+// absolute <img src>. When GCS storage is enabled (production), Payload
+// already returns a full absolute URL straight to the bucket - leave
+// that alone rather than prepending anything onto it.
+function resolveHeroImageUrl(url: string): string {
+  if (/^https?:\/\//.test(url)) {
+    return url
+  }
+  return `${getAdminPublicUrl()}${url}`
+}
+
 function toEntry(post: Document) {
   return {
     id: post.slug,
@@ -32,7 +45,9 @@ function toEntry(post: Document) {
       description: post.excerpt,
       pubDate: new Date(post.publishedDate),
       updatedDate: new Date(post.updatedAt),
-      heroImage: post.heroImage?.url ?? undefined,
+      heroImage: post.heroImage?.url
+        ? resolveHeroImageUrl(post.heroImage.url)
+        : undefined,
     },
     rendered: { html: post.contentHTML },
     cacheHint: {
@@ -53,7 +68,7 @@ export const postsLoader: LiveLoader<BlogPostData, { id: string }> = {
   async loadCollection() {
     try {
       const data = await fetchPosts(
-        '/posts?where[_status][equals]=published&limit=0',
+        '/posts?where[_status][equals]=published&limit=0&depth=1',
       )
       return {
         entries: data.docs.map(toEntry),
@@ -69,7 +84,7 @@ export const postsLoader: LiveLoader<BlogPostData, { id: string }> = {
   async loadEntry({ filter }) {
     try {
       const data = await fetchPosts(
-        `/posts?where[slug][equals]=${encodeURIComponent(filter.id)}&where[_status][equals]=published&limit=1`,
+        `/posts?where[slug][equals]=${encodeURIComponent(filter.id)}&where[_status][equals]=published&limit=1&depth=1`,
       )
       const post = data.docs[0]
       if (!post) {

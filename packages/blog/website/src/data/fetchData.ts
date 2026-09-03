@@ -20,6 +20,24 @@ function getAdminApiUrl(): string {
 }
 
 /**
+ * The browser-reachable origin for the admin API - distinct from
+ * ADMIN_API_URL, which in production is an internal-only address (the
+ * astro server's own fetch target, not reachable from a visitor's
+ * browser). Used to turn relative media URLs from the admin API into
+ * absolute URLs usable in an <img src>.
+ */
+export function getAdminPublicUrl(): string {
+  const url = process.env.ADMIN_PUBLIC_URL
+  if (!url) {
+    pinoLogger.fatal(
+      'Missing required configuration: ADMIN_PUBLIC_URL must be set to build public media URLs',
+    )
+    throw new Error('ADMIN_PUBLIC_URL must be set to build public media URLs.')
+  }
+  return url.replace(/\/+$/, '')
+}
+
+/**
  * Fetch data from the admin API at the specified path.
  * Throws an error if the request fails or if the API returns errors.
  */
