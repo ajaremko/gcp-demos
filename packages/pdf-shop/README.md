@@ -19,6 +19,41 @@ flow.
 | [`worker-e2e`](./worker-e2e/README.md)   | End-to-end tests for `worker`, run against a real, live-served instance.                                                                                |
 | [`infra`](./infra/README.md)             | Pulumi IaC deploying the system to GCP - Cloud Run services for `website`/`worker`, the shared data bucket, the Pub/Sub notification pipeline, and IAM. |
 
+## Architecture
+
+Two Cloud Run services share one Cloud Storage bucket: `website`, which
+is public, and `worker`, which is private and reachable only by the
+Pub/Sub subscription that pushes to it. Both mount the bucket as a
+filesystem and call [`application`](./application/README.md) for the
+actual work.
+
+That bucket is the entire datastore - there's no database. Each stage of
+a document's lifecycle writes its own record, nothing is ever mutated,
+and a record's presence *is* the state. Records are grouped by stage
+rather than by document, which is what lets a storage notification tell
+an order being placed apart from a payment being confirmed. See
+[`application`](./application/README.md#persistence) for the record
+shapes.
+
+```
+/create ──▶ order record ──▶ storage notification ──▶ worker ──▶ document
+   │                                                               │
+   ▼                                                               ▼
+/purchase ──▶ Stripe ──▶ payment record ────────▶ /download (waits for both)
+```
+
+Writing the order record is the only thing that triggers generation, and
+it happens on a notification rather than a request, so the customer pays
+through Stripe in parallel while the worker builds the document. The
+download waits until both the payment and generation records exist -
+which means the worker never learns whether a document was paid for, and
+payment never waits on generation. A notification the worker can't
+process is retried and eventually dead-lettered rather than dropped.
+
+Locally the two apps default to the same data directory, so the whole
+flow runs without GCP, with a direct request to `worker` standing in for
+the storage notification.
+
 ## Releasing
 
 New Docker images for `pdf-shop-*` projects are cut via the root
