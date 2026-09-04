@@ -4,8 +4,9 @@ A workspace for small demo applications deployed to GCP via IaC.
 
 ### Custom Blog
 
+[View the docs](./packages/blog/README.md)
 [View the live demo](https://blog.alfredyoung.com)
-[Admin App](https://blog.alfredyoung.com/admin)
+[View the live admin app](https://blog.alfredyoung.com/admin)
 
 A demo blog with separate front ends for readers and admins
 behind a single public origin. Content is authored on a Next.js admin interface while content is read on public Astro website. Persistence is provided by SQLite replicated to
@@ -13,6 +14,7 @@ a GCP Cloud Storage bucket and a separate Cloud Storage bucket for file uploads.
 
 ### PDF Shop
 
+[View the docs](./packages/pdf-shop/README.md)
 [View the live demo](https://pdf-shop.alfredyoung.com)
 
 A demo shop where users order a customized document, pay for it via
