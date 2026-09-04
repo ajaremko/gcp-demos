@@ -99,7 +99,7 @@ exec litestream replicate -config ${litestreamConfPath} -exec "node packages/blo
 const litestreamStartupScriptSecretVersion =
   makeLitestreamStartupScriptSecretVersion(litestreamStartupScript)
 
-export const websiteService = new gcp.cloudrunv2.Service(
+export const blogService = new gcp.cloudrunv2.Service(
   `${tag}-service`,
   {
     location: gcpRegion,
@@ -150,7 +150,7 @@ export const websiteService = new gcp.cloudrunv2.Service(
           name: 'gateway',
           image: 'nginx:1.27-alpine',
           ports: { containerPort: 8080 },
-          dependsOns: ['website', 'cms'],
+          dependsOns: ['website', 'admin'],
           startupProbe: {
             httpGet: { path: '/healthz', port: 8080 },
             periodSeconds: 1,
@@ -183,7 +183,7 @@ export const websiteService = new gcp.cloudrunv2.Service(
           ],
         },
         {
-          name: 'cms',
+          name: 'admin',
           image: getImageUrl('blog-admin', adminImageTag),
           resources: {
             limits: { cpu: '1', memory: '512Mi' },
@@ -232,10 +232,10 @@ export const websiteService = new gcp.cloudrunv2.Service(
   },
 )
 
-export const websiteServicePublicAccess = new gcp.cloudrunv2.ServiceIamMember(
+export const blogServicePublicAccess = new gcp.cloudrunv2.ServiceIamMember(
   `${tag}-service-public-access`,
   {
-    name: websiteService.name,
+    name: blogService.name,
     location: gcpRegion,
     role: 'roles/run.invoker',
     member: 'allUsers',

@@ -1,5 +1,5 @@
-import { websiteService } from './service'
+import { blogService } from './service'
 
-export const websiteServiceName = websiteService.name
+export const blogServiceName = blogService.name
 
 export { gcpProject, gcpRegion } from './config'
