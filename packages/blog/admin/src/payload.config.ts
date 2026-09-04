@@ -8,6 +8,7 @@ import sharp from 'sharp'
 
 import { Media } from './collections/Media'
 import { Posts } from './collections/Posts'
+import { Tags } from './collections/Tags'
 import { Users } from './collections/Users'
 import { pinoLogger } from './logging/pino'
 
@@ -61,7 +62,7 @@ export default buildConfig({
       importMapFile: path.resolve(dirname, 'app/admin/importMap.js'),
     },
   },
-  collections: [Users, Media, Posts],
+  collections: [Users, Media, Posts, Tags],
   db: sqliteAdapter({
     client: {
       url: `file:${process.env.DB_PATH}`,

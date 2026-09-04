@@ -1,0 +1,114 @@
+---
+export const prerender = false;
+
+import { getLiveCollection, getLiveEntry } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import PostCard from '../../components/PostCard.astro';
+import { SITE_TITLE } from '../../consts';
+import { pinoLogger } from '../../logging/pino';
+
+const { tagSlug } = Astro.params;
+
+// The tag itself is looked up separately from its posts so an unknown slug
+// 404s, while a real tag with nothing published under it renders an empty
+// state instead - two genuinely different outcomes.
+const { entry: tag, error: tagError } = await getLiveEntry(
+	'tags',
+	tagSlug as string,
+);
+
+if (tagError && tagError.name === 'LiveEntryNotFoundError') {
+	// Astro wraps the loader's "not found" (returning undefined) into this
+	// specific error - a real 404, not a failure.
+	Astro.response.status = 404;
+} else if (tagError) {
+	pinoLogger.error({ err: tagError, tagSlug }, 'Failed to load tag');
+	Astro.response.status = 502;
+} else if (!tag) {
+	Astro.response.status = 404;
+}
+
+// Only fetched once the tag is known to exist, so an unknown slug costs one
+// request rather than two.
+const postsResult = tag
+	? await getLiveCollection('blog', { tag: tag.data.slug })
+	: undefined;
+
+if (postsResult?.error) {
+	pinoLogger.error(
+		{ err: postsResult.error, tagSlug },
+		'Failed to load posts for tag',
+	);
+	Astro.response.status = 502;
+}
+
+const posts = (postsResult?.entries ?? []).sort(
+	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+---
+
+{
+	tag ? (
+		<Layout
+			title={`${tag.data.name} · ${SITE_TITLE}`}
+			description={`Posts tagged ${tag.data.name}`}
+		>
+			<nav class="navHeader">
+				<a href="/tag/" class="navHeader__back">
+					&larr; All tags
+				</a>
+			</nav>
+			<h1 class="tagTitle">{tag.data.name}</h1>
+			<p class="tagCount">
+				{posts.length} {posts.length === 1 ? 'post' : 'posts'}
+			</p>
+			<ul class="posts">
+				{posts.map((post) => (
+					<PostCard id={post.id} data={post.data} />
+				))}
+			</ul>
+			{posts.length === 0 && !postsResult?.error && (
+				<p class="empty">Nothing published under this tag yet.</p>
+			)}
+		</Layout>
+	) : (
+		<Layout title={`Tag not found · ${SITE_TITLE}`} description="Tag not found">
+			<h1 class="tagTitle">Tag not found</h1>
+			<p class="empty">
+				No such tag. <a href="/tag/">Browse all tags</a>.
+			</p>
+		</Layout>
+	)
+}
+
+<style>
+	.navHeader {
+		border-bottom: 0.0625rem solid var(--border);
+		margin-bottom: 1.625rem;
+		padding-bottom: 1.625rem;
+	}
+	.navHeader__back {
+		color: var(--text-muted);
+		font-size: 1rem;
+	}
+	.navHeader__back:hover,
+	.navHeader__back:focus {
+		color: var(--link);
+	}
+	.tagTitle {
+		margin-bottom: 0.40625rem;
+	}
+	.tagCount {
+		margin: 0 0 2.4375rem;
+		color: var(--text-muted);
+		font-size: 0.875rem;
+	}
+	.posts {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+	.empty {
+		color: var(--text-muted);
+	}
+</style>

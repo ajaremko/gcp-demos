@@ -72,6 +72,8 @@ export default defineConfig({
     // '/blog' itself is just a redirect to '/', not worth caching.
     '/': { maxAge: 300, swr: 60 },
     '/posts/[...slug]': { maxAge: 300, swr: 60 },
+    '/tag': { maxAge: 300, swr: 60 },
+    '/tag/[tagSlug]': { maxAge: 300, swr: 60 },
   },
 
   adapter: node({

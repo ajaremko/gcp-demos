@@ -56,8 +56,10 @@ Two operational consequences worth knowing:
 - **Up to ~6 minutes of staleness after a `blog-admin` edit is normal**,
   not a bug - that's `maxAge` + `swr` combined. The posts loader
   (`src/loaders/posts.ts`) attaches cache tags (`posts`,
-  `post:<slug>`) for tag-based invalidation, but nothing in this
-  project currently calls Astro's invalidation API to use them.
+  `post:<slug>`, and one `tag:<slug>` per tag on the post) for
+  tag-based invalidation, and the tags loader (`src/loaders/tags.ts`)
+  attaches `tags` and `tag:<slug>` - but nothing in this project
+  currently calls Astro's invalidation API to use them.
 
 ## Debugging problems
 
@@ -71,6 +73,19 @@ Two operational consequences worth knowing:
   admin API silently returns `heroImage` as an unpopulated raw ID for
   anonymous requests rather than erroring, so the field just comes back
   empty.
+- **Tag chips have vanished site-wide and every `/tag` page 502s, but
+  posts still render** - the same access-control trap as hero images, one
+  collection over: `blog-admin`'s `tags` collection must grant public read
+  (`packages/blog/admin/src/collections/Tags.ts`). Without it the admin API
+  silently returns `posts.tags` as unpopulated raw IDs to anonymous
+  requests (and 403s `/api/tags` outright) rather than erroring. Confirm
+  with `curl -sg '<admin>/api/posts?depth=1&limit=1'` - `tags` coming back
+  as `[3, 4, 5]` instead of objects is the tell. The posts loader drops
+  unpopulated tags on purpose so this costs the chips rather than the
+  whole listing.
+- **A tag page shows no posts but the tag clearly has some** - those
+  posts are drafts. `/tag/<slug>` returns 200 with an empty state for a
+  real tag with nothing published; only an unknown slug 404s.
 - **A draft post is visible, or a published one is missing** - not this
   project's concern to fix; the posts loader (`src/loaders/posts.ts`) passes
   `where[_status][equals]=published` straight through to `blog-admin`'s

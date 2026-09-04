@@ -23,6 +23,18 @@ const ADMIN_PASSWORD = 'password'
 
 const POST_COUNT = 20
 
+// Fixed rather than generated so a re-run assigns the same tags to the same
+// posts, and so the slugs are stable enough to hardcode in a /tag/<slug>
+// smoke test.
+const TAGS = [
+  { name: 'Astro', slug: 'astro' },
+  { name: 'Payload CMS', slug: 'payload-cms' },
+  { name: 'Google Cloud', slug: 'google-cloud' },
+  { name: 'TypeScript', slug: 'typescript' },
+  { name: 'SQLite', slug: 'sqlite' },
+  { name: 'Infrastructure', slug: 'infrastructure' },
+]
+
 const LOREM_WORDS = [
   'lorem',
   'ipsum',
@@ -203,7 +215,45 @@ async function ensureAdmin(payload: Payload): Promise<void> {
   console.log(`[seed] admin credentials: ${ADMIN_EMAIL} / ${ADMIN_PASSWORD}`)
 }
 
-async function ensurePost(payload: Payload, index: number): Promise<void> {
+async function ensureTags(payload: Payload): Promise<number[]> {
+  const ids: number[] = []
+
+  for (const tag of TAGS) {
+    const existing = await payload.find({
+      collection: 'tags',
+      where: { slug: { equals: tag.slug } },
+      limit: 1,
+    })
+
+    if (existing.docs.length > 0) {
+      console.log(`[seed] tag "${tag.slug}" already exists, skipping`)
+      ids.push(existing.docs[0].id as number)
+      continue
+    }
+
+    const created = await payload.create({ collection: 'tags', data: tag })
+    console.log(`[seed] created tag "${tag.slug}"`)
+    ids.push(created.id as number)
+  }
+
+  return ids
+}
+
+// Deterministic rather than random so every post keeps the same tags across
+// runs: post N gets 1-3 tags starting at position N in the list, wrapping.
+function tagsForPost(tagIds: number[], index: number): number[] {
+  const count = 1 + (index % 3)
+  return Array.from(
+    { length: count },
+    (_, offset) => tagIds[(index + offset) % tagIds.length],
+  )
+}
+
+async function ensurePost(
+  payload: Payload,
+  index: number,
+  tagIds: number[],
+): Promise<void> {
   const slug = `lorem-ipsum-post-${index}`
 
   const existing = await payload.find({
@@ -243,6 +293,7 @@ async function ensurePost(payload: Payload, index: number): Promise<void> {
       heroImage: media.id,
       content: randomLexicalContent() as any,
       publishedDate: publishedDate.toISOString(),
+      tags: tagsForPost(tagIds, index),
       _status: 'published',
     },
   })
@@ -255,8 +306,10 @@ async function run(): Promise<void> {
 
   await ensureAdmin(payload)
 
+  const tagIds = await ensureTags(payload)
+
   for (let i = 1; i <= POST_COUNT; i++) {
-    await ensurePost(payload, i)
+    await ensurePost(payload, i, tagIds)
   }
 
   console.log('[seed] done')

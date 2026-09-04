@@ -1,11 +1,13 @@
 ---
 import type { BlogPostData } from '../loaders/posts';
 import FormattedDate from '../components/FormattedDate.astro';
+import TagList from '../components/TagList.astro';
 import Layout from './Layout.astro';
 
 type Props = BlogPostData;
 
-const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, tags } =
+	Astro.props;
 ---
 
 <Layout title={title} description={description}>
@@ -33,7 +35,9 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 			<slot />
 		</div>
 	</article>
-	<div class="postFooter" />
+	<div class="postFooter">
+		<TagList tags={tags} />
+	</div>
 </Layout>
 
 <style>
@@ -66,5 +70,6 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 	.postFooter {
 		border-top: 0.0625rem solid var(--border);
 		margin-top: 3.25rem;
+		padding-top: 1.625rem;
 	}
 </style>

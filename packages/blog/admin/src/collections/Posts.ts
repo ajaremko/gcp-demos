@@ -7,7 +7,7 @@ export const Posts: CollectionConfig = {
   slug: 'posts',
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'slug', '_status', 'publishedDate'],
+    defaultColumns: ['title', 'slug', 'tags', '_status', 'publishedDate'],
   },
   access: {
     // Authenticated (admin) requests see everything, including drafts.
@@ -52,6 +52,16 @@ export const Posts: CollectionConfig = {
       name: 'publishedDate',
       type: 'date',
       required: true,
+    },
+    {
+      name: 'tags',
+      type: 'relationship',
+      relationTo: 'tags',
+      hasMany: true,
+      index: true,
+      admin: {
+        position: 'sidebar',
+      },
     },
     {
       // Rendered HTML of `content`, computed on read so the API hands back

@@ -1,0 +1,77 @@
+---
+import type { BlogPostData } from '../loaders/posts';
+import FormattedDate from './FormattedDate.astro';
+import TagList from './TagList.astro';
+
+interface Props {
+	/** The post's slug - live collection entries use it as their id. */
+	id: string;
+	data: BlogPostData;
+}
+
+const { id, data } = Astro.props;
+---
+
+<li class="post-card">
+	<a href={`/posts/${id}/`} class="post-card__link">
+		{
+			data.heroImage && (
+				<img
+					class="post-card__image"
+					width="720"
+					height="360"
+					src={data.heroImage}
+					alt=""
+					loading="lazy"
+				/>
+			)
+		}
+		<h2 class="post-card__title">{data.title}</h2>
+		<p class="post-card__date">
+			<FormattedDate date={data.pubDate} />
+		</p>
+		<p class="post-card__excerpt">{data.description}</p>
+	</a>
+	{
+		data.tags.length > 0 && (
+			<div class="post-card__tags">
+				<TagList tags={data.tags} compact />
+			</div>
+		)
+	}
+</li>
+
+<style>
+	.post-card {
+		margin-bottom: 3.25rem;
+	}
+	.post-card__link {
+		display: block;
+		color: inherit;
+	}
+	.post-card__image {
+		display: block;
+		width: 100%;
+		margin-bottom: 0.8125rem;
+		border-radius: 8px;
+	}
+	.post-card__title {
+		margin-bottom: 0.40625rem;
+	}
+	.post-card__date {
+		margin: 0 0 0.8125rem;
+		color: var(--text-muted);
+		font-size: 0.875rem;
+	}
+	.post-card__excerpt {
+		margin: 0;
+		color: var(--text);
+	}
+	.post-card__link:hover .post-card__title,
+	.post-card__link:focus .post-card__title {
+		color: var(--link);
+	}
+	.post-card__tags {
+		margin-top: 0.8125rem;
+	}
+</style>

@@ -2,8 +2,8 @@
 export const prerender = false;
 
 import { getLiveCollection } from 'astro:content';
-import FormattedDate from '../components/FormattedDate.astro';
 import Layout from '../layouts/Layout.astro';
+import PostCard from '../components/PostCard.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 import { pinoLogger } from '../logging/pino';
 
@@ -19,29 +19,7 @@ const posts = (entries ?? []).sort(
 
 <Layout title={SITE_TITLE} description={SITE_DESCRIPTION}>
 	<ul class="posts">
-		{
-			posts.map((post) => (
-				<li class="post-card">
-					<a href={`/posts/${post.id}/`} class="post-card__link">
-						{post.data.heroImage && (
-							<img
-								class="post-card__image"
-								width="720"
-								height="360"
-								src={post.data.heroImage}
-								alt=""
-								loading="lazy"
-							/>
-						)}
-						<h2 class="post-card__title">{post.data.title}</h2>
-						<p class="post-card__date">
-							<FormattedDate date={post.data.pubDate} />
-						</p>
-						<p class="post-card__excerpt">{post.data.description}</p>
-					</a>
-				</li>
-			))
-		}
+		{posts.map((post) => <PostCard id={post.id} data={post.data} />)}
 	</ul>
 	{
 		posts.length === 0 && !error && (
@@ -55,35 +33,6 @@ const posts = (entries ?? []).sort(
 		list-style: none;
 		margin: 0;
 		padding: 0;
-	}
-	.post-card {
-		margin-bottom: 3.25rem;
-	}
-	.post-card__link {
-		display: block;
-		color: inherit;
-	}
-	.post-card__image {
-		display: block;
-		width: 100%;
-		margin-bottom: 0.8125rem;
-		border-radius: 8px;
-	}
-	.post-card__title {
-		margin-bottom: 0.40625rem;
-	}
-	.post-card__date {
-		margin: 0 0 0.8125rem;
-		color: var(--text-muted);
-		font-size: 0.875rem;
-	}
-	.post-card__excerpt {
-		margin: 0;
-		color: var(--text);
-	}
-	.post-card__link:hover .post-card__title,
-	.post-card__link:focus .post-card__title {
-		color: var(--link);
 	}
 	.empty {
 		color: var(--text-muted);

@@ -1,0 +1,59 @@
+---
+import type { BlogPostData } from '../loaders/posts';
+
+interface Props {
+	tags: BlogPostData['tags'];
+	/** Renders the chips smaller, for use inside a post card. */
+	compact?: boolean;
+}
+
+const { tags, compact = false } = Astro.props;
+---
+
+{
+	tags.length > 0 && (
+		<ul class:list={['tags', { 'tags--compact': compact }]}>
+			{tags.map((tag) => (
+				<li class="tags__item">
+					<a class="tags__link" href={`/tag/${tag.slug}/`}>
+						{tag.name}
+					</a>
+				</li>
+			))}
+		</ul>
+	)
+}
+
+<style>
+	.tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+	.tags__item {
+		margin: 0;
+		padding: 0;
+	}
+	.tags__link {
+		display: inline-block;
+		padding: 0.125rem 0.625rem;
+		border: 1px solid var(--border);
+		border-radius: 999px;
+		color: var(--text-muted);
+		font-size: 0.875rem;
+		line-height: 1.375rem;
+		text-decoration: none;
+	}
+	.tags__link:hover,
+	.tags__link:focus {
+		border-color: var(--accent);
+		color: var(--text);
+	}
+	.tags--compact .tags__link {
+		padding: 0 0.5rem;
+		font-size: 0.8125rem;
+	}
+</style>

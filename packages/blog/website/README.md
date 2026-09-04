@@ -27,13 +27,19 @@ See the full [runbook](./RUNBOOK.md) for more details about operation.
 
 ## Routes
 
-| Path            | Purpose                                   |
-| --------------- | ----------------------------------------- |
-| `/`             | Post listing, live-loaded at request time |
-| `/about`        | About page                                |
-| `/contact`      | Contact page                              |
-| `/posts/<slug>` | A single post                             |
-| `/rss.xml`      | RSS feed of published posts               |
+| Path            | Purpose                                        |
+| --------------- | ---------------------------------------------- |
+| `/`             | Post listing, live-loaded at request time      |
+| `/about`        | About page                                     |
+| `/contact`      | Contact page                                   |
+| `/posts/<slug>` | A single post                                  |
+| `/tag`          | All tags that have at least one published post |
+| `/tag/<slug>`   | Published posts carrying that tag              |
+| `/rss.xml`      | RSS feed of published posts                    |
+
+`/tag/<slug>` 404s for a tag that doesn't exist, but returns 200 with an
+empty state for a real tag whose only posts are drafts. Filtering happens
+in Payload (`where[tags.slug][equals]=<slug>`), not in the page.
 
 ## Local setup
 

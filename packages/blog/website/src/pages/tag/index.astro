@@ -1,0 +1,91 @@
+---
+export const prerender = false;
+
+import { getLiveCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import { SITE_TITLE } from '../../consts';
+import { pinoLogger } from '../../logging/pino';
+
+// Counts come from the posts the site would show anyway rather than a
+// per-tag count query - the posts loader already returns every published
+// post unpaginated, so this is one extra request rather than one per tag.
+const [tagsResult, postsResult] = await Promise.all([
+	getLiveCollection('tags'),
+	getLiveCollection('blog'),
+]);
+
+const error = tagsResult.error ?? postsResult.error;
+if (error) {
+	pinoLogger.error({ err: error }, 'Failed to load tags');
+	Astro.response.status = 502;
+}
+
+const counts = new Map<string, number>();
+for (const post of postsResult.entries ?? []) {
+	for (const tag of post.data.tags) {
+		counts.set(tag.slug, (counts.get(tag.slug) ?? 0) + 1);
+	}
+}
+
+// A tag whose only posts are drafts would link to an empty page, so leave
+// it out of the index entirely.
+const tags = (tagsResult.entries ?? [])
+	.map((tag) => ({ ...tag.data, count: counts.get(tag.data.slug) ?? 0 }))
+	.filter((tag) => tag.count > 0)
+	.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+---
+
+<Layout title={`Tags · ${SITE_TITLE}`} description="Browse posts by tag">
+	<h1 class="tagsTitle">Tags</h1>
+	<ul class="tagIndex">
+		{
+			tags.map((tag) => (
+				<li class="tagIndex__item">
+					<a class="tagIndex__link" href={`/tag/${tag.slug}/`}>
+						{tag.name}
+					</a>
+					<span class="tagIndex__count">{tag.count}</span>
+				</li>
+			))
+		}
+	</ul>
+	{
+		tags.length === 0 && !error && (
+			<p class="empty">No tags with published posts yet.</p>
+		)
+	}
+</Layout>
+
+<style>
+	.tagsTitle {
+		margin-bottom: 1.625rem;
+	}
+	.tagIndex {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+	.tagIndex__item {
+		display: flex;
+		align-items: baseline;
+		gap: 0.625rem;
+		padding: 0.625rem 0;
+		border-bottom: 1px solid var(--border-light);
+	}
+	.tagIndex__link {
+		color: inherit;
+		font-size: 1.125rem;
+		text-decoration: none;
+	}
+	.tagIndex__link:hover,
+	.tagIndex__link:focus {
+		color: var(--link);
+	}
+	.tagIndex__count {
+		color: var(--text-faint);
+		font-size: 0.875rem;
+	}
+	.empty {
+		color: var(--text-muted);
+	}
+</style>

@@ -14,6 +14,7 @@ related content.
 | `users`    | Admin authentication (`auth: true`) - gates access to `/admin` and to unpublished content. No content fields of its own.                                                                                                                                                     |
 | `media`    | File uploads (images, etc.) - GCS-backed via the `gcsStorage` plugin when `GCS_MEDIA_BUCKET` is set, local disk otherwise. Used as the relation target for `posts.heroImage`.                                                                                                |
 | `posts`    | The blog content `blog-website` reads. Draft/publish workflow (`versions.drafts`); anonymous requests only ever see published posts. A computed `contentHTML` field renders the Lexical `content` field to HTML, so `blog-website` never has to parse Lexical's JSON itself. |
+| `tags`     | Taxonomy for posts, related from `posts.tags` (`hasMany`). Publicly readable, like `media`, so anonymous `depth=1` reads get populated tags rather than raw IDs. A blank `slug` is derived from `name` on save. No drafts - a tag has no unpublished state.                   |
 
 ## CLI commands
 
