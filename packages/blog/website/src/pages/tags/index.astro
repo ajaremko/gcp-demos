@@ -41,7 +41,7 @@ const tags = (tagsResult.entries ?? [])
 		{
 			tags.map((tag) => (
 				<li class="tagIndex__item">
-					<a class="tagIndex__link" href={`/tag/${tag.slug}/`}>
+					<a class="tagIndex__link" href={`/tags/${tag.slug}/`}>
 						{tag.name}
 					</a>
 					<span class="tagIndex__count">{tag.count}</span>

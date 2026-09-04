@@ -6,7 +6,7 @@ import { defineConfig, memoryCache } from 'astro/config'
 
 import node from '@astrojs/node'
 
-import icon from 'astro-icon';
+import icon from 'astro-icon'
 
 // https://astro.build/config
 export default defineConfig({
@@ -72,8 +72,8 @@ export default defineConfig({
     // '/blog' itself is just a redirect to '/', not worth caching.
     '/': { maxAge: 300, swr: 60 },
     '/posts/[...slug]': { maxAge: 300, swr: 60 },
-    '/tag': { maxAge: 300, swr: 60 },
-    '/tag/[tagSlug]': { maxAge: 300, swr: 60 },
+    '/tags': { maxAge: 300, swr: 60 },
+    '/tags/[tagSlug]': { maxAge: 300, swr: 60 },
   },
 
   adapter: node({

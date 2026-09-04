@@ -33,8 +33,8 @@ See the full [runbook](./RUNBOOK.md) for more details about operation.
 | `/about`        | About page                                     |
 | `/contact`      | Contact page                                   |
 | `/posts/<slug>` | A single post                                  |
-| `/tag`          | All tags that have at least one published post |
-| `/tag/<slug>`   | Published posts carrying that tag              |
+| `/tags`         | All tags that have at least one published post |
+| `/tags/<slug>`  | Published posts carrying that tag              |
 | `/rss.xml`      | RSS feed of published posts                    |
 
 `/tag/<slug>` 404s for a tag that doesn't exist, but returns 200 with an

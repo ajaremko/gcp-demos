@@ -5,13 +5,13 @@ configuration, reading its logs, and debugging problems.
 
 ## Configuring the environment
 
-| Variable            | Type      | Purpose                                                | Visibility | Notes                                                                                        |
-| ------------------- | --------- | ------------------------------------------------------ | ---------- | -------------------------------------------------------------------------------------------- |
-| `ADMIN_API_URL`     | `string`  | Base URL of the `blog-admin` origin to read posts from | private    | Throws (`fatal`-logged) at request time if unset. In production it's `http://127.0.0.1:3000` - an internal-only address, not reachable from a visitor's browser |
+| Variable            | Type      | Purpose                                                   | Visibility | Notes                                                                                                                                                                                                                                                      |
+| ------------------- | --------- | --------------------------------------------------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ADMIN_API_URL`     | `string`  | Base URL of the `blog-admin` origin to read posts from    | private    | Throws (`fatal`-logged) at request time if unset. In production it's `http://127.0.0.1:3000` - an internal-only address, not reachable from a visitor's browser                                                                                            |
 | `ADMIN_PUBLIC_URL`  | `string`  | Browser-reachable base URL for `blog-admin`'s media files | private    | Throws (`fatal`-logged) at request time if unset. Different from `ADMIN_API_URL` in production, where nginx fronts both apps on the site's public domain - locally the two are the same (`http://localhost:4000`) since there's no gateway separating them |
-| `PORT`              | `number`  | Port the server listens on (`4321`)                    | private    |                                                                                              |
-| `LOG_LEVEL`         | `enum`    | Overrides the default pino level                       | private    | Defaults to `info` in production, `trace` otherwise                                          |
-| `PRETTY_PRINT_LOGS` | `boolean` | Whether logs are pretty-printed vs. JSON               | private    | Defaults to `true` outside production, `false` in it                                         |
+| `PORT`              | `number`  | Port the server listens on (`4321`)                       | private    |                                                                                                                                                                                                                                                            |
+| `LOG_LEVEL`         | `enum`    | Overrides the default pino level                          | private    | Defaults to `info` in production, `trace` otherwise                                                                                                                                                                                                        |
+| `PRETTY_PRINT_LOGS` | `boolean` | Whether logs are pretty-printed vs. JSON                  | private    | Defaults to `true` outside production, `false` in it                                                                                                                                                                                                       |
 
 ## Logging
 
@@ -73,7 +73,7 @@ Two operational consequences worth knowing:
   admin API silently returns `heroImage` as an unpopulated raw ID for
   anonymous requests rather than erroring, so the field just comes back
   empty.
-- **Tag chips have vanished site-wide and every `/tag` page 502s, but
+- **Tag chips have vanished site-wide and every `/tags` page 502s, but
   posts still render** - the same access-control trap as hero images, one
   collection over: `blog-admin`'s `tags` collection must grant public read
   (`packages/blog/admin/src/collections/Tags.ts`). Without it the admin API
@@ -84,7 +84,7 @@ Two operational consequences worth knowing:
   unpopulated tags on purpose so this costs the chips rather than the
   whole listing.
 - **A tag page shows no posts but the tag clearly has some** - those
-  posts are drafts. `/tag/<slug>` returns 200 with an empty state for a
+  posts are drafts. `/tags/<slug>` returns 200 with an empty state for a
   real tag with nothing published; only an unknown slug 404s.
 - **A draft post is visible, or a published one is missing** - not this
   project's concern to fix; the posts loader (`src/loaders/posts.ts`) passes

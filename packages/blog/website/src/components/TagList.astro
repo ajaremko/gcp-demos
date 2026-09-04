@@ -15,7 +15,7 @@ const { tags, compact = false } = Astro.props;
 		<ul class:list={['tags', { 'tags--compact': compact }]}>
 			{tags.map((tag) => (
 				<li class="tags__item">
-					<a class="tags__link" href={`/tag/${tag.slug}/`}>
+					<a class="tags__link" href={`/tags/${tag.slug}/`}>
 						{tag.name}
 					</a>
 				</li>

@@ -54,7 +54,7 @@ const posts = (postsResult?.entries ?? []).sort(
 			description={`Posts tagged ${tag.data.name}`}
 		>
 			<nav class="navHeader">
-				<a href="/tag/" class="navHeader__back">
+				<a href="/tags/" class="navHeader__back">
 					&larr; All tags
 				</a>
 			</nav>
@@ -75,7 +75,7 @@ const posts = (postsResult?.entries ?? []).sort(
 		<Layout title={`Tag not found · ${SITE_TITLE}`} description="Tag not found">
 			<h1 class="tagTitle">Tag not found</h1>
 			<p class="empty">
-				No such tag. <a href="/tag/">Browse all tags</a>.
+				No such tag. <a href="/tags/">Browse all tags</a>.
 			</p>
 		</Layout>
 	)
