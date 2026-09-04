@@ -1,21 +1,24 @@
 # GCP Demos
 
-A workspace for small demo applications deployed to GCP via IaC.
+This is a workspace for small to medium-sized sample applications deployed to Google Cloud Platform. These projects are meant to showcase my professional abilities
+and practices.
+
+**These apps are intended to be operational** - meaning
+they deploy to real cloud infrastructure, produce meaningful logs, handle errors thoughtfully, release new versions and are thoroughly documented.
+
+Use the links below to browse the projects.
 
 ### Custom Blog
-
-[View the docs](./packages/blog/README.md)
-[View the live demo](https://blog.alfredyoung.com)
-[View the live admin app](https://blog.alfredyoung.com/admin)
 
 A demo blog with separate front ends for readers and admins
 behind a single public origin. Content is authored on a Next.js admin interface while content is read on public Astro website. Persistence is provided by SQLite replicated to
 a GCP Cloud Storage bucket and a separate Cloud Storage bucket for file uploads.
 
-### PDF Shop
+- [View the docs](./packages/blog/README.md)
+- [View the live demo](https://blog.alfredyoung.com)
+- [View the live admin app](https://blog.alfredyoung.com/admin)
 
-[View the docs](./packages/pdf-shop/README.md)
-[View the live demo](https://pdf-shop.alfredyoung.com)
+### PDF Shop
 
 A demo shop where users order a customized document, pay for it via
 Stripe, and download it once it's ready. Generation happens
@@ -23,6 +26,9 @@ asynchronously: placing an order makes it durable in storage, which
 triggers a background worker (via a GCP Cloud Storage → Pub/Sub
 notification) to produce the file - entirely decoupled from the payment
 flow.
+
+- [View the docs](./packages/pdf-shop/README.md)
+- [View the live demo](https://pdf-shop.alfredyoung.com)
 
 ## Releasing Docker images
 
