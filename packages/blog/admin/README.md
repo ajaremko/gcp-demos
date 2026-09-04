@@ -40,8 +40,7 @@ The app uses Payload to define the following collections. Payload also
 provides a derived React UI for admins to manage content via CRUD operations.
 
 - **`posts`** - shows drafts for authenticated (admin) requests - published
-  posts for anonymous requests. A virtual `contentHTML` field renders
-  `content` to HTML in a hook.
+  posts for anonymous requests.
 - **`media`** - file uploads with `alt` field
 - **`tags`** - topics used to filter and find posts
 - **`users`** - admin users
