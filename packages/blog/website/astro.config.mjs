@@ -46,6 +46,20 @@ export default defineConfig({
   },
 
   vite: {
+    // In production the website and blog-admin sit behind one nginx gateway
+    // on a single origin, so the root-relative media URLs the admin API
+    // returns ("/api/media/file/<filename>") resolve straight from the
+    // browser. Dev has no such gateway - astro is on 4321, blog-admin on
+    // 4000 - so proxy /api to reproduce that same-origin topology rather
+    // than absolutising URLs in the loader.
+    //
+    // Applies to `astro dev` only: under `astro preview`, or a locally run
+    // production build, there is no proxy and media requests 404.
+    server: {
+      proxy: {
+        '/api': 'http://localhost:4000',
+      },
+    },
     ssr: {
       noExternal: ['cookie'],
     },

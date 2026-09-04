@@ -1,7 +1,7 @@
 import { z } from 'astro/zod'
 import type { LiveLoader } from 'astro/loaders'
 
-import { fetchData, getAdminPublicUrl } from '../data/fetchData'
+import { fetchData } from '../data/fetchData'
 import { pinoLogger } from '../logging/pino'
 
 export const blogPostSchema = z.object({
@@ -9,7 +9,9 @@ export const blogPostSchema = z.object({
   description: z.string(),
   pubDate: z.coerce.date(),
   updatedDate: z.coerce.date().optional(),
-  heroImage: z.string().url().optional(),
+  // Root-relative (`/api/media/file/<filename>`), not absolute - so no
+  // `.url()` here, which requires a scheme. See the note on `Document.heroImage`.
+  heroImage: z.string().optional(),
   tags: z
     .array(z.object({ name: z.string(), slug: z.string() }))
     .default([]),
@@ -21,6 +23,13 @@ interface Document {
   slug: string
   title: string
   excerpt: string
+  // Always a root-relative path like "/api/media/file/hero-1.jpg", in dev
+  // and production alike. The GCS plugin only emits absolute bucket URLs
+  // when `disablePayloadAccessControl` is set, which it isn't - so Payload
+  // core's own route wins and streams the object out of the (private)
+  // bucket. Website and admin share one origin behind nginx, so the
+  // browser resolves this as-is; `astro.config.mjs` proxies /api in dev to
+  // reproduce that.
   heroImage: { url: string } | null
   publishedDate: string
   updatedAt: string
@@ -29,19 +38,6 @@ interface Document {
   // IDs if the admin's `tags` collection ever stops granting public read,
   // which Payload does silently rather than erroring. See `toEntry`.
   tags: Array<{ name: string; slug: string } | number> | null
-}
-
-// The admin API's media url is only relative to blog-admin's own origin
-// (e.g. "/api/media/file/hero-1.jpg") when local-disk storage is in use -
-// resolve it against the browser-reachable admin origin so it's a usable
-// absolute <img src>. When GCS storage is enabled (production), Payload
-// already returns a full absolute URL straight to the bucket - leave
-// that alone rather than prepending anything onto it.
-function resolveHeroImageUrl(url: string): string {
-  if (/^https?:\/\//.test(url)) {
-    return url
-  }
-  return `${getAdminPublicUrl()}${url}`
 }
 
 function toEntry(post: Document) {
@@ -63,9 +59,7 @@ function toEntry(post: Document) {
       description: post.excerpt,
       pubDate: new Date(post.publishedDate),
       updatedDate: new Date(post.updatedAt),
-      heroImage: post.heroImage?.url
-        ? resolveHeroImageUrl(post.heroImage.url)
-        : undefined,
+      heroImage: post.heroImage?.url ?? undefined,
       tags,
     },
     rendered: { html: post.contentHTML },

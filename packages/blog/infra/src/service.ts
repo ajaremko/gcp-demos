@@ -42,6 +42,17 @@ server {
   proxy_read_timeout 300s;
  
   location /admin  { proxy_pass http://127.0.0.1:3000; }
+  # Media is streamed out of the (private) GCS bucket by Payload itself, so
+  # every uncached view costs the admin container a multi-MB proxied read.
+  # Payload sends an ETag but no Cache-Control, so browsers revalidate at
+  # best. Deliberately not 'immutable'/1y: Payload keeps the uploader's
+  # original filename, so re-uploading under the same name must not be
+  # permanently stale - an hour, then the existing ETag makes revalidation
+  # a cheap 304. The server-level proxy_* directives above are inherited.
+  location ^~ /api/media/file/ {
+    proxy_pass http://127.0.0.1:3000;
+    add_header Cache-Control "public, max-age=3600, stale-while-revalidate=86400";
+  }
   location /api    { proxy_pass http://127.0.0.1:3000; }
   location /_next  { proxy_pass http://127.0.0.1:3000; }
   location = /healthz { return 200 'ok'; add_header Content-Type text/plain; }
@@ -182,6 +193,7 @@ export const blogService = new gcp.cloudrunv2.Service(
             { name: 'HOST', value: '0.0.0.0' },
             { name: 'PORT', value: '4321' },
             { name: 'ADMIN_API_URL', value: 'http://127.0.0.1:3000' },
+            { name: 'ADMIN_PUBLIC_URL', value: 'http://127.0.0.1:3000' },
             {
               name: 'LOG_LEVEL',
               value: 'info',

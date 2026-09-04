@@ -8,7 +8,6 @@ configuration, reading its logs, and debugging problems.
 | Variable            | Type      | Purpose                                                   | Visibility | Notes                                                                                                                                                                                                                                                      |
 | ------------------- | --------- | --------------------------------------------------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `ADMIN_API_URL`     | `string`  | Base URL of the `blog-admin` origin to read posts from    | private    | Throws (`fatal`-logged) at request time if unset. In production it's `http://127.0.0.1:3000` - an internal-only address, not reachable from a visitor's browser                                                                                            |
-| `ADMIN_PUBLIC_URL`  | `string`  | Browser-reachable base URL for `blog-admin`'s media files | private    | Throws (`fatal`-logged) at request time if unset. Different from `ADMIN_API_URL` in production, where nginx fronts both apps on the site's public domain - locally the two are the same (`http://localhost:4000`) since there's no gateway separating them |
 | `PORT`              | `number`  | Port the server listens on (`4321`)                       | private    |                                                                                                                                                                                                                                                            |
 | `LOG_LEVEL`         | `enum`    | Overrides the default pino level                          | private    | Defaults to `info` in production, `trace` otherwise                                                                                                                                                                                                        |
 | `PRETTY_PRINT_LOGS` | `boolean` | Whether logs are pretty-printed vs. JSON                  | private    | Defaults to `true` outside production, `false` in it                                                                                                                                                                                                       |
@@ -65,10 +64,15 @@ Two operational consequences worth knowing:
 
 - **Every page returns 502** - `ADMIN_API_URL` is almost certainly wrong or
   `blog-admin` is unreachable; check the `error`/`fatal` log line first
-- **Hero images are missing on every post** - check two things:
-  `ADMIN_PUBLIC_URL` is set correctly (a wrong value produces a broken
-  `<img>` src, not a missing one), and that `blog-admin`'s `media`
-  collection still grants public read access
+- **Hero images 404 in local dev** - media URLs from the admin API are
+  root-relative (`/api/media/file/<filename>`), which only resolves because
+  the website and `blog-admin` share one origin behind nginx in production.
+  Dev reproduces that with a vite proxy in `astro.config.mjs` (`/api` ->
+  `http://localhost:4000`), so check `blog-admin` is actually running on
+  4000. The proxy is a **dev-server** feature: under `astro preview`, or a
+  locally run production build, there is no proxy and media 404s.
+- **Hero images are missing on every post (no `<img>` at all)** - check
+  `blog-admin`'s `media` collection still grants public read access
   (`packages/blog/admin/src/collections/Media.ts`) - without it, the
   admin API silently returns `heroImage` as an unpopulated raw ID for
   anonymous requests rather than erroring, so the field just comes back
