@@ -49,6 +49,14 @@ npx payload migrate:fresh          # drop everything and start over
 production, before the server starts - see RUNBOOK.md's "Startup
 sequence."
 
+The commands above all load `payload.config.ts` through payload's tsx
+loader, which is fine locally but too slow for a container cold start. In
+production the migrate step instead runs against a prebuilt ESM copy of
+the config and migrations (`dist/`, from `scripts/build-config.mjs`, run
+as part of `npm run build`) with `--disable-transpile`. Nothing to do
+differently by hand - just be aware that `dist/` is generated, and that a
+config or migration change only reaches production on a rebuild.
+
 ## Seeding local data
 
 ```

@@ -12,7 +12,8 @@
     }
   },
   "scripts": {
-    "build": "NODE_ENV=production next build",
+    "build": "NODE_ENV=production next build && npm run build:config",
+    "build:config": "node scripts/build-config.mjs",
     "seed": "PAYLOAD_MIGRATING=true tsx src/scripts/seed.ts"
   },
   "dependencies": {

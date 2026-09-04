@@ -61,9 +61,12 @@ Error [ERR_MODULE_NOT_FOUND]: Cannot find module '.../node_modules/next/constant
 imported from .../payload.config.ts
 ```
 
-**Where:** Production only (`payload migrate`, or any real startup) -
-`payload.config.ts` is loaded as raw source via `PAYLOAD_CONFIG_PATH`, not
-through Next's bundler.
+**Where:** Production only (`payload migrate`, or any real startup) - the
+config is loaded via `PAYLOAD_CONFIG_PATH` by the `payload` CLI, outside
+Next's bundler. (It's now the prebuilt `dist/payload.config.js` rather than
+raw TS - see RUNBOOK.md's "What's in the image" - but esbuild leaves
+`next/constants` external, so the resolution trap below is unchanged and
+the hardcoded string must stay.)
 
 **Root cause:** Next's standalone output ships a *traced* copy of `next`
 itself (only what Next's own compiled code needs) nested under the

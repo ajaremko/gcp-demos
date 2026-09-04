@@ -7,8 +7,8 @@ import HeaderLink from './HeaderLink.astro'
 
 const navItems = [
 	{ href: '/', label: 'Home' },
-	// '/tag' rather than '/tags' so this stays highlighted on '/tags/<slug>'
-	// too - HeaderLink matches on the first path segment.
+	// Shares its first path segment with '/tags/<slug>', so this stays
+	// highlighted on tag pages too - HeaderLink matches on that segment.
 	{ href: '/tags', label: 'Tags' },
 	{ href: '/about', label: 'About' },
 	{ href: '/contact', label: 'Contact' },

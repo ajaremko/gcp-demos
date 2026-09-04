@@ -12,7 +12,7 @@ configuration, reading its logs, and debugging problems.
 | `GCS_MEDIA_BUCKET`    | `string`  | Bucket for Payload's upload/media storage                                                   | private    | Throws at startup if unset (outside `NODE_ENV=development`)                                                                   |
 | `GCS_DATA_BUCKET`     | `string`  | Set on the container, but read only by litestream's generated config, not by Payload itself | private    | Don't expect changing it at runtime to do anything - `litestream.yml` bakes the bucket name in at deploy time                 |
 | `PORT`                | `number`  | Port the server listens on (`3000`)                                                         | private    |                                                                                                                               |
-| `PAYLOAD_CONFIG_PATH` | `string`  | Absolute path to `payload.config.ts`, baked into the image                                  | private    | Set in the Dockerfile, not `service.ts` - see [`known-issues.md`](./known-issues.md) for why this must stay a raw-source path |
+| `PAYLOAD_CONFIG_PATH` | `string`  | Absolute path to the prebuilt `dist/payload.config.js`, baked into the image                | private    | Set in the Dockerfile, not `service.ts`. Only the `payload` CLI reads it - the server has its own bundled copy. Must stay set to *something*: unset, `findConfig()` falls back to a tsconfig lookup that throws in `/app` |
 | `LOG_LEVEL`           | `enum`    | Overrides the default pino level                                                            | private    | Defaults to `info` in production, `trace` otherwise                                                                           |
 | `PRETTY_PRINT_LOGS`   | `boolean` | Whether logs are pretty-printed vs. JSON                                                    | private    | Defaults to `true` outside production, `false` in it                                                                          |
 
@@ -33,15 +33,22 @@ The provided `LOG_LEVEL` is a threshold - logs are emitted for that level as wel
 
 ## Startup sequence
 
-The `cms` container's entrypoint (`commands`/`args` in
+The `admin` container's entrypoint (`commands`/`args` in
 `packages/blog/infra/src/service.ts`, overriding the Dockerfile's own
 `CMD`) copies a generated `run.sh` from a mounted secret and runs it:
 
 1. `mkdir -p /data`, then `litestream restore -if-replica-exists` from the
    GCS data bucket - populates `/data/blog.sqlite` from the last replica,
    if one exists.
-2. `npx payload migrate` - applies pending migrations (`src/migrations/`,
-   shipped as raw source in the image).
+2. `payload migrate --disable-transpile` - applies pending migrations,
+   run against the prebuilt `dist/payload.config.js` and `dist/migrations/`
+   (produced by `scripts/build-config.mjs` during `npm run build`) rather
+   than the raw TS source. Payload's CLI otherwise loads the config through
+   tsx's async worker-thread path and transpiles the config, every
+   collection and every migration on each start - that measured 11-23s
+   (median ~14s) of a ~19s cold start, while applying nothing. If you
+   change `payload.config.ts`, a collection, or add a migration, the
+   compiled copy only refreshes on a rebuild.
 3. `exec litestream replicate -exec "node packages/blog/admin/server.js"` -
    starts continuous replication, execing the real Next.js server as its
    subprocess for the life of the container.
@@ -50,11 +57,51 @@ A stuck/failing startup is almost always one of these three steps - check
 container logs for which of "Running litestream restore"/"Running payload
 migrate"/"Running litestream replicate" was the last line printed.
 
+## What's in the image
+
+The image serves **two processes with disjoint file needs**, and that's the
+only reason its `COPY` lines look redundant:
+
+- the **Next server** (`node packages/blog/admin/server.js`) - long-running,
+  serves `/admin`, `/api` and `/_next`
+- the **`payload` CLI** (`node node_modules/payload/bin.js migrate`) -
+  runs once per container start, step 2 of the startup sequence above,
+  then exits
+
+Next's output-file-tracing only follows the *server's* static import graph.
+The CLI is a separate entrypoint in a separate process, so nothing it needs
+is traced - not the config, not the migrations, not even its own binary.
+Those have to be copied explicitly.
+
+| Path in image                                  | Built by                 | Consumed by  | Notes                                                                       |
+| ---------------------------------------------- | ------------------------ | ------------ | --------------------------------------------------------------------------- |
+| `server.js`, `.next/server/**`                  | `next build`             | Next server  | `payload.config.ts` **and** `src/app/admin/importMap.js` are compiled into these chunks - neither is read from disk |
+| `.next/static`                                  | `next build`             | Next server  | Client JS/CSS. Omitted from the standalone output by design; served at `/_next` |
+| `public/`                                       | -                        | Next server  | Static web-root files, also absent from the standalone output                |
+| `dist/payload.config.js`                        | `scripts/build-config.mjs` | payload CLI  | What `--disable-transpile` loads; `PAYLOAD_CONFIG_PATH` points here          |
+| `dist/migrations/*.js`                          | `scripts/build-config.mjs` | payload CLI  | Must sit beside the config - `migrationDir` resolves relative to it          |
+| `node_modules/`                                 | `npm install` (deps stage) | **both**   | Overwrites the traced copy so native binaries (sharp/libvips) match Alpine; also the only source of `payload/bin.js`, which the server never imports |
+
+`src/` is deliberately **not** in the image. Both the config and the admin
+importMap are bundled into the server chunks, and the CLI reads `dist/`, so
+nothing reads the TypeScript source at runtime. The `src` paths that do
+appear inside the standalone bundle are `[project]/`-prefixed Turbopack
+module identifiers, not filesystem paths.
+
+Two consequences worth knowing:
+
+- **`nx build blog-admin` must run before `docker build`.** Nothing in
+  `nx.json` makes `docker:build` depend on `build`, and the Dockerfile only
+  copies prebuilt artifacts. A missing `dist/` fails the build outright,
+  which is the intended behaviour - better than shipping a stale config.
+- **Config and migration changes only reach production via a rebuild**,
+  since the CLI reads the compiled copy rather than the source.
+
 ## Debugging problems
 
 - **Missing env var at startup** - one of the three guards in
   `payload.config.ts` logs at `fatal` and throws immediately (`<VAR>
-environment variable is not set`). Check `service.ts`'s `cms` container
+environment variable is not set`). Check `service.ts`'s `admin` container
   `envs` against the table above.
 - **`/admin` or any request returns 500 in the deployed image but works in
   `nx dev`** - check [`known-issues.md`](./known-issues.md) first

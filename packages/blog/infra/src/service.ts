@@ -79,6 +79,12 @@ const litestreamConfSecretVersion =
 /**
  * Startup script for initializing Litestream, running Payload migrations and
  * starting the server.
+ *
+ * The migrate step's `--disable-transpile` requires a prebuilt JS config,
+ * which the image supplies via PAYLOAD_CONFIG_PATH - so this line and
+ * blog-admin's `scripts/build-config.mjs` move together. Without it the
+ * CLI transpiles the whole config through tsx on every cold start. See
+ * blog-admin's RUNBOOK.md, "What's in the image".
  */
 const litestreamStartupScript = dataBucket.name.apply(
   (name) => `
@@ -90,7 +96,7 @@ mkdir -p ${litestreamDataDir}
 echo "Running litestream restore:"
 litestream restore -if-replica-exists -o ${litestreamDbPath} "gs://${name}/blog.sqlite"
 echo "Running payload migrate:"
-npx payload migrate
+node node_modules/payload/bin.js migrate --disable-transpile
 echo "Running litestream replicate:"
 exec litestream replicate -config ${litestreamConfPath} -exec "node packages/blog/admin/server.js"
 `,
