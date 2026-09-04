@@ -14,7 +14,7 @@ related content.
 | `users`    | Admin authentication (`auth: true`) - gates access to `/admin` and to unpublished content. No content fields of its own.                                                                                                                                                     |
 | `media`    | File uploads (images, etc.) - GCS-backed via the `gcsStorage` plugin when `GCS_MEDIA_BUCKET` is set, local disk otherwise. Used as the relation target for `posts.heroImage`.                                                                                                |
 | `posts`    | The blog content `blog-website` reads. Draft/publish workflow (`versions.drafts`); anonymous requests only ever see published posts. A computed `contentHTML` field renders the Lexical `content` field to HTML, so `blog-website` never has to parse Lexical's JSON itself. |
-| `tags`     | Taxonomy for posts, related from `posts.tags` (`hasMany`). Publicly readable, like `media`, so anonymous `depth=1` reads get populated tags rather than raw IDs. A blank `slug` is derived from `name` on save. No drafts - a tag has no unpublished state.                   |
+| `tags`     | Taxonomy for posts, related from `posts.tags` (`hasMany`). Publicly readable, like `media`, so anonymous `depth=1` reads get populated tags rather than raw IDs. A blank `slug` is derived from `name` on save. No drafts - a tag has no unpublished state.                  |
 
 ## CLI commands
 
@@ -63,24 +63,15 @@ config or migration change only reaches production on a rebuild.
 npm run seed
 ```
 
-Runs `src/scripts/seed.ts` against whatever database `DB_PATH` points at
-(via Payload's Local API, same env vars as the CLI commands above).
-Creates one admin user and 20 blog posts, each with a solid-color JPEG
-hero image generated in-memory (via `sharp`) and a few paragraphs of
-lorem ipsum content - no network fetches or checked-in image assets.
+The seed script runs against whatever database `DB_PATH` points at via Payload's Local API. It uses the same env vars as the CLI commands above.
 
-Idempotent: re-running it skips the admin user (matched by email) and
-any post (matched by slug) that already exists, so it's safe to run
-again, e.g. after a `payload migrate:fresh`.
+It's idempotent so it's safe to run after a `payload migrate:fresh`.
 
-The script sets `PAYLOAD_MIGRATING=true` itself (the same flag `payload
+The script also sets `PAYLOAD_MIGRATING=true` itself (the same flag `payload
 migrate` sets) - without it, the sqlite adapter's dev-mode schema "push"
 (auto-sync, meant for a migration-less local workflow) runs on every
 `getPayload()` call and conflicts with a database that already has real
 migrations applied.
-
-Admin login: `admin@example.com` / `ChangeMe123!` (fixed on purpose, for
-local/demo use only - printed to the console on every run as a reminder).
 
 ## Generated files
 

@@ -1,8 +1,8 @@
 # blog-admin
 
 A Nextjs app that allows admins to manage and author content with drafts,
-richtext editing, tags and SEO customizations. Posts are served over an
-HTTP API and consumed and rendered by `blog-website` (a public Astro site).
+richtext editing and tags. Posts are served over an HTTP API and rendered
+by `blog-website` (a public Astro site).
 
 ## Building
 
@@ -31,29 +31,49 @@ See the full [runbook](./RUNBOOK.md) for more details about operation.
 | `/`                       | Redirects to `/admin`               |
 | `/admin/*`                | Payload admin UI                    |
 | `/api/*`                  | Payload REST API (collections CRUD) |
-| `/api/graphql`            | GraphQL API                         |
+| `/api/graphql`            | GraphQL API (unused)                |
 | `/api/graphql-playground` | GraphQL playground                  |
 
-## Collections
+## Payload Collections
 
-See the [payload documentation](./PAYLOAD.md) for a complete reference.
+The app uses Payload to define the following collections. Payload also
+provides a derived React UI for admins to manage content via CRUD operations.
 
 - **`posts`** - shows drafts for authenticated (admin) requests - published
   posts for anonymous requests. A virtual `contentHTML` field renders
   `content` to HTML in a hook.
 - **`media`** - file uploads with `alt` field
+- **`tags`** - topics used to filter and find posts
 - **`users`** - admin users
+
+See the [payload documentation](./PAYLOAD.md) for a complete reference.
 
 ## Local setup
 
 Env vars (see `.env.template`):
 
-| Variable              | Purpose                                                                                                                                           |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `DB_PATH`             | SQLite file path                                                                                                                                  |
-| `PAYLOAD_SECRET`      | Session/token signing secret                                                                                                                      |
-| `GCS_MEDIA_BUCKET`    | Enables GCS-backed uploads; local dev can leave unset (falls back to local disk)                                                                  |
-| `PAYLOAD_CONFIG_PATH` | Present in the committed `.env` - only meaningfully required in the production image (see [runbook](./RUNBOOK.md)); harmless to leave set locally |
+| Variable            | Purpose                                                                 |
+| ------------------- | ----------------------------------------------------------------------- |
+| `DB_PATH`           | SQLite file path                                                        |
+| `PAYLOAD_SECRET`    | Session/token signing secret                                            |
+| `LOG_LEVEL`         | Control logging verbosity (default `trace`)                             |
+| `PRETTY_PRINT_LOGS` | Enable pretty print logs (default `true`)                               |
+| `NODE_ENV`          | Override migration environment when running seed (set to `development`) |
+
+## Seeding local data
+
+```
+nx seed blog-admin
+```
+
+Runs `src/scripts/seed.ts` against whatever database `DB_PATH` points at.
+Creates one admin user and 20 blog posts, each with a solid-color JPEG
+hero image generated in-memory (via `sharp`) and a few paragraphs of
+lorem ipsum content - no network fetches or checked-in image assets.
+
+Idempotent: re-running it skips the admin user (matched by email) and any post (matched by slug) that already exists, so it's safe to run again.
+
+Admin login: `admin@example.com` / `password` (fixed on purpose, for local/demo use only - printed to the console on every run as a reminder).
 
 ## Manually testing
 

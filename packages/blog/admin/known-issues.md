@@ -68,7 +68,7 @@ raw TS - see RUNBOOK.md's "What's in the image" - but esbuild leaves
 `next/constants` external, so the resolution trap below is unchanged and
 the hardcoded string must stay.)
 
-**Root cause:** Next's standalone output ships a *traced* copy of `next`
+**Root cause:** Next's standalone output ships a _traced_ copy of `next`
 itself (only what Next's own compiled code needs) nested under the
 project's own `node_modules`. Node resolves `next/constants` to that copy
 first - it's missing the shim file entirely, since nothing in Next's own
@@ -115,7 +115,3 @@ explicitly rather than relying on Nx's task default:
 ```json
 "build": "NODE_ENV=production next build"
 ```
-
-Turbopack stays as the bundler (Next 16's default) - no `--webpack` flag
-needed. `dev` is unaffected either way (Turbopack, and Nx's `development`
-default is correct there).

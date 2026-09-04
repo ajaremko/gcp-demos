@@ -5,16 +5,16 @@ configuration, reading its logs, and debugging problems.
 
 ## Configuring the environment
 
-| Variable              | Type      | Purpose                                                                                     | Visibility | Notes                                                                                                                         |
-| --------------------- | --------- | ------------------------------------------------------------------------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `DB_PATH`             | `string`  | SQLite file path (`/data/blog.sqlite` in production)                                        | private    | Throws at startup if unset (not during `next build` - see [`known-issues.md`](./known-issues.md))                             |
-| `PAYLOAD_SECRET`      | `string`  | Session/token signing secret                                                                | secret     | Throws at startup if unset; generated via Pulumi (`packages/blog/infra/src/payload.ts`)                                       |
-| `GCS_MEDIA_BUCKET`    | `string`  | Bucket for Payload's upload/media storage                                                   | private    | Throws at startup if unset (outside `NODE_ENV=development`)                                                                   |
-| `GCS_DATA_BUCKET`     | `string`  | Set on the container, but read only by litestream's generated config, not by Payload itself | private    | Don't expect changing it at runtime to do anything - `litestream.yml` bakes the bucket name in at deploy time                 |
-| `PORT`                | `number`  | Port the server listens on (`3000`)                                                         | private    |                                                                                                                               |
-| `PAYLOAD_CONFIG_PATH` | `string`  | Absolute path to the prebuilt `dist/payload.config.js`, baked into the image                | private    | Set in the Dockerfile, not `service.ts`. Only the `payload` CLI reads it - the server has its own bundled copy. Must stay set to *something*: unset, `findConfig()` falls back to a tsconfig lookup that throws in `/app` |
-| `LOG_LEVEL`           | `enum`    | Overrides the default pino level                                                            | private    | Defaults to `info` in production, `trace` otherwise                                                                           |
-| `PRETTY_PRINT_LOGS`   | `boolean` | Whether logs are pretty-printed vs. JSON                                                    | private    | Defaults to `true` outside production, `false` in it                                                                          |
+| Variable              | Type      | Purpose                                                                                     | Visibility | Notes                                                                                                                                                                                                                     |
+| --------------------- | --------- | ------------------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DB_PATH`             | `string`  | SQLite file path (`/data/blog.sqlite` in production)                                        | private    | Throws at startup if unset (not during `next build` - see [`known-issues.md`](./known-issues.md))                                                                                                                         |
+| `PAYLOAD_SECRET`      | `string`  | Session/token signing secret                                                                | secret     | Throws at startup if unset; generated via Pulumi (`packages/blog/infra/src/payload.ts`)                                                                                                                                   |
+| `GCS_MEDIA_BUCKET`    | `string`  | Bucket for Payload's upload/media storage                                                   | private    | Throws at startup if unset (outside `NODE_ENV=development`)                                                                                                                                                               |
+| `GCS_DATA_BUCKET`     | `string`  | Set on the container, but read only by litestream's generated config, not by Payload itself | private    | Don't expect changing it at runtime to do anything - `litestream.yml` bakes the bucket name in at deploy time                                                                                                             |
+| `PORT`                | `number`  | Port the server listens on (`3000`)                                                         | private    |                                                                                                                                                                                                                           |
+| `PAYLOAD_CONFIG_PATH` | `string`  | Absolute path to the prebuilt `dist/payload.config.js`, baked into the image                | private    | Set in the Dockerfile, not `service.ts`. Only the `payload` CLI reads it - the server has its own bundled copy. Must stay set to _something_: unset, `findConfig()` falls back to a tsconfig lookup that throws in `/app` |
+| `LOG_LEVEL`           | `enum`    | Overrides the default pino level                                                            | private    | Defaults to `info` in production, `trace` otherwise                                                                                                                                                                       |
+| `PRETTY_PRINT_LOGS`   | `boolean` | Whether logs are pretty-printed vs. JSON                                                    | private    | Defaults to `true` outside production, `false` in it                                                                                                                                                                      |
 
 ## Logging
 
@@ -68,19 +68,17 @@ only reason its `COPY` lines look redundant:
   runs once per container start, step 2 of the startup sequence above,
   then exits
 
-Next's output-file-tracing only follows the *server's* static import graph.
-The CLI is a separate entrypoint in a separate process, so nothing it needs
-is traced - not the config, not the migrations, not even its own binary.
-Those have to be copied explicitly.
+Next's output-file-tracing only follows the _server's_ static import graph.
+The CLI is a separate entrypoint in a separate process, so it needs to be copied separately.
 
-| Path in image                                  | Built by                 | Consumed by  | Notes                                                                       |
-| ---------------------------------------------- | ------------------------ | ------------ | --------------------------------------------------------------------------- |
-| `server.js`, `.next/server/**`                  | `next build`             | Next server  | `payload.config.ts` **and** `src/app/admin/importMap.js` are compiled into these chunks - neither is read from disk |
-| `.next/static`                                  | `next build`             | Next server  | Client JS/CSS. Omitted from the standalone output by design; served at `/_next` |
-| `public/`                                       | -                        | Next server  | Static web-root files, also absent from the standalone output                |
-| `dist/payload.config.js`                        | `scripts/build-config.mjs` | payload CLI  | What `--disable-transpile` loads; `PAYLOAD_CONFIG_PATH` points here          |
-| `dist/migrations/*.js`                          | `scripts/build-config.mjs` | payload CLI  | Must sit beside the config - `migrationDir` resolves relative to it          |
-| `node_modules/`                                 | `npm install` (deps stage) | **both**   | Overwrites the traced copy so native binaries (sharp/libvips) match Alpine; also the only source of `payload/bin.js`, which the server never imports |
+| Path in image                  | Built by                   | Consumed by | Notes                                                                                                                                                |
+| ------------------------------ | -------------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `server.js`, `.next/server/**` | `next build`               | Next server | `payload.config.ts` **and** `src/app/admin/importMap.js` are compiled into these chunks - neither is read from disk                                  |
+| `.next/static`                 | `next build`               | Next server | Client JS/CSS. Omitted from the standalone output by design; served at `/_next`                                                                      |
+| `public/`                      | -                          | Next server | Static web-root files, also absent from the standalone output                                                                                        |
+| `dist/payload.config.js`       | `scripts/build-config.mjs` | payload CLI | What `--disable-transpile` loads; `PAYLOAD_CONFIG_PATH` points here                                                                                  |
+| `dist/migrations/*.js`         | `scripts/build-config.mjs` | payload CLI | Must sit beside the config - `migrationDir` resolves relative to it                                                                                  |
+| `node_modules/`                | `npm install` (deps stage) | **both**    | Overwrites the traced copy so native binaries (sharp/libvips) match Alpine; also the only source of `payload/bin.js`, which the server never imports |
 
 `src/` is deliberately **not** in the image. Both the config and the admin
 importMap are bundled into the server chunks, and the CLI reads `dist/`, so
