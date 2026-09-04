@@ -67,34 +67,10 @@ export const storageService = new gcp.projects.Service(
   { provider },
 )
 
-export const pubsubService = new gcp.projects.Service(
-  `${tag}-pubsub-service`,
-  {
-    service: 'pubsub.googleapis.com',
-  },
-  { provider },
-)
-
 export const secretManagerService = new gcp.projects.Service(
   `${tag}-secret-manager-service`,
   {
     service: 'secretmanager.googleapis.com',
-  },
-  { provider },
-)
-
-export const recaptchaService = new gcp.projects.Service(
-  `${tag}-recaptcha-service`,
-  {
-    service: 'recaptchaenterprise.googleapis.com',
-  },
-  { provider },
-)
-
-export const sqlAdminService = new gcp.projects.Service(
-  `${tag}-sql-admin-service`,
-  {
-    service: 'sqladmin.googleapis.com',
   },
   { provider },
 )
