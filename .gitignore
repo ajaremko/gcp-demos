@@ -59,3 +59,6 @@ vitest.config.*.timestamp*
 
 # Astro.js
 .astro
+
+Logs
+*.log
