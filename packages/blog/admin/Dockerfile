@@ -42,6 +42,10 @@ COPY public ./packages/blog/admin/public
 # build`). Next's tracing can't see these: they're reached by a separate
 # process, not by the server's import graph.
 COPY dist ./packages/blog/admin/dist
+# The migrate-or-skip check the startup script runs before paying for a full
+# Payload boot. Copied separately because build-config.mjs clears dist/ on
+# every build, so it can't live in there.
+COPY scripts/needs-migrate.mjs ./packages/blog/admin/scripts/
 # --- both ---
 # Overwrite whatever output-file-tracing included (or omitted) for
 # native/platform-specific dependencies with a complete Alpine-native
