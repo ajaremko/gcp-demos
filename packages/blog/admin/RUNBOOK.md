@@ -40,22 +40,52 @@ The `admin` container's entrypoint (`commands`/`args` in
 1. `mkdir -p /data`, then `litestream restore -if-replica-exists` from the
    GCS data bucket - populates `/data/blog.sqlite` from the last replica,
    if one exists.
-2. `payload migrate --disable-transpile` - applies pending migrations,
-   run against the prebuilt `dist/payload.config.js` and `dist/migrations/`
-   (produced by `scripts/build-config.mjs` during `npm run build`) rather
-   than the raw TS source. Payload's CLI otherwise loads the config through
-   tsx's async worker-thread path and transpiles the config, every
-   collection and every migration on each start - that measured 11-23s
-   (median ~14s) of a ~19s cold start, while applying nothing. If you
-   change `payload.config.ts`, a collection, or add a migration, the
-   compiled copy only refreshes on a rebuild.
-3. `exec litestream replicate -exec "node packages/blog/admin/server.js"` -
+2. `scripts/needs-migrate.mjs` - decides whether step 3 has to run at all,
+   by reading `payload_migrations` directly with `node:sqlite` and comparing
+   it against the files in `dist/migrations/`. This is a bare Node boot
+   (~100ms) standing in front of a full Payload boot (seconds). **It reports
+   "migrate" on every path it can't establish** - missing DB, missing table,
+   unexpected schema, any thrown error - so a pending migration is never
+   skipped; the worst case is that it costs what step 3 always used to.
+3. `payload migrate --disable-transpile` - **only when step 2 says so.**
+   Applies pending migrations, run against the prebuilt
+   `dist/payload.config.js` and `dist/migrations/` (produced by
+   `scripts/build-config.mjs` during `npm run build`) rather than the raw TS
+   source. Payload's CLI otherwise loads the config through tsx's async
+   worker-thread path and transpiles the config, every collection and every
+   migration on each start - that measured 11-23s (median ~14s) of a ~19s
+   cold start, while applying nothing. If you change `payload.config.ts`, a
+   collection, or add a migration, the compiled copy only refreshes on a
+   rebuild.
+4. `exec litestream replicate -exec "node packages/blog/admin/server.js"` -
    starts continuous replication, execing the real Next.js server as its
    subprocess for the life of the container.
 
-A stuck/failing startup is almost always one of these three steps - check
-container logs for which of "Running litestream restore"/"Running payload
-migrate"/"Running litestream replicate" was the last line printed.
+Each stage prints a `[startup] +Ns <stage>` marker, so the container log
+apportions the cold start directly; a stuck or failing startup is almost
+always whichever stage printed last. The `+Ns` deltas are whole seconds
+because BusyBox's `date` silently ignores `%N` - for finer resolution use
+the Cloud Logging timestamps on the marker lines rather than trying to make
+the shell produce milliseconds.
+
+## Readiness vs. liveness
+
+The container's startup probe is an **HTTP GET on `/healthz`
+(port 3000), not a TCP check** - see `packages/blog/infra/src/service.ts`.
+This matters more than it looks: Next's standalone server binds port 3000
+before it has loaded a single route module, so a TCP probe passes while
+Payload is still entirely uninitialised. Cloud Run would then call the
+instance ready and the first real request would pay for the route module
+load, the drizzle schema build and the SQLite open - outside the startup
+window, so without `startupCpuBoost`.
+
+`src/app/healthz/route.ts` awaits `getPayload()` for exactly that reason.
+`getPayload()` memoises on `globalThis`, so this warms the same instance the
+server later serves `/api` from rather than building a second one.
+
+`/healthz` is not reachable from outside: nginx answers its own `/healthz`
+for the gateway's probe and only proxies `/admin`, `/api` and `/_next`
+through to this container.
 
 ## What's in the image
 
@@ -78,6 +108,7 @@ The CLI is a separate entrypoint in a separate process, so it needs to be copied
 | `public/`                      | -                          | Next server | Static web-root files, also absent from the standalone output                                                                                        |
 | `dist/payload.config.js`       | `scripts/build-config.mjs` | payload CLI | What `--disable-transpile` loads; `PAYLOAD_CONFIG_PATH` points here                                                                                  |
 | `dist/migrations/*.js`         | `scripts/build-config.mjs` | payload CLI | Must sit beside the config - `migrationDir` resolves relative to it                                                                                  |
+| `scripts/needs-migrate.mjs`    | -                          | run.sh      | Copied on its own line, **not** via `dist/` - `build-config.mjs` does `rmSync(outDir)` on every build, so it cannot live in there                    |
 | `node_modules/`                | `npm install` (deps stage) | **both**    | Overwrites the traced copy so native binaries (sharp/libvips) match Alpine; also the only source of `payload/bin.js`, which the server never imports |
 
 `src/` is deliberately **not** in the image. Both the config and the admin
