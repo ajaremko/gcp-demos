@@ -47,7 +47,7 @@ service (startup sequence, logs, debugging) see
 ### Enabled APIs
 
 Compute, Resource Manager, Artifact Registry, Cloud Run, Domains, DNS,
-Site Verification, Storage, Pub/Sub, Secret Manager.
+Site Verification, Storage, Secret Manager.
 
 ### Domain Mapping
 

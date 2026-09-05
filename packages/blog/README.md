@@ -5,7 +5,7 @@
 A demo blog with two front ends behind a single public origin:
 `blog-admin` (Next.js + Payload CMS) is where content is authored, and
 `blog-website` (Astro) is the public site that renders published posts.
-Both run as containers in the *same* Cloud Run service with an nginx
+Both run as containers in the _same_ Cloud Run service with an nginx
 gateway in front, so the public site reads the admin's HTTP API over
 `127.0.0.1` rather than across the network. State is a single SQLite
 file continuously replicated to Cloud Storage by Litestream, with
@@ -15,7 +15,7 @@ uploaded media in a separate bucket.
 
 | Project                          | Description                                                                                                                            |
 | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| [`admin`](./admin/README.md)     | The Next.js + Payload CMS app: admin UI, the REST API the website reads, and the SQLite/Litestream persistence behind both.             |
+| [`admin`](./admin/README.md)     | The Next.js + Payload CMS app: admin UI, the REST API the website reads, and the SQLite/Litestream persistence behind both.            |
 | [`website`](./website/README.md) | The public Astro site, reading published posts from `blog-admin`'s API.                                                                |
 | [`infra`](./infra/README.md)     | Pulumi IaC deploying the system to GCP - the single multi-container Cloud Run service, its buckets, secrets, service account, and IAM. |
 
@@ -27,13 +27,13 @@ Everything is served by one Cloud Run service (`infra/src/service.ts`).
 An nginx `gateway` container listens on the service port and routes by
 path:
 
-| Path                | Goes to                              |
-| ------------------- | ------------------------------------ |
-| `/admin`            | `admin` container (Next.js, `:3000`) |
-| `/api`              | `admin` container                    |
-| `/_next`            | `admin` container                    |
-| `/healthz`          | Answered by nginx itself             |
-| everything else     | `website` container (Astro, `:4321`) |
+| Path            | Goes to                              |
+| --------------- | ------------------------------------ |
+| `/admin`        | `admin` container (Next.js, `:3000`) |
+| `/api`          | `admin` container                    |
+| `/_next`        | `admin` container                    |
+| `/healthz`      | Answered by nginx itself             |
+| everything else | `website` container (Astro, `:4321`) |
 
 Because both containers share a network namespace, `blog-website` is
 configured with `ADMIN_API_URL=http://127.0.0.1:3000` in production -
@@ -51,7 +51,8 @@ original filename and a re-upload must not be permanently stale).
 
 The admin app's database is a SQLite file at `/data/blog.sqlite`, and
 Litestream replicates it to the `data` bucket. On every cold start the
-`admin` container runs `litestream restore` -> `payload migrate` ->
+`admin` container runs `litestream restore` -> `payload migrate` (only
+when a guard finds migrations pending, which is most starts skipped) ->
 `litestream replicate` with the Next.js server as its child process -
 see [`admin`'s runbook](./admin/RUNBOOK.md) for the full startup
 sequence and how to debug a stuck one.
@@ -63,6 +64,12 @@ The service scales `0` -> `1` instance (`minInstanceCount: 0`,
 `maxInstanceCount: 1`): scale to zero when idle, and never more than one
 writer against the replicated SQLite file. Cold starts are therefore
 normal, and the website's in-process page cache resets with them.
+
+Because the nginx gateway starts only after the other two containers, the
+`admin` container's boot is the whole service's time-to-first-byte -
+currently ~9s. [`cold-starts.md`](./cold-starts.md) breaks that down,
+records what was tried and ruled out, and sketches the next change worth
+making.
 
 ## Releasing
 

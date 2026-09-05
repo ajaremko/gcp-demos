@@ -16,8 +16,6 @@ export const provider = new gcp.Provider(tag, {
 
 export const project = gcp.organizations.getProjectOutput({}, { provider })
 
-export const pubsubServiceAccountEmail = pulumi.interpolate`service-${project.number}@gcp-sa-pubsub.iam.gserviceaccount.com`
-
 export const cloudRunServiceAgentEmail = pulumi.interpolate`service-${project.number}@serverless-robot-prod.iam.gserviceaccount.com`
 
 export const gcsAccount = gcp.storage.getProjectServiceAccountOutput(
