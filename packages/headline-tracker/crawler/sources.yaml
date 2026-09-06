@@ -1,0 +1,23 @@
+# Each source: discovery method (sitemaps and/or seeds) + selectors.
+# Selectors are CSS. Add one source, get its selectors right, then scale.
+sources:
+  - key: example-news
+    sitemaps:
+      - https://www.example-news.com/sitemap-news.xml
+    url_must_contain: ["/article/", "/story/"]
+    selectors:
+      headline: "h1[data-testid='headline']"
+      dek: "p.article-dek"
+      body: "div.article-body p"
+      byline: "a[rel='author']"
+      published_at: "time[datetime]::attr(datetime)"
+      updated_at: "meta[property='article:modified_time']::attr(content)"
+
+  - key: example-blog
+    seeds:
+      - https://blog.example.com/
+    listing_link_css: "article h2 a"
+    selectors:
+      headline: "h1.post-title"
+      body: "div.post-content p"
+      published_at: "time::attr(datetime)"

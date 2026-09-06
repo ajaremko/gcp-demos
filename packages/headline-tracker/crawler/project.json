@@ -1,0 +1,49 @@
+{
+  "name": "headline-tracker-crawler",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/headline-tracker/crawler",
+  "tags": ["lang:python", "scope:monitoring"],
+  "namedInputs": {
+    "python": [
+      "{projectRoot}/**/*.py",
+      "{projectRoot}/pyproject.toml",
+      "{projectRoot}/uv.lock",
+      "{projectRoot}/sources.yaml"
+    ]
+  },
+  "targets": {
+    "install": {
+      "executor": "nx:run-commands",
+      "options": { "command": "uv sync --all-extras", "cwd": "{projectRoot}" },
+      "inputs": ["{projectRoot}/pyproject.toml", "{projectRoot}/uv.lock"],
+      "cache": false
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": { "command": "uv run ruff check .", "cwd": "{projectRoot}" },
+      "inputs": ["python"],
+      "cache": true
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": { "command": "uv run pytest", "cwd": "{projectRoot}" },
+      "inputs": ["python"],
+      "outputs": [],
+      "cache": true
+    },
+    "crawl": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "uv run scrapy crawl articles -a tier={args.tier}",
+        "cwd": "{projectRoot}"
+      },
+      "cache": false
+    },
+    "shell": {
+      "executor": "nx:run-commands",
+      "options": { "command": "uv run scrapy shell", "cwd": "{projectRoot}" },
+      "cache": false
+    }
+  }
+}

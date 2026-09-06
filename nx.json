@@ -131,6 +131,14 @@
           "registryUrl": "${DOCKER_REGISTRY}",
           "skipVersionActions": true
         }
+      },
+      "headline-tracker": {
+        "projects": ["headline-tracker-*"],
+        "projectsRelationship": "independent",
+        "docker": {
+          "registryUrl": "${DOCKER_REGISTRY}",
+          "skipVersionActions": true
+        }
       }
     }
   },
