@@ -32,6 +32,9 @@
     },
     {
       "path": "./packages/html-gfx/renderer"
+    },
+    {
+      "path": "./packages/html-gfx/website"
     }
   ],
   "compilerOptions": {}
