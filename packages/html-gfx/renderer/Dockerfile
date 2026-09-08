@@ -17,7 +17,8 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 COPY package.json ./
-RUN npm install --omit=dev
+RUN npm pkg set "dependencies.tslib=^2.3.0" \
+  && npm install --omit=dev
 
 COPY dist/main.js ./
 
