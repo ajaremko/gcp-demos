@@ -1,5 +1,5 @@
 import puppeteer from 'puppeteer'
-import type { Browser, Page } from 'puppeteer'
+import type { Browser, Page, LaunchOptions } from 'puppeteer'
 import { randomUUID } from 'crypto'
 
 export class RendererNotReady {
@@ -16,17 +16,25 @@ export class RenderingFailed {
   }
 }
 
-export function makeRenderer(opts: { outputDir: string }) {
+export function makeRenderer(opts: {
+  outputDir: string
+  maxPages: number
+  launchOptions?: LaunchOptions
+}) {
+  if (opts.maxPages <= 0) {
+    throw new Error('maxPages must be a positive number')
+  }
+
   let browser: Browser | null = null
   const pages: Map<string, Page> = new Map()
 
   function ready() {
-    return browser !== null
+    return browser !== null && pages.size < opts.maxPages
   }
 
   async function initialize() {
     if (browser === null) {
-      browser = await puppeteer.launch() // Placeholder for actual browser initialization
+      browser = await puppeteer.launch(opts.launchOptions)
     }
   }
 
@@ -38,7 +46,7 @@ export function makeRenderer(opts: { outputDir: string }) {
   }
 
   async function render(htmlString: string) {
-    if (browser === null) {
+    if (browser === null || pages.size >= opts.maxPages) {
       throw new RendererNotReady()
     }
     try {
