@@ -1,0 +1,27 @@
+{
+  "name": "@org/html-gfx-renderer-e2e",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "name": "html-gfx-renderer-e2e",
+    "implicitDependencies": [
+      "html-gfx-renderer"
+    ],
+    "targets": {
+      "e2e": {
+        "executor": "@nx/jest:jest",
+        "outputs": [
+          "{projectRoot}/test-output/jest/coverage"
+        ],
+        "dependsOn": [
+          "html-gfx-renderer:build",
+          "html-gfx-renderer:serve"
+        ],
+        "options": {
+          "jestConfig": "packages/html-gfx/renderer-e2e/jest.config.cts",
+          "passWithNoTests": true
+        }
+      }
+    }
+  }
+}

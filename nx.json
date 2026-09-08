@@ -139,6 +139,14 @@
           "registryUrl": "${DOCKER_REGISTRY}",
           "skipVersionActions": true
         }
+      },
+      "html-gfx": {
+        "projects": ["html-gfx-*"],
+        "projectsRelationship": "independent",
+        "docker": {
+          "registryUrl": "${DOCKER_REGISTRY}",
+          "skipVersionActions": true
+        }
       }
     }
   },

@@ -55,7 +55,8 @@
   "workspaces": [
     "packages/blog/*",
     "packages/pdf-shop/*",
-    "packages/shared/*"
+    "packages/shared/*",
+    "packages/html-gfx/*"
   ],
   "dependencies": {
     "axios": "^1.6.0",

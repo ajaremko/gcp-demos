@@ -26,6 +26,12 @@
     },
     {
       "path": "./packages/blog/admin"
+    },
+    {
+      "path": "./packages/html-gfx/renderer-e2e"
+    },
+    {
+      "path": "./packages/html-gfx/renderer"
     }
   ],
   "compilerOptions": {}
