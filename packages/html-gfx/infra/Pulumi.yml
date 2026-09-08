@@ -1,0 +1,4 @@
+name: gcp-demos-html-gfx-infra
+runtime: nodejs
+description: Infrastructure for HTML Graphics project
+main: src/index.ts

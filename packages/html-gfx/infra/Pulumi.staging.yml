@@ -1,0 +1,7 @@
+config:
+  project: gcp-demos-505417
+  region: us-central1
+  sharedStackName: alfredsyoung/gcp-demos-shared-infra
+  websiteImageTag: 2609.08.7d9461e
+  rendererImageTag: 2609.08.7d9461e
+  deletionProtection: false
