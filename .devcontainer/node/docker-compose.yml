@@ -9,6 +9,7 @@ services:
       GOOGLE_APPLICATION_CREDENTIALS: /var/secrets/$GOOGLE_APPLICATION_CREDENTIALS
       PROJECT_ID: $PROJECT_ID
       PULUMI_ACCESS_TOKEN: $PULUMI_ACCESS_TOKEN
+      VITE_CONFIG_NATIVE_IGNORE_WARNING: true
       NX_TUI: false
     volumes:
       - ../../..:/workspaces:cached
