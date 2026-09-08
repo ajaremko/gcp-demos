@@ -8,19 +8,11 @@
       "html-gfx-renderer"
     ],
     "targets": {
-      "e2e": {
-        "executor": "@nx/jest:jest",
-        "outputs": [
-          "{projectRoot}/test-output/jest/coverage"
-        ],
+      "test": {
         "dependsOn": [
           "html-gfx-renderer:build",
           "html-gfx-renderer:serve"
-        ],
-        "options": {
-          "jestConfig": "packages/html-gfx/renderer-e2e/jest.config.cts",
-          "passWithNoTests": true
-        }
+        ]
       }
     }
   }
