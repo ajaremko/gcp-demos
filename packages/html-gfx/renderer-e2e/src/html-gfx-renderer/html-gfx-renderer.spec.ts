@@ -11,3 +11,13 @@ describe('GET /livez', () => {
     expect(res2.status).toBe(200)
   })
 })
+
+describe('POST /render', () => {
+  it('returns a 200 status', async () => {
+    const html = '<div><h1>Hello World</h1></div>'
+    const res = await axios.post('/render', html, {
+      headers: { 'Content-Type': 'text/html' },
+    })
+    expect(res.status).toBe(200)
+  })
+})
