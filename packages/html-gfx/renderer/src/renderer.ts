@@ -6,6 +6,15 @@ import { pinoLogger } from './logging/pino'
 
 const logger = pinoLogger.child({ module: 'renderer' })
 
+export class RendererInitializationFailed {
+  readonly tag = 'RendererInitializationFailed'
+  readonly message = 'Renderer failed to initialize'
+  readonly cause: unknown
+  constructor(cause: unknown) {
+    this.cause = cause
+  }
+}
+
 export class RendererNotReady {
   readonly tag = 'RendererNotReady'
   readonly message = 'Renderer is not ready'
@@ -39,7 +48,12 @@ export function makeRenderer(opts: {
   async function initialize() {
     logger.trace('Initializing renderer')
     if (browser === null) {
-      browser = await puppeteer.launch(opts.launchOptions)
+      try {
+        browser = await puppeteer.launch(opts.launchOptions)
+      } catch (error) {
+        logger.debug({ err: error }, 'Failed to initialize renderer')
+        throw new RendererInitializationFailed(error)
+      }
     }
   }
 
