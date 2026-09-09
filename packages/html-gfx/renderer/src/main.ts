@@ -1,5 +1,6 @@
 import express from 'express'
 import * as fs from 'fs'
+import type { LaunchOptions } from 'puppeteer'
 
 import { makeRenderer, RendererNotReady, RenderingFailed } from './renderer'
 import { pinoLogger } from './logging/pino'
@@ -18,10 +19,27 @@ if (!maxPages) {
   throw new Error('MAX_PAGES environment variable is not set or invalid')
 }
 
+const puppeteerLaunchConfigPath = process.env.PUPPETEER_LAUNCH_CONFIG
+if (!puppeteerLaunchConfigPath) {
+  pinoLogger.warn('PUPPETEER_LAUNCH_CONFIG environment variable is not set')
+}
+
+let launchOptions: LaunchOptions = {}
+if (puppeteerLaunchConfigPath) {
+  try {
+    launchOptions = JSON.parse(
+      fs.readFileSync(puppeteerLaunchConfigPath, 'utf-8'),
+    )
+  } catch (err) {
+    pinoLogger.fatal({ err }, 'Failed to read or parse PUPPETEER_LAUNCH_CONFIG')
+    throw err
+  }
+}
+
 fs.mkdirSync(outputDir, { recursive: true })
 
 const app = express()
-const renderer = makeRenderer({ outputDir, maxPages })
+const renderer = makeRenderer({ outputDir, maxPages, launchOptions })
 
 app.get('/livez', (req, res) => {
   if (renderer.ready()) {
@@ -48,10 +66,7 @@ app.post('/render', express.text({ type: 'text/html' }), async (req, res) => {
         message: error.message,
       })
     } else {
-      pinoLogger.error(
-        { err: error },
-        'Unexpected error during render request',
-      )
+      pinoLogger.error({ err: error }, 'Unexpected error during render request')
       res.status(500).send({
         status: 'error',
         message: 'An unexpected error occurred',
@@ -63,9 +78,15 @@ app.post('/render', express.text({ type: 'text/html' }), async (req, res) => {
 const port = process.env.PORT || 3333
 const server = app.listen(port, () => {
   pinoLogger.info(`Listening at http://localhost:${port}/`)
-  renderer.initialize().then(() => {
-    pinoLogger.info('Renderer initialized')
-  })
+  renderer
+    .initialize()
+    .then(() => {
+      pinoLogger.info('Renderer initialized')
+    })
+    .catch((err) => {
+      pinoLogger.fatal({ err }, 'Failed to initialize renderer')
+      process.exit(1)
+    })
 })
 
 server.on('error', (err) => {
