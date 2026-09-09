@@ -46,7 +46,7 @@ export function makeRenderer(opts: {
   }
 
   async function initialize() {
-    logger.trace('Initializing renderer')
+    logger.trace(opts, 'Initializing renderer')
     if (browser === null) {
       try {
         browser = await puppeteer.launch(opts.launchOptions)
@@ -59,7 +59,7 @@ export function makeRenderer(opts: {
 
   async function shutdown() {
     if (browser !== null) {
-      logger.trace('Shutting down renderer')
+      logger.trace(opts, 'Shutting down renderer')
       await browser.close()
       browser = null
     }
@@ -101,4 +101,5 @@ export function makeRenderer(opts: {
   }
 }
 
+export type RendererOpts = Parameters<typeof makeRenderer>[0]
 export type Renderer = ReturnType<typeof makeRenderer>

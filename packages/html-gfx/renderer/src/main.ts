@@ -1,8 +1,12 @@
 import express from 'express'
 import * as fs from 'fs'
-import type { LaunchOptions } from 'puppeteer'
 
-import { makeRenderer, RendererNotReady, RenderingFailed } from './renderer'
+import {
+  makeRenderer,
+  RendererNotReady,
+  RendererOpts,
+  RenderingFailed,
+} from './renderer'
 import { pinoLogger } from './logging/pino'
 
 const outputDir = process.env.OUTPUT_DIR
@@ -24,22 +28,29 @@ if (!puppeteerLaunchConfigPath) {
   pinoLogger.warn('PUPPETEER_LAUNCH_CONFIG environment variable is not set')
 }
 
-let launchOptions: LaunchOptions = {}
+try {
+  fs.mkdirSync(outputDir, { recursive: true })
+} catch (err) {
+  pinoLogger.fatal({ err }, 'Failed to create output directory')
+  throw err
+}
+
+const rendererConfig: RendererOpts = { outputDir, maxPages }
+
 if (puppeteerLaunchConfigPath) {
   try {
-    launchOptions = JSON.parse(
-      fs.readFileSync(puppeteerLaunchConfigPath, 'utf-8'),
-    )
+    const data = fs.readFileSync(puppeteerLaunchConfigPath, 'utf-8')
+    rendererConfig.launchOptions = JSON.parse(data)
   } catch (err) {
     pinoLogger.fatal({ err }, 'Failed to read or parse PUPPETEER_LAUNCH_CONFIG')
     throw err
   }
+} else {
+  pinoLogger.info('Using default Puppeteer launch configuration')
 }
 
-fs.mkdirSync(outputDir, { recursive: true })
-
 const app = express()
-const renderer = makeRenderer({ outputDir, maxPages, launchOptions })
+const renderer = makeRenderer(rendererConfig)
 
 app.get('/livez', (req, res) => {
   if (renderer.ready()) {
