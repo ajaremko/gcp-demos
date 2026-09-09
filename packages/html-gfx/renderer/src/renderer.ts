@@ -46,12 +46,12 @@ export function makeRenderer(opts: {
   }
 
   async function initialize() {
-    logger.trace(opts, 'Initializing renderer')
+    logger.trace({ ...opts }, 'Initializing renderer')
     if (browser === null) {
       try {
         browser = await puppeteer.launch(opts.launchOptions)
       } catch (error) {
-        logger.debug({ err: error }, 'Failed to initialize renderer')
+        logger.debug({ err: error, ...opts }, 'Failed to initialize renderer')
         throw new RendererInitializationFailed(error)
       }
     }
@@ -59,7 +59,7 @@ export function makeRenderer(opts: {
 
   async function shutdown() {
     if (browser !== null) {
-      logger.trace(opts, 'Shutting down renderer')
+      logger.trace({ ...opts }, 'Shutting down renderer')
       await browser.close()
       browser = null
     }
