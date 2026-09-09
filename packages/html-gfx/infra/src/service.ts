@@ -7,12 +7,11 @@ import {
   tag,
   deletionProtection,
 } from './config'
+import { iamBindings, htmlGfxServiceAccount } from './service-account'
 import { cloudRunService } from './services'
 import { provider } from './project'
 import { getImageUrl } from './getImageUrl'
 import { cloudRunArtifactRegistryReader } from './iam'
-
-import { iamBindings, htmlGfxServiceAccount } from './service-account'
 
 export const htmlGfxService = new gcp.cloudrunv2.Service(
   `${tag}-service`,
@@ -31,11 +30,6 @@ export const htmlGfxService = new gcp.cloudrunv2.Service(
           name: 'website',
           image: getImageUrl('html-gfx-website', websiteImageTag),
           ports: { containerPort: 8080 },
-          resources: {
-            limits: { cpu: '1', memory: '512Mi' },
-            startupCpuBoost: true,
-            cpuIdle: true,
-          },
           envs: [
             { name: 'HOST', value: '0.0.0.0' },
             { name: 'RENDERER_API_URL', value: 'http://127.0.0.1:3000' },
@@ -50,11 +44,6 @@ export const htmlGfxService = new gcp.cloudrunv2.Service(
         {
           name: 'renderer',
           image: getImageUrl('html-gfx-renderer', rendererImageTag),
-          resources: {
-            limits: { cpu: '1', memory: '512Mi' },
-            startupCpuBoost: true,
-            cpuIdle: true,
-          },
           envs: [
             { name: 'PORT', value: '3000' },
             { name: 'OUTPUT_DIR', value: '/tmp/output' },
