@@ -6,6 +6,7 @@ import path from 'node:path'
 import { z } from 'zod'
 
 import { resolveRenderedFilesDir } from '@/lib/renderedFilesDir'
+import { pinoLogger } from '@/lib/server/pino'
 
 // Matches the renderer's own naming scheme (`${randomUUID()}.png`) exactly,
 // so a filename can't smuggle path separators or `..` segments.
@@ -24,6 +25,7 @@ export async function GET(
 
   const parsed = filenameSchema.safeParse(filename)
   if (!parsed.success) {
+    pinoLogger.warn({ filename }, 'Rejected invalid download filename')
     return new Response('File not found', { status: 404 })
   }
 
@@ -42,7 +44,12 @@ export async function GET(
         'Content-Disposition': `attachment; filename="${parsed.data}"`,
       },
     })
-  } catch {
+  } catch (err) {
+    if (err instanceof Error && 'code' in err && err.code === 'ENOENT') {
+      pinoLogger.warn({ filePath }, 'Requested file not found')
+    } else {
+      pinoLogger.error({ err, filePath }, 'Unexpected error reading rendered file')
+    }
     return new Response('File not found', { status: 404 })
   }
 }

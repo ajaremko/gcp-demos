@@ -5,6 +5,7 @@ import { type FieldErrors } from 'react-hook-form'
 import { buildGraphicHtml, graphicSpecSchema } from '@/lib/graphicSpec'
 import { zodFieldErrors } from '@/lib/formErrors'
 import { renderGraphic } from '@/lib/renderClient'
+import { pinoLogger } from '@/lib/server/pino'
 
 export type CreateGraphicActionState = {
   errors: FieldErrors
@@ -22,6 +23,7 @@ export async function createGraphicAction(
 
   const parsed = graphicSpecSchema.safeParse(raw)
   if (!parsed.success) {
+    pinoLogger.warn({ err: parsed.error }, 'Invalid graphic spec')
     return { errors: zodFieldErrors(parsed.error) }
   }
 
@@ -32,14 +34,19 @@ export async function createGraphicAction(
     const result = await renderGraphic(html)
     renderedPath = result.path
   } catch (err) {
-    console.error('Failed to render graphic:', err)
+    pinoLogger.error({ err }, 'Failed to render graphic')
     return { errors: {}, message: GENERIC_FAILURE_MESSAGE }
   }
 
   const filename = renderedPath.split('/').pop()
   if (!filename) {
+    pinoLogger.warn(
+      { renderedPath },
+      'Renderer did not return a usable filename',
+    )
     return { errors: {}, message: GENERIC_FAILURE_MESSAGE }
   }
 
+  pinoLogger.info({ filename }, 'Graphic generated')
   redirect(`/api/download/${filename}`)
 }

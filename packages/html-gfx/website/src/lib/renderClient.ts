@@ -1,6 +1,11 @@
+import { pinoLogger } from '@/lib/server/pino'
+
 function resolveRendererApiUrl(): string {
   const url = process.env.RENDERER_API_URL
   if (!url) {
+    pinoLogger.fatal(
+      'RENDERER_API_URL must be set to reach the renderer service.',
+    )
     throw new Error(
       'RENDERER_API_URL must be set to reach the renderer service.',
     )

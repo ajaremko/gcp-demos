@@ -1,3 +1,5 @@
+import { pinoLogger } from '@/lib/server/pino'
+
 /**
  * Directory the renderer saves generated PNGs to. In production this
  * must be a volume mounted into both the website and renderer
@@ -10,6 +12,7 @@ export function resolveRenderedFilesDir(): string {
     return process.env.OUTPUT_DIR
   }
   if (process.env.NODE_ENV === 'production') {
+    pinoLogger.fatal('OUTPUT_DIR is not set')
     throw new Error('OUTPUT_DIR is not set')
   }
   return '/tmp/html-gfx-output'
