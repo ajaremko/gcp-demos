@@ -33,7 +33,7 @@ export function Navbar({ html }: { html: string }) {
     const spec = getValues()
     const blob = new Blob([html], { type: 'text/html' })
     const url = URL.createObjectURL(blob)
-    downloadUrl(url, `${slugify(spec.headline)}.html`)
+    downloadUrl(url, `${slugify(spec.headline.text)}.html`)
     URL.revokeObjectURL(url)
   }
 

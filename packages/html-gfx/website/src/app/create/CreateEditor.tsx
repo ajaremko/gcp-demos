@@ -15,10 +15,18 @@ import { GraphicFieldsPanel } from './GraphicFieldsPanel'
 import { GraphicPreview } from './GraphicPreview'
 
 const defaultValues: GraphicFormValues = {
-  headline: '',
-  subtext: '',
-  fontFamily: 'sans-serif',
-  fontColor: '#111111',
+  headline: {
+    text: '',
+    fontFamily: 'sans-serif',
+    fontSize: 56,
+    fontColor: '#111111',
+  },
+  subtext: {
+    text: '',
+    fontFamily: 'sans-serif',
+    fontSize: 28,
+    fontColor: '#111111',
+  },
   backgroundType: 'solid',
   backgroundColor1: '#ffffff',
   backgroundColor2: '#ffffff',
@@ -58,10 +66,18 @@ export function CreateEditor() {
     : lastGoodSize.current.height
 
   const html = buildGraphicHtml({
-    headline: spec.headline ?? '',
-    subtext: spec.subtext ?? '',
-    fontFamily: spec.fontFamily ?? 'sans-serif',
-    fontColor: spec.fontColor ?? '#111111',
+    headline: {
+      text: spec.headline?.text ?? '',
+      fontFamily: spec.headline?.fontFamily ?? 'sans-serif',
+      fontSize: spec.headline?.fontSize ?? 56,
+      fontColor: spec.headline?.fontColor ?? '#111111',
+    },
+    subtext: {
+      text: spec.subtext?.text ?? '',
+      fontFamily: spec.subtext?.fontFamily ?? 'sans-serif',
+      fontSize: spec.subtext?.fontSize ?? 28,
+      fontColor: spec.subtext?.fontColor ?? '#111111',
+    },
     backgroundType: spec.backgroundType ?? 'solid',
     backgroundColor1: spec.backgroundColor1 ?? '#ffffff',
     backgroundColor2: spec.backgroundColor2 ?? '#ffffff',

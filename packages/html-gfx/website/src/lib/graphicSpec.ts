@@ -67,20 +67,37 @@ const dimensionSchema = z
   .min(MIN_DIMENSION, `Must be at least ${MIN_DIMENSION}px`)
   .max(MAX_DIMENSION, `Must be at most ${MAX_DIMENSION}px`)
 
+export const FONT_SIZE_MIN = 8
+export const FONT_SIZE_MAX = 300
+
+const fontSizeSchema = z
+  .number()
+  .int('Must be a whole number')
+  .min(FONT_SIZE_MIN, `Must be at least ${FONT_SIZE_MIN}px`)
+  .max(FONT_SIZE_MAX, `Must be at most ${FONT_SIZE_MAX}px`)
+
 /**
  * Validates the graphic specification submitted by the user.
  * Used by both the client preview and the server action to ensure
  * they build identical HTML.
  */
 export const graphicSpecSchema = z.object({
-  headline: z
-    .string()
-    .trim()
-    .min(1, 'Headline is required')
-    .max(80, 'Headline is too long'),
-  subtext: z.string().trim().max(160, 'Subtext is too long'),
-  fontFamily: z.enum(FONT_FAMILY_IDS),
-  fontColor: hexColorSchema,
+  headline: z.object({
+    text: z
+      .string()
+      .trim()
+      .min(1, 'Headline is required')
+      .max(80, 'Headline is too long'),
+    fontFamily: z.enum(FONT_FAMILY_IDS),
+    fontSize: fontSizeSchema,
+    fontColor: hexColorSchema,
+  }),
+  subtext: z.object({
+    text: z.string().trim().max(160, 'Subtext is too long'),
+    fontFamily: z.enum(FONT_FAMILY_IDS),
+    fontSize: fontSizeSchema,
+    fontColor: hexColorSchema,
+  }),
   backgroundType: z.enum(BACKGROUND_TYPE_IDS),
   backgroundColor1: hexColorSchema,
   backgroundColor2: hexColorSchema,
@@ -133,8 +150,8 @@ function backgroundCss(spec: GraphicSpec): string {
  */
 export function buildGraphicHtml(spec: GraphicSpec): string {
   const { width, height } = spec
-  const headline = escapeHtml(spec.headline)
-  const subtext = escapeHtml(spec.subtext)
+  const headline = escapeHtml(spec.headline.text)
+  const subtext = escapeHtml(spec.subtext.text)
 
   return `<!doctype html>
 <html>
@@ -146,10 +163,10 @@ export function buildGraphicHtml(spec: GraphicSpec): string {
   </head>
   <body>
     <div
-      style="width:${width}px;height:${height}px;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:48px;font-family:${spec.fontFamily};${backgroundCss(spec)}color:${spec.fontColor};text-align:center;overflow:hidden;"
+      style="width:${width}px;height:${height}px;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:48px;${backgroundCss(spec)}text-align:center;overflow:hidden;"
     >
-      <div style="font-size:56px;font-weight:700;line-height:1.2;">${headline}</div>
-      ${subtext ? `<div style="font-size:28px;line-height:1.4;">${subtext}</div>` : ''}
+      <div style="font-family:${spec.headline.fontFamily};font-size:${spec.headline.fontSize}px;font-weight:700;line-height:1.2;color:${spec.headline.fontColor};">${headline}</div>
+      ${subtext ? `<div style="font-family:${spec.subtext.fontFamily};font-size:${spec.subtext.fontSize}px;line-height:1.4;color:${spec.subtext.fontColor};">${subtext}</div>` : ''}
     </div>
   </body>
 </html>`
