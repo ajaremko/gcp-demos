@@ -1,5 +1,6 @@
 import express from 'express'
 import * as fs from 'fs'
+import type { ImageFormat } from 'puppeteer'
 
 import {
   makeRenderer,
@@ -8,6 +9,8 @@ import {
   RenderingFailed,
 } from './renderer'
 import { pinoLogger } from './logging/pino'
+
+const ALLOWED_IMAGE_FORMATS: readonly ImageFormat[] = ['png', 'jpeg', 'webp']
 
 const outputDir = process.env.OUTPUT_DIR
 if (!outputDir) {
@@ -61,8 +64,22 @@ app.get('/livez', (req, res) => {
 })
 
 app.post('/render', express.text({ type: 'text/html' }), async (req, res) => {
+  const typeParam = req.query.type
+  if (
+    typeParam !== undefined &&
+    (typeof typeParam !== 'string' ||
+      !ALLOWED_IMAGE_FORMATS.includes(typeParam as ImageFormat))
+  ) {
+    res.status(400).send({
+      status: 'error',
+      message: `type must be one of: ${ALLOWED_IMAGE_FORMATS.join(', ')}`,
+    })
+    return
+  }
+  const format = (typeParam as ImageFormat | undefined) ?? 'png'
+
   try {
-    const path = await renderer.render(req.body)
+    const path = await renderer.render(req.body, format)
     res.status(200).send({ path })
   } catch (error) {
     if (error instanceof RendererNotReady) {

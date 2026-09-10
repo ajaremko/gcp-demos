@@ -7,7 +7,7 @@ import {
   type GraphicSpec,
 } from '@/lib/graphicSpec'
 import { zodFieldErrors } from '@/lib/formErrors'
-import { renderGraphic } from '@/lib/renderClient'
+import { renderGraphic, type ImageFormat } from '@/lib/renderClient'
 import { pinoLogger } from '@/lib/server/pino'
 
 export type CreateGraphicActionState =
@@ -19,6 +19,7 @@ const GENERIC_FAILURE_MESSAGE =
 
 export async function createGraphicAction(
   spec: GraphicSpec,
+  format: ImageFormat = 'png',
 ): Promise<CreateGraphicActionState> {
   const parsed = graphicSpecSchema.safeParse(spec)
   if (!parsed.success) {
@@ -30,7 +31,7 @@ export async function createGraphicAction(
 
   let renderedPath: string
   try {
-    const result = await renderGraphic(html)
+    const result = await renderGraphic(html, format)
     renderedPath = result.path
   } catch (err) {
     pinoLogger.error({ err }, 'Failed to render graphic')

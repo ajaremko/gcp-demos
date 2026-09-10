@@ -1,5 +1,5 @@
 import puppeteer from 'puppeteer'
-import type { Browser, Page, LaunchOptions } from 'puppeteer'
+import type { Browser, Page, LaunchOptions, ImageFormat } from 'puppeteer'
 import { randomUUID } from 'crypto'
 
 import { pinoLogger } from './logging/pino'
@@ -65,14 +65,14 @@ export function makeRenderer(opts: {
     }
   }
 
-  async function render(htmlString: string) {
+  async function render(htmlString: string, type: ImageFormat = 'png') {
     if (browser === null || pages.size >= opts.maxPages) {
       throw new RendererNotReady()
     }
     const id = randomUUID()
     logger.trace({ id }, 'Starting render request')
     try {
-      const path = `${opts.outputDir}/${id}.png`
+      const path = `${opts.outputDir}/${id}.${type}`
       const page = await browser.newPage()
       pages.set(id, page)
 
@@ -80,7 +80,7 @@ export function makeRenderer(opts: {
         waitUntil: 'domcontentloaded',
       })
 
-      await page.screenshot({ path, fullPage: true })
+      await page.screenshot({ path, type, fullPage: true })
       logger.trace({ id, path }, 'Render request completed successfully')
 
       await page.close()

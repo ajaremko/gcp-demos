@@ -1,5 +1,12 @@
 import { pinoLogger } from '@/lib/server/pino'
 
+/**
+ * Must stay in sync with the renderer's accepted `?type=` values
+ * (`packages/html-gfx/renderer/src/main.ts`), which in turn match
+ * Puppeteer's own `page.screenshot()` `type` option.
+ */
+export type ImageFormat = 'png' | 'jpeg' | 'webp'
+
 function resolveRendererApiUrl(): string {
   const url = process.env.RENDERER_API_URL
   if (!url) {
@@ -21,13 +28,19 @@ export class RenderRequestFailed extends Error {}
  * explicit `Content-Type: text/html` header, and responds with the
  * filesystem path (inside the renderer container) it saved the PNG to.
  */
-export async function renderGraphic(html: string): Promise<{ path: string }> {
+export async function renderGraphic(
+  html: string,
+  type: ImageFormat = 'png',
+): Promise<{ path: string }> {
   const url = resolveRendererApiUrl()
-  const response = await fetch(`${url}/render`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/html' },
-    body: html,
-  })
+  const response = await fetch(
+    `${url}/render?type=${encodeURIComponent(type)}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/html' },
+      body: html,
+    },
+  )
 
   if (!response.ok) {
     throw new RenderRequestFailed(
