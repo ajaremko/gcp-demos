@@ -1,6 +1,7 @@
 'use client'
 import { useState, useTransition, type ChangeEvent } from 'react'
 import { useFormContext } from 'react-hook-form'
+import * as YAML from 'yaml'
 
 import { type GraphicFormValues } from '@/lib/graphicSpec'
 
@@ -20,7 +21,11 @@ const EXPORT_FORMAT_LABELS: Record<ExportFormatId, string> = {
   ico: 'ICO',
 }
 
-const IMPLEMENTED_EXPORT_FORMATS = new Set<ExportFormatId>(['html', 'png'])
+const IMPLEMENTED_EXPORT_FORMATS = new Set<ExportFormatId>([
+  'html',
+  'png',
+  'yaml',
+])
 
 function slugify(value: string): string {
   const slug = value
@@ -67,6 +72,16 @@ export function ExportModal({
     onClose()
   }
 
+  function handleExportYaml() {
+    const spec = getValues()
+    const yamlText = YAML.stringify(spec)
+    const blob = new Blob([yamlText], { type: 'text/yaml' })
+    const url = URL.createObjectURL(blob)
+    downloadUrl(url, `${slugify(spec.headline.text)}.yml`)
+    URL.revokeObjectURL(url)
+    onClose()
+  }
+
   function handleExportPng() {
     setError(undefined)
     startTransition(async () => {
@@ -89,6 +104,8 @@ export function ExportModal({
       handleExportHtml()
     } else if (format === 'png') {
       handleExportPng()
+    } else if (format === 'yaml') {
+      handleExportYaml()
     }
   }
 
