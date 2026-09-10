@@ -4,12 +4,13 @@ import { useFormContext } from 'react-hook-form'
 import * as YAML from 'yaml'
 
 import { type GraphicFormValues } from '@/lib/graphicSpec'
+import { type ImageFormat } from '@/lib/renderClient'
 
 import { createGraphicAction } from './actions'
 import { Field } from './GraphicFieldsPanel'
 import { Modal } from './Modal'
 
-const EXPORT_FORMAT_IDS = ['yaml', 'html', 'png', 'jpg', 'ico'] as const
+const EXPORT_FORMAT_IDS = ['yaml', 'html', 'png', 'jpeg', 'webp'] as const
 
 type ExportFormatId = (typeof EXPORT_FORMAT_IDS)[number]
 
@@ -17,15 +18,9 @@ const EXPORT_FORMAT_LABELS: Record<ExportFormatId, string> = {
   yaml: 'YAML',
   html: 'HTML',
   png: 'PNG',
-  jpg: 'JPG',
-  ico: 'ICO',
+  jpeg: 'JPG',
+  webp: 'WebP',
 }
-
-const IMPLEMENTED_EXPORT_FORMATS = new Set<ExportFormatId>([
-  'html',
-  'png',
-  'yaml',
-])
 
 function slugify(value: string): string {
   const slug = value
@@ -82,14 +77,14 @@ export function ExportModal({
     onClose()
   }
 
-  function handleExportPng() {
+  function handleExportImage(imageFormat: ImageFormat) {
     setError(undefined)
     startTransition(async () => {
       const valid = await trigger()
       if (!valid) return
 
       const spec = getValues()
-      const result = await createGraphicAction(spec)
+      const result = await createGraphicAction(spec, imageFormat)
       if (result.status === 'error') {
         setError(result.message ?? 'Could not generate your graphic.')
         return
@@ -102,10 +97,10 @@ export function ExportModal({
   function handleExport() {
     if (format === 'html') {
       handleExportHtml()
-    } else if (format === 'png') {
-      handleExportPng()
     } else if (format === 'yaml') {
       handleExportYaml()
+    } else {
+      handleExportImage(format)
     }
   }
 
@@ -120,13 +115,8 @@ export function ExportModal({
             onChange={handleFormatChange}
           >
             {EXPORT_FORMAT_IDS.map((id) => (
-              <option
-                key={id}
-                value={id}
-                disabled={!IMPLEMENTED_EXPORT_FORMATS.has(id)}
-              >
+              <option key={id} value={id}>
                 {EXPORT_FORMAT_LABELS[id]}
-                {!IMPLEMENTED_EXPORT_FORMATS.has(id) ? ' (coming soon)' : ''}
               </option>
             ))}
           </select>
