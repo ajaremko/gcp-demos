@@ -5,6 +5,7 @@ import { useFormContext } from 'react-hook-form'
 import { FONT_FAMILY_IDS, type GraphicFormValues } from '@/lib/graphicSpec'
 
 import { PropertiesPanel } from './PropertiesPanel'
+import { BackgroundPanel } from './BackgroundPanel'
 
 export function Field({
   label,
@@ -43,6 +44,12 @@ export function GraphicFieldsPanel({ className }: { className?: string }) {
           Properties
         </h2>
         <PropertiesPanel className="mb-4" />
+      </section>
+      <section className="border-b border-gray-300">
+        <h2 className="mb-4 text-xs font-semibold uppercase tracking-wide text-gray-500">
+          Background
+        </h2>
+        <BackgroundPanel className="mb-4" />
       </section>
       <section className="border-b border-gray-300">
         <h2 className="mb-4 text-xs font-semibold uppercase tracking-wide text-gray-500">
@@ -107,19 +114,6 @@ export function GraphicFieldsPanel({ className }: { className?: string }) {
               type="color"
               className="h-8 w-full rounded border border-gray-300"
               {...register('fontColor')}
-            />
-          </Field>
-
-          <Field
-            label="Background color"
-            htmlFor="backgroundColor"
-            error={errors.backgroundColor?.message}
-          >
-            <input
-              id="backgroundColor"
-              type="color"
-              className="h-8 w-full rounded border border-gray-300"
-              {...register('backgroundColor')}
             />
           </Field>
         </div>

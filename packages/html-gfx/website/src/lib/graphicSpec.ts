@@ -44,6 +44,16 @@ export const FONT_FAMILY_IDS = ['sans-serif', 'serif', 'monospace'] as const
 
 export type FontFamilyId = (typeof FONT_FAMILY_IDS)[number]
 
+export const BACKGROUND_TYPE_IDS = ['solid', 'gradient-2', 'gradient-3'] as const
+
+export type BackgroundTypeId = (typeof BACKGROUND_TYPE_IDS)[number]
+
+export const BACKGROUND_TYPE_LABELS: Record<BackgroundTypeId, string> = {
+  solid: 'Solid color',
+  'gradient-2': '2-color gradient',
+  'gradient-3': '3-color gradient',
+}
+
 const hexColorSchema = z
   .string()
   .regex(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i, 'Must be a hex color, e.g. #336699')
@@ -71,7 +81,10 @@ export const graphicSpecSchema = z.object({
   subtext: z.string().trim().max(160, 'Subtext is too long'),
   fontFamily: z.enum(FONT_FAMILY_IDS),
   fontColor: hexColorSchema,
-  backgroundColor: hexColorSchema,
+  backgroundType: z.enum(BACKGROUND_TYPE_IDS),
+  backgroundColor1: hexColorSchema,
+  backgroundColor2: hexColorSchema,
+  backgroundColor3: hexColorSchema,
   width: dimensionSchema,
   height: dimensionSchema,
 })
@@ -100,6 +113,17 @@ function escapeHtml(value: string): string {
     .replace(/'/g, '&#39;')
 }
 
+function backgroundCss(spec: GraphicSpec): string {
+  switch (spec.backgroundType) {
+    case 'solid':
+      return `background-color:${spec.backgroundColor1};`
+    case 'gradient-2':
+      return `background:linear-gradient(135deg, ${spec.backgroundColor1}, ${spec.backgroundColor2});`
+    case 'gradient-3':
+      return `background:linear-gradient(135deg, ${spec.backgroundColor1}, ${spec.backgroundColor2}, ${spec.backgroundColor3});`
+  }
+}
+
 /**
  * Builds the full HTML document for a graphic spec. The renderer
  * screenshots with `fullPage: true` and no custom viewport, so the
@@ -122,7 +146,7 @@ export function buildGraphicHtml(spec: GraphicSpec): string {
   </head>
   <body>
     <div
-      style="width:${width}px;height:${height}px;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:48px;font-family:${spec.fontFamily};background-color:${spec.backgroundColor};color:${spec.fontColor};text-align:center;overflow:hidden;"
+      style="width:${width}px;height:${height}px;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:48px;font-family:${spec.fontFamily};${backgroundCss(spec)}color:${spec.fontColor};text-align:center;overflow:hidden;"
     >
       <div style="font-size:56px;font-weight:700;line-height:1.2;">${headline}</div>
       ${subtext ? `<div style="font-size:28px;line-height:1.4;">${subtext}</div>` : ''}
