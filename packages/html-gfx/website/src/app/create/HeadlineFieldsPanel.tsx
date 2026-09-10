@@ -28,7 +28,7 @@ export function HeadlineFieldsPanel({ className }: { className?: string }) {
           id="headline.text"
           type="text"
           placeholder="Big bold headline"
-          className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+          className="w-full rounded border border-gray-700 bg-gray-800 px-2 py-1 text-sm text-gray-100"
           {...register('headline.text')}
         />
       </Field>
@@ -40,7 +40,7 @@ export function HeadlineFieldsPanel({ className }: { className?: string }) {
       >
         <select
           id="headline.fontFamily"
-          className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+          className="w-full rounded border border-gray-700 bg-gray-800 px-2 py-1 text-sm text-gray-100"
           {...register('headline.fontFamily')}
         >
           {FONT_FAMILY_IDS.map((id) => (
@@ -62,7 +62,7 @@ export function HeadlineFieldsPanel({ className }: { className?: string }) {
           min={FONT_SIZE_MIN}
           max={FONT_SIZE_MAX}
           step={1}
-          className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+          className="w-full rounded border border-gray-700 bg-gray-800 px-2 py-1 text-sm text-gray-100"
           {...register('headline.fontSize', { valueAsNumber: true })}
         />
       </Field>
@@ -75,7 +75,7 @@ export function HeadlineFieldsPanel({ className }: { className?: string }) {
         <input
           id="headline.fontColor"
           type="color"
-          className="h-8 w-full rounded border border-gray-300"
+          className="h-8 w-full rounded border border-gray-700 bg-gray-800"
           {...register('headline.fontColor')}
         />
       </Field>

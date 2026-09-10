@@ -28,7 +28,7 @@ export function SubtextFieldsPanel({ className }: { className?: string }) {
           id="subtext.text"
           placeholder="Optional supporting text"
           rows={2}
-          className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+          className="w-full rounded border border-gray-700 bg-gray-800 px-2 py-1 text-sm text-gray-100"
           {...register('subtext.text')}
         />
       </Field>
@@ -40,7 +40,7 @@ export function SubtextFieldsPanel({ className }: { className?: string }) {
       >
         <select
           id="subtext.fontFamily"
-          className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+          className="w-full rounded border border-gray-700 bg-gray-800 px-2 py-1 text-sm text-gray-100"
           {...register('subtext.fontFamily')}
         >
           {FONT_FAMILY_IDS.map((id) => (
@@ -62,7 +62,7 @@ export function SubtextFieldsPanel({ className }: { className?: string }) {
           min={FONT_SIZE_MIN}
           max={FONT_SIZE_MAX}
           step={1}
-          className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+          className="w-full rounded border border-gray-700 bg-gray-800 px-2 py-1 text-sm text-gray-100"
           {...register('subtext.fontSize', { valueAsNumber: true })}
         />
       </Field>
@@ -75,7 +75,7 @@ export function SubtextFieldsPanel({ className }: { className?: string }) {
         <input
           id="subtext.fontColor"
           type="color"
-          className="h-8 w-full rounded border border-gray-300"
+          className="h-8 w-full rounded border border-gray-700 bg-gray-800"
           {...register('subtext.fontColor')}
         />
       </Field>

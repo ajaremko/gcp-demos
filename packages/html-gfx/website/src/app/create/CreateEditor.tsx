@@ -119,12 +119,12 @@ export function CreateEditor() {
       <div className="flex h-dvh w-screen flex-col overflow-hidden">
         <Navbar html={html} />
         <div className="flex min-h-0 flex-1">
-          <GraphicFieldsPanel className="w-96 shrink-0 overflow-y-auto border-r border-gray-200 p-4" />
+          <GraphicFieldsPanel className="w-96 shrink-0 overflow-y-auto border-r border-gray-700 p-4" />
           <GraphicPreview
             html={html}
             width={width}
             height={height}
-            className="min-w-0 flex-1 overflow-hidden bg-gray-100 p-6"
+            className="min-w-0 flex-1 overflow-hidden bg-gray-900 p-6"
           />
         </div>
       </div>

@@ -86,7 +86,7 @@ export function PropertiesPanel({ className }: { className?: string }) {
       <Field label="Size" htmlFor="preset">
         <select
           id="preset"
-          className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+          className="w-full rounded border border-gray-700 bg-gray-800 px-2 py-1 text-sm text-gray-100"
           value={matchedPreset ?? 'custom'}
           onChange={handlePresetChange}
         >
@@ -104,7 +104,7 @@ export function PropertiesPanel({ className }: { className?: string }) {
       <Field label="Aspect ratio" htmlFor="ratio" error={errors.ratio?.message}>
         <select
           id="ratio"
-          className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+          className="w-full rounded border border-gray-700 bg-gray-800 px-2 py-1 text-sm text-gray-100"
           {...register('ratio', { onChange: handleRatioChange })}
         >
           {RATIO_IDS.map((id) => (
@@ -122,7 +122,7 @@ export function PropertiesPanel({ className }: { className?: string }) {
           min={MIN_DIMENSION}
           max={MAX_DIMENSION}
           step={1}
-          className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+          className="w-full rounded border border-gray-700 bg-gray-800 px-2 py-1 text-sm text-gray-100"
           {...register('width', {
             valueAsNumber: true,
             onChange: handleWidthChange,
@@ -141,7 +141,7 @@ export function PropertiesPanel({ className }: { className?: string }) {
           min={MIN_DIMENSION}
           max={MAX_DIMENSION}
           step={1}
-          className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+          className="w-full rounded border border-gray-700 bg-gray-800 px-2 py-1 text-sm text-gray-100"
           {...register('height', {
             valueAsNumber: true,
             onChange: handleHeightChange,

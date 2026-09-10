@@ -25,7 +25,7 @@ export function Field({
         {label}
       </label>
       {children}
-      {error && <p className="mt-0.5 text-xs text-red-600">{error}</p>}
+      {error && <p className="mt-0.5 text-xs text-red-400">{error}</p>}
     </div>
   )
 }
@@ -33,26 +33,26 @@ export function Field({
 export function GraphicFieldsPanel({ className }: { className?: string }) {
   return (
     <div className={`flex flex-col gap-4 ${className ?? ''}`}>
-      <section className="border-b border-gray-300">
-        <h2 className="mb-4 text-xs font-semibold uppercase tracking-wide text-gray-500">
+      <section className="border-b border-gray-700">
+        <h2 className="mb-4 text-xs font-semibold uppercase tracking-wide text-gray-400">
           Properties
         </h2>
         <PropertiesPanel className="mb-4" />
       </section>
-      <section className="border-b border-gray-300">
-        <h2 className="mb-4 text-xs font-semibold uppercase tracking-wide text-gray-500">
+      <section className="border-b border-gray-700">
+        <h2 className="mb-4 text-xs font-semibold uppercase tracking-wide text-gray-400">
           Background
         </h2>
         <BackgroundPanel className="mb-4" />
       </section>
-      <section className="border-b border-gray-300">
-        <h2 className="mb-4 text-xs font-semibold uppercase tracking-wide text-gray-500">
+      <section className="border-b border-gray-700">
+        <h2 className="mb-4 text-xs font-semibold uppercase tracking-wide text-gray-400">
           Headline
         </h2>
         <HeadlineFieldsPanel className="mb-4" />
       </section>
       <section>
-        <h2 className="mb-4 text-xs font-semibold uppercase tracking-wide text-gray-500">
+        <h2 className="mb-4 text-xs font-semibold uppercase tracking-wide text-gray-400">
           Subtext
         </h2>
         <SubtextFieldsPanel />

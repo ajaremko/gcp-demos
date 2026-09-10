@@ -9,13 +9,13 @@ export function Navbar({ html }: { html: string }) {
   const [isExportOpen, setIsExportOpen] = useState(false)
 
   return (
-    <div className="flex shrink-0 items-center justify-between border-b border-gray-200 px-6 py-3">
+    <div className="flex shrink-0 items-center justify-between border-b border-gray-700 px-6 py-3">
       <h1 className="text-lg font-semibold">Simple HTML Graphics</h1>
       <div className="flex items-center gap-3">
         <button
           type="button"
           onClick={() => setIsImportOpen(true)}
-          className="rounded border border-gray-300 px-3 py-1.5 text-sm font-medium"
+          className="rounded border border-gray-700 px-3 py-1.5 text-sm font-medium"
         >
           Import
         </button>

@@ -110,7 +110,7 @@ export function ExportModal({
         <Field label="Format" htmlFor="exportFormat">
           <select
             id="exportFormat"
-            className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+            className="w-full rounded border border-gray-700 bg-gray-800 px-2 py-1 text-sm text-gray-100"
             value={format}
             onChange={handleFormatChange}
           >
@@ -122,7 +122,7 @@ export function ExportModal({
           </select>
         </Field>
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-red-400">{error}</p>}
 
         <button
           type="button"

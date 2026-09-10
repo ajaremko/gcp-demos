@@ -48,7 +48,7 @@ export function GraphicPreview({
     >
       {scale > 0 && (
         <div
-          className="overflow-hidden rounded border border-gray-300 bg-gray-50 shadow-sm"
+          className="overflow-hidden rounded border border-gray-700 bg-gray-800 shadow-lg"
           style={{ width: width * scale, height: height * scale }}
         >
           <iframe

@@ -22,7 +22,7 @@ export function Modal({
     >
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/50" />
-        <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded border border-gray-300 bg-white p-6 shadow-lg">
+        <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded border border-gray-700 bg-gray-800 p-6 shadow-lg">
           <div className="mb-4 flex items-center justify-between">
             <Dialog.Title className="text-lg font-semibold">
               {title}
@@ -31,7 +31,7 @@ export function Modal({
               <button
                 type="button"
                 aria-label="Close"
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 hover:text-gray-200"
               >
                 ×
               </button>

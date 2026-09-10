@@ -23,7 +23,7 @@ export function BackgroundPanel({ className }: { className?: string }) {
       <Field label="Background type" htmlFor="backgroundType">
         <select
           id="backgroundType"
-          className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+          className="w-full rounded border border-gray-700 bg-gray-800 px-2 py-1 text-sm text-gray-100"
           {...register('backgroundType')}
         >
           {BACKGROUND_TYPE_IDS.map((id) => (
@@ -42,7 +42,7 @@ export function BackgroundPanel({ className }: { className?: string }) {
         <input
           id="backgroundColor1"
           type="color"
-          className="h-8 w-full rounded border border-gray-300"
+          className="h-8 w-full rounded border border-gray-700 bg-gray-800"
           {...register('backgroundColor1')}
         />
       </Field>
@@ -56,7 +56,7 @@ export function BackgroundPanel({ className }: { className?: string }) {
           <input
             id="backgroundColor2"
             type="color"
-            className="h-8 w-full rounded border border-gray-300"
+            className="h-8 w-full rounded border border-gray-700 bg-gray-800"
             {...register('backgroundColor2')}
           />
         </Field>
@@ -71,7 +71,7 @@ export function BackgroundPanel({ className }: { className?: string }) {
           <input
             id="backgroundColor3"
             type="color"
-            className="h-8 w-full rounded border border-gray-300"
+            className="h-8 w-full rounded border border-gray-700 bg-gray-800"
             {...register('backgroundColor3')}
           />
         </Field>
