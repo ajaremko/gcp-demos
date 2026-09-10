@@ -2,6 +2,6 @@ config:
   project: gcp-demos-505417
   region: us-central1
   sharedStackName: alfredsyoung/gcp-demos-shared-infra
-  websiteImageTag: 2609.09.f9255e5-hotfix
-  rendererImageTag: 2609.09.f9255e5-hotfix
+  websiteImageTag: 2609.09.3c4ecef-hotfix
+  rendererImageTag: 2609.09.3c4ecef-hotfix
   deletionProtection: false
