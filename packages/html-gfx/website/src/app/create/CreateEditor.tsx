@@ -36,6 +36,8 @@ const defaultValues: GraphicFormValues = {
   ratio: SIZE_PRESETS.social.ratio,
 }
 
+const STORAGE_KEY = 'html-gfx:create-editor'
+
 export function CreateEditor() {
   const methods = useForm<GraphicFormValues>({
     resolver: zodResolver(graphicFormSchema),
@@ -57,6 +59,32 @@ export function CreateEditor() {
       }
     }
   }, [spec.width, spec.height])
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY)
+      if (!raw) return
+      const parsed = graphicFormSchema.safeParse(JSON.parse(raw))
+      if (!parsed.success) return
+      methods.reset(parsed.data)
+      lastGoodSize.current = {
+        width: parsed.data.width,
+        height: parsed.data.height,
+      }
+    } catch (err) {
+      // localStorage unavailable or entry corrupted — fall back to defaultValues
+      console.warn('Failed to load graphic editor state from localStorage', err)
+    }
+  }, [])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(spec))
+    } catch (err) {
+      // localStorage unavailable (private mode, quota) — nothing to do
+      console.warn('Failed to save graphic editor state to localStorage', err)
+    }
+  }, [spec])
 
   const width = Number.isFinite(spec.width)
     ? (spec.width as number)
