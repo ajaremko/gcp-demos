@@ -1,5 +1,44 @@
 'use client'
+import { useState, useTransition, type ChangeEvent } from 'react'
+import { useFormContext } from 'react-hook-form'
+
+import { type GraphicFormValues } from '@/lib/graphicSpec'
+
+import { createGraphicAction } from './actions'
+import { Field } from './GraphicFieldsPanel'
 import { Modal } from './Modal'
+
+const EXPORT_FORMAT_IDS = ['yaml', 'html', 'png', 'jpg', 'ico'] as const
+
+type ExportFormatId = (typeof EXPORT_FORMAT_IDS)[number]
+
+const EXPORT_FORMAT_LABELS: Record<ExportFormatId, string> = {
+  yaml: 'YAML',
+  html: 'HTML',
+  png: 'PNG',
+  jpg: 'JPG',
+  ico: 'ICO',
+}
+
+const IMPLEMENTED_EXPORT_FORMATS = new Set<ExportFormatId>(['html', 'png'])
+
+function slugify(value: string): string {
+  const slug = value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+  return slug || 'graphic'
+}
+
+function downloadUrl(url: string, filename: string) {
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+}
 
 export function ExportModal({
   open,
@@ -10,9 +49,83 @@ export function ExportModal({
   onClose: () => void
   html: string
 }) {
+  const { getValues, trigger } = useFormContext<GraphicFormValues>()
+  const [format, setFormat] = useState<ExportFormatId>('html')
+  const [isPending, startTransition] = useTransition()
+  const [error, setError] = useState<string | undefined>()
+
+  function handleFormatChange(event: ChangeEvent<HTMLSelectElement>) {
+    setFormat(event.target.value as ExportFormatId)
+  }
+
+  function handleExportHtml() {
+    const spec = getValues()
+    const blob = new Blob([html], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    downloadUrl(url, `${slugify(spec.headline.text)}.html`)
+    URL.revokeObjectURL(url)
+    onClose()
+  }
+
+  function handleExportPng() {
+    setError(undefined)
+    startTransition(async () => {
+      const valid = await trigger()
+      if (!valid) return
+
+      const spec = getValues()
+      const result = await createGraphicAction(spec)
+      if (result.status === 'error') {
+        setError(result.message ?? 'Could not generate your graphic.')
+        return
+      }
+      downloadUrl(`/api/download/${result.filename}`, result.filename)
+      onClose()
+    })
+  }
+
+  function handleExport() {
+    if (format === 'html') {
+      handleExportHtml()
+    } else if (format === 'png') {
+      handleExportPng()
+    }
+  }
+
   return (
     <Modal open={open} onClose={onClose} title="Export">
-      <p className="text-sm text-gray-600">Export functionality coming soon.</p>
+      <div className="flex flex-col gap-3">
+        <Field label="Format" htmlFor="exportFormat">
+          <select
+            id="exportFormat"
+            className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+            value={format}
+            onChange={handleFormatChange}
+          >
+            {EXPORT_FORMAT_IDS.map((id) => (
+              <option
+                key={id}
+                value={id}
+                disabled={!IMPLEMENTED_EXPORT_FORMATS.has(id)}
+              >
+                {EXPORT_FORMAT_LABELS[id]}
+                {!IMPLEMENTED_EXPORT_FORMATS.has(id) ? ' (coming soon)' : ''}
+              </option>
+            ))}
+          </select>
+        </Field>
+
+        {error && <p className="text-sm text-red-600">{error}</p>}
+
+        <button
+          type="button"
+          onClick={handleExport}
+          disabled={isPending}
+          className="rounded bg-blue-600 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50"
+        >
+          {isPending ? 'Generating…' : 'Export'}
+        </button>
+      </div>
     </Modal>
   )
 }
