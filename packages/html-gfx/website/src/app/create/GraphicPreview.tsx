@@ -16,6 +16,12 @@ export function GraphicPreview({
 }: GraphicPreviewProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 })
+  const [debouncedHtml, setDebouncedHtml] = useState(html)
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setDebouncedHtml(html), 300)
+    return () => clearTimeout(timeout)
+  }, [html])
 
   useEffect(() => {
     const el = containerRef.current
@@ -46,7 +52,7 @@ export function GraphicPreview({
           style={{ width: width * scale, height: height * scale }}
         >
           <iframe
-            srcDoc={html}
+            srcDoc={debouncedHtml}
             title="Graphic preview"
             className="pointer-events-none origin-top-left border-0"
             style={{ width, height, transform: `scale(${scale})` }}

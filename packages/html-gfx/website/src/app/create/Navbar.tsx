@@ -2,7 +2,7 @@
 import { useState, useTransition } from 'react'
 import { useFormContext } from 'react-hook-form'
 
-import { type GraphicSpec } from '@/lib/graphicSpec'
+import { type GraphicFormValues } from '@/lib/graphicSpec'
 
 import { createGraphicAction } from './actions'
 
@@ -25,7 +25,7 @@ function downloadUrl(url: string, filename: string) {
 }
 
 export function Navbar({ html }: { html: string }) {
-  const { getValues, trigger } = useFormContext<GraphicSpec>()
+  const { getValues, trigger } = useFormContext<GraphicFormValues>()
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | undefined>()
 
