@@ -1,43 +1,58 @@
 'use client'
-import { useFormContext, useWatch } from 'react-hook-form'
+import { useEffect, useRef, useState } from 'react'
 
-import {
-  buildGraphicHtml,
-  SIZE_PRESETS,
-  type GraphicSpec,
-} from '@/lib/graphicSpec'
+type GraphicPreviewProps = {
+  html: string
+  width: number
+  height: number
+  className?: string
+}
 
-const PREVIEW_MAX_WIDTH = 480
+export function GraphicPreview({
+  html,
+  width,
+  height,
+  className,
+}: GraphicPreviewProps) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [containerSize, setContainerSize] = useState({ width: 0, height: 0 })
 
-export function GraphicPreview() {
-  const { control } = useFormContext<GraphicSpec>()
-  const spec = useWatch({ control })
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
 
-  const { width, height } = SIZE_PRESETS[spec.preset ?? 'social']
-  const html = buildGraphicHtml({
-    preset: spec.preset ?? 'social',
-    headline: spec.headline ?? '',
-    subtext: spec.subtext ?? '',
-    fontFamily: spec.fontFamily ?? 'sans-serif',
-    fontColor: spec.fontColor ?? '#111111',
-    backgroundColor: spec.backgroundColor ?? '#ffffff',
-  })
-  const scale = Math.min(1, PREVIEW_MAX_WIDTH / width)
+    const observer = new ResizeObserver(([entry]) => {
+      if (!entry) return
+      const { width: w, height: h } = entry.contentRect
+      setContainerSize({ width: w, height: h })
+    })
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
+  const scale =
+    containerSize.width > 0 && containerSize.height > 0
+      ? Math.min(containerSize.width / width, containerSize.height / height)
+      : 0
 
   return (
-    <div>
-      <p className="mb-2 text-sm font-medium">Preview</p>
-      <div
-        className="overflow-hidden rounded border border-gray-300 bg-gray-50"
-        style={{ width: width * scale, height: height * scale }}
-      >
-        <iframe
-          srcDoc={html}
-          title="Graphic preview"
-          className="pointer-events-none origin-top-left border-0"
-          style={{ width, height, transform: `scale(${scale})` }}
-        />
-      </div>
+    <div
+      ref={containerRef}
+      className={`flex items-center justify-center ${className ?? ''}`}
+    >
+      {scale > 0 && (
+        <div
+          className="overflow-hidden rounded border border-gray-300 bg-gray-50 shadow-sm"
+          style={{ width: width * scale, height: height * scale }}
+        >
+          <iframe
+            srcDoc={html}
+            title="Graphic preview"
+            className="pointer-events-none origin-top-left border-0"
+            style={{ width, height, transform: `scale(${scale})` }}
+          />
+        </div>
+      )}
     </div>
   )
 }
