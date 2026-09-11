@@ -4,6 +4,7 @@ import { About } from './About'
 import { TechStack } from './TechStack'
 import { FAQ } from './FAQ'
 import { RendererStatusBadge } from './RendererStatusBadge'
+import { Footer } from './Footer'
 
 export default function Index() {
   return (
@@ -28,6 +29,8 @@ export default function Index() {
         <FAQ />
         <TechStack />
       </div>
+
+      <Footer />
     </main>
   )
 }
