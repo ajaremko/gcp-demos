@@ -4,13 +4,14 @@ export const RATIO_IDS = ['none', '1:1', '16:9', '4:5', '3:2'] as const
 
 export type RatioId = (typeof RATIO_IDS)[number]
 
-export const RATIOS: Record<RatioId, { value: number | null; label: string }> = {
-  none: { value: null, label: 'None (independent)' },
-  '1:1': { value: 1, label: 'Square (1:1)' },
-  '16:9': { value: 16 / 9, label: 'Landscape (16:9)' },
-  '4:5': { value: 4 / 5, label: 'Portrait (4:5)' },
-  '3:2': { value: 3 / 2, label: 'Landscape (3:2)' },
-}
+export const RATIOS: Record<RatioId, { value: number | null; label: string }> =
+  {
+    none: { value: null, label: 'None (independent)' },
+    '1:1': { value: 1, label: 'Square (1:1)' },
+    '16:9': { value: 16 / 9, label: 'Landscape (16:9)' },
+    '4:5': { value: 4 / 5, label: 'Portrait (4:5)' },
+    '3:2': { value: 3 / 2, label: 'Landscape (3:2)' },
+  }
 
 export const SIZE_PRESET_IDS = ['social', 'square', 'thumbnail'] as const
 
@@ -44,7 +45,11 @@ export const FONT_FAMILY_IDS = ['sans-serif', 'serif', 'monospace'] as const
 
 export type FontFamilyId = (typeof FONT_FAMILY_IDS)[number]
 
-export const BACKGROUND_TYPE_IDS = ['solid', 'gradient-2', 'gradient-3'] as const
+export const BACKGROUND_TYPE_IDS = [
+  'solid',
+  'gradient-2',
+  'gradient-3',
+] as const
 
 export type BackgroundTypeId = (typeof BACKGROUND_TYPE_IDS)[number]
 
@@ -68,7 +73,7 @@ const dimensionSchema = z
   .max(MAX_DIMENSION, `Must be at most ${MAX_DIMENSION}px`)
 
 export const FONT_SIZE_MIN = 8
-export const FONT_SIZE_MAX = 300
+export const FONT_SIZE_MAX = 600
 
 const fontSizeSchema = z
   .number()

@@ -3,6 +3,7 @@ import { useState } from 'react'
 
 import { ImportModal } from './ImportModal'
 import { ExportModal } from './ExportModal'
+import { RendererStatusBadge } from '../RendererStatusBadge'
 
 export function Navbar({ html }: { html: string }) {
   const [isImportOpen, setIsImportOpen] = useState(false)
@@ -10,7 +11,10 @@ export function Navbar({ html }: { html: string }) {
 
   return (
     <div className="flex shrink-0 items-center justify-between border-b border-gray-700 px-6 py-3">
-      <h1 className="text-lg font-semibold">Simple HTML Graphics</h1>
+      <div className="flex items-center gap-3">
+        <h1 className="text-lg font-semibold">Simple HTML Graphics</h1>
+        <RendererStatusBadge />
+      </div>
       <div className="flex items-center gap-3">
         <button
           type="button"

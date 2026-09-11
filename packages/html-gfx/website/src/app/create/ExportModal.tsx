@@ -5,6 +5,7 @@ import * as YAML from 'yaml'
 
 import { type GraphicFormValues } from '@/lib/graphicSpec'
 import { type ImageFormat } from '@/lib/renderClient'
+import { useRendererReady } from '@/lib/query/useRendererReady'
 
 import { createGraphicAction } from './actions'
 import { Field } from './GraphicFieldsPanel'
@@ -21,6 +22,8 @@ const EXPORT_FORMAT_LABELS: Record<ExportFormatId, string> = {
   jpeg: 'JPG',
   webp: 'WebP',
 }
+
+const IMAGE_FORMAT_IDS = new Set<ExportFormatId>(['png', 'jpeg', 'webp'])
 
 function slugify(value: string): string {
   const slug = value
@@ -50,6 +53,7 @@ export function ExportModal({
   html: string
 }) {
   const { getValues, trigger } = useFormContext<GraphicFormValues>()
+  const { ready: rendererReady } = useRendererReady()
   const [format, setFormat] = useState<ExportFormatId>('html')
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | undefined>()
@@ -78,6 +82,7 @@ export function ExportModal({
   }
 
   function handleExportImage(imageFormat: ImageFormat) {
+    if (!rendererReady) return
     setError(undefined)
     startTransition(async () => {
       const valid = await trigger()
@@ -115,12 +120,23 @@ export function ExportModal({
             onChange={handleFormatChange}
           >
             {EXPORT_FORMAT_IDS.map((id) => (
-              <option key={id} value={id}>
+              <option
+                key={id}
+                value={id}
+                disabled={IMAGE_FORMAT_IDS.has(id) && !rendererReady}
+              >
                 {EXPORT_FORMAT_LABELS[id]}
               </option>
             ))}
           </select>
         </Field>
+
+        {!rendererReady && (
+          <p className="text-sm text-yellow-400">
+            Image export is temporarily unavailable — the renderer isn&apos;t
+            ready yet.
+          </p>
+        )}
 
         {error && <p className="text-sm text-red-400">{error}</p>}
 

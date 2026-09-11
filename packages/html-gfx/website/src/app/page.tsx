@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { About } from './About'
 import { TechStack } from './TechStack'
 import { FAQ } from './FAQ'
+import { RendererStatusBadge } from './RendererStatusBadge'
 
 export default function Index() {
   return (
@@ -19,6 +20,7 @@ export default function Index() {
         >
           Create a graphic
         </Link>
+        <RendererStatusBadge />
       </section>
 
       <div className="flex w-full max-w-3xl flex-col gap-10">
