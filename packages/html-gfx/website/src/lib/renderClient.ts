@@ -20,6 +20,20 @@ function resolveRendererApiUrl(): string {
   return url.replace(/\/+$/, '')
 }
 
+/**
+ * GETs the livez endpoint to check if the renderer is ready.
+ */
+export async function rendererReady(): Promise<boolean> {
+  const url = resolveRendererApiUrl()
+  try {
+    const response = await fetch(`${url}/livez`)
+    return response.ok
+  } catch (err) {
+    pinoLogger.error({ err }, 'Failed to check if renderer is ready')
+    return false
+  }
+}
+
 export class RenderRequestFailed extends Error {}
 
 /**
