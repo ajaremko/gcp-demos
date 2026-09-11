@@ -5,7 +5,7 @@ import * as YAML from 'yaml'
 
 import { type GraphicFormValues } from '@/lib/graphicSpec'
 import { type ImageFormat } from '@/lib/renderClient'
-import { useRendererReady } from '@/lib/query/useRendererReady'
+import { useRendererStatus } from '@/lib/query/useRendererStatus'
 
 import { createGraphicAction } from './actions'
 import { Field } from './GraphicFieldsPanel'
@@ -53,7 +53,8 @@ export function ExportModal({
   html: string
 }) {
   const { getValues, trigger } = useFormContext<GraphicFormValues>()
-  const { ready: rendererReady } = useRendererReady()
+  const { status: rendererStatus } = useRendererStatus()
+  const rendererReady = rendererStatus === 'ready'
   const [format, setFormat] = useState<ExportFormatId>('html')
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | undefined>()
@@ -133,8 +134,9 @@ export function ExportModal({
 
         {!rendererReady && (
           <p className="text-sm text-yellow-400">
-            Image export is temporarily unavailable — the renderer isn&apos;t
-            ready yet.
+            {rendererStatus === 'starting'
+              ? 'Image export is temporarily unavailable — the renderer is still starting up.'
+              : "Image export is unavailable — the renderer isn't reachable."}
           </p>
         )}
 

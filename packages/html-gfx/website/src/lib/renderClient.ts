@@ -21,16 +21,27 @@ function resolveRendererApiUrl(): string {
 }
 
 /**
- * GETs the livez endpoint to check if the renderer is ready.
+ * Renderer health tiers, inferred from its `/livez` HTTP status:
+ * 200 -> ready, 503 -> starting (server up, browser not ready yet),
+ * anything else (including an unreachable renderer) -> unavailable.
  */
-export async function rendererReady(): Promise<boolean> {
-  const url = resolveRendererApiUrl()
+export type RendererStatus = 'ready' | 'starting' | 'unavailable'
+
+/**
+ * GETs the livez endpoint to determine the renderer's health tier.
+ * Never rejects — any failure (including a missing RENDERER_API_URL
+ * or a network error) resolves to 'unavailable'.
+ */
+export async function checkRendererStatus(): Promise<RendererStatus> {
   try {
+    const url = resolveRendererApiUrl()
     const response = await fetch(`${url}/livez`)
-    return response.ok
+    if (response.status === 200) return 'ready'
+    if (response.status === 503) return 'starting'
+    return 'unavailable'
   } catch (err) {
-    pinoLogger.error({ err }, 'Failed to check if renderer is ready')
-    return false
+    pinoLogger.error({ err }, 'Failed to check renderer status')
+    return 'unavailable'
   }
 }
 

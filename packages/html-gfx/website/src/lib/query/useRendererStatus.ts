@@ -1,12 +1,14 @@
 import { useQuery } from '@tanstack/react-query'
 
+import { type RendererStatus } from '@/lib/renderClient'
+
 const READY_POLL_INTERVAL_MS = 5000
 
-async function fetchReady(): Promise<boolean> {
+async function fetchStatus(): Promise<RendererStatus> {
   const response = await fetch('/api/ready')
-  if (!response.ok) return false
-  const data = (await response.json()) as { ready: boolean }
-  return data.ready
+  if (!response.ok) return 'unavailable'
+  const data = (await response.json()) as { status: RendererStatus }
+  return data.status
 }
 
 /**
@@ -15,15 +17,18 @@ async function fetchReady(): Promise<boolean> {
  * polling automatically starts/stops based on whether any consumer is
  * mounted.
  */
-export function useRendererReady(): { ready: boolean; isLoading: boolean } {
+export function useRendererStatus(): {
+  status: RendererStatus
+  isLoading: boolean
+} {
   const query = useQuery({
-    queryKey: ['renderer-ready'],
-    queryFn: fetchReady,
+    queryKey: ['renderer-status'],
+    queryFn: fetchStatus,
     refetchInterval: READY_POLL_INTERVAL_MS,
   })
 
   return {
-    ready: query.data ?? false,
+    status: query.data ?? 'unavailable',
     isLoading: query.isPending,
   }
 }
