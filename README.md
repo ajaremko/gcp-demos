@@ -18,7 +18,7 @@ a GCP Cloud Storage bucket and a separate Cloud Storage bucket for file uploads.
 - [View the live demo](https://blog.alfredyoung.com)
 - [View the live admin app](https://blog.alfredyoung.com/admin)
 
-### html-gfx
+### Simple HTML Graphics
 
 A simple editor for designing small, one-off graphics like social cards or thumbnails without reaching for a full design tool like Canva, GIMP, or Photoshop. It creates self contained html pages that can be passed to a headless browser for rendering to various image formats.
 
