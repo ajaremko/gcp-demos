@@ -16,8 +16,8 @@ A demo tool for designing small, one-off graphics like social cards or thumbnail
 ## Architecture
 
 `website` and `renderer` are two independent containers
-sharing one filesystem volume deployed together as a Cloud Run service. `website` assembles a self-contained
-HTML document from the user's spec (headline/subtext/background/size) entirely client-side for the live preview. On exporting to image, that same HTML is sent to `renderer` over HTTP, which loads it in a headless Chrome tab via Puppeteer, screenshots it to the shared volume, and hands `website` back a path to stream back to the user.
+sharing one filesystem volume and deployed together as a single Cloud Run service. `website` is the landing page and editor UI. It assembles a self-contained
+HTML document from the user's spec (headline/subtext/background/size) client-side for the live preview. On exporting to image, that same HTML is sent to `renderer` over HTTP, which loads it in a headless Chrome tab via Puppeteer, screenshots it to the shared volume, and hands `website` back a path to stream to the user.
 
 ```
 /create (spec form + live preview)
@@ -36,7 +36,7 @@ HTML document from the user's spec (headline/subtext/background/size) entirely c
    GET website /api/download/[filename] (streams the file back)
 ```
 
-Since `renderer` can take a minutes to launch its browser on startup, `website` polls `renderer`'s `/livez` (via its own `/api/ready` route) to show a live status badge.
+Since `renderer` can take minutes to launch its browser on startup, `website` polls `renderer`'s `/livez` (via its own `/api/ready` route) to show a live status badge.
 
 Locally, both services point at the same `OUTPUT_DIR`, so the whole flow runs without a shared volume.
 
